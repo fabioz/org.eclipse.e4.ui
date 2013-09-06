@@ -1,0 +1,13 @@
+body
+{
+	font-family:Arial,Helvetica,sans-serif;
+}
+
+p 
+{
+	margin-left:20px;
+	font-size:0.875em;
+}
+
+h1 {font-size:1.875em;} /* 40px/16=2.5em */
+ul {font-size:0.875em;font-family:Arial,Helvetica,sans-serif;}

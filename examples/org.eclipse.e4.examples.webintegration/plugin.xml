@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+	<extension
+		id="application"
+		point="org.eclipse.core.runtime.applications">
+		<application>
+			<run
+				class="org.eclipse.e4.examples.webintegration.application.Application">
+			</run>
+		</application>
+	</extension>
+   
+	<!-- Add Perspectives.  One for each example -->
+	<extension point="org.eclipse.ui.perspectives">
+		<perspective
+			name="Link Intercept"
+			class="org.eclipse.e4.examples.webintegration.application.Perspective"
+			id="WebUI.link.intercept.example.perspective">
+		</perspective>
+   </extension>
+   
+	<extension
+	point="org.eclipse.ui.views">
+      
+	<!-- Begin Link Intercept Views -->
+	<!-- View with browser -->
+	<view
+		class="org.eclipse.e4.examples.webintegration.links.BrowserView"
+		id="WebUI.link.intercept.browser.view"
+		name="Link Intercept"
+		restorable="true">
+	</view>
+
+	<!-- View invoked by intercepted link -->
+	<view
+		class="org.eclipse.e4.examples.webintegration.links.LinkView"
+		id="url.link.1"
+		name="Link View"
+		restorable="true">
+	</view>
+	<!-- End Link Intercept Views -->
+
+	<!-- View for displaying instructions about the example -->	
+	<view
+		class="org.eclipse.e4.examples.webintegration.application.InstructionsView"
+		id="WebUI.instructions.view"
+		name="Instructions"
+		restorable="true">
+	</view>
+   </extension>
+   
+   <extension point="org.eclipse.ui.perspectiveExtensions">
+   
+	<!-- Add all perspectives to main part of perspective shortcut menu -->
+	<perspectiveExtension targetID="*">
+		<perspectiveShortcut id="WebUI.link.intercept.example.perspective"/>
+	</perspectiveExtension>
+      
+    <!-- Link Intercept example perspective definition !-->
+    <perspectiveExtension targetID="WebUI.link.intercept.example.perspective">
+		 <view
+		       id="WebUI.link.intercept.browser.view"
+		       minimized="false"
+		       ratio="0.10"
+		       relationship="top"
+		       relative="org.eclipse.ui.editorss">
+		 </view>
+		 
+		 <view
+			id="WebUI.instructions.view"
+			minimized="false"
+			ratio="0.60"
+            relationship="bottom"
+            relative="WebUI.link.intercept.browser.view">
+        </view>
+      </perspectiveExtension>
+   </extension>
+</plugin>
