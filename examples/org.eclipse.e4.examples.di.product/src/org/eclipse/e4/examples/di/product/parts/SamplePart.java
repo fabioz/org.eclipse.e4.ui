@@ -61,6 +61,7 @@ public class SamplePart {
 
 	@Inject
 	private MDirtyable dirty;
+	private ExtensionReader extensionReader;
 
 	@PostConstruct
 	public void createComposite(Composite parent, IEclipseContext context) {
@@ -116,7 +117,7 @@ public class SamplePart {
 		IEclipseContext staticContext = EclipseContextFactory.create();
 		staticContext.set("myViewer", tableViewer);
 		staticContext.set("myList", pluginAuthors);
-		ContextInjectionFactory.make(ExtensionReader.class, context,
+		extensionReader = ContextInjectionFactory.make(ExtensionReader.class, context,
 				staticContext);
 		staticContext.dispose();
 

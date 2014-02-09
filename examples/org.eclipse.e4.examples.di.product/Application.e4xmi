@@ -20,6 +20,9 @@
         <children xsi:type="menu:HandledMenuItem" xmi:id="_g6_QgJDYEeOitcD8MTrJqw" elementId="org.eclipse.e4.examples.di.product.handledmenuitem.loadWalrus" label="Load Walrus Polishing Kit" mnemonics="W" command="_RZKhYJDYEeOitcD8MTrJqw">
           <parameters xmi:id="_nFm_sJDYEeOitcD8MTrJqw" elementId="walrusPluginLocation" name="org.eclipse.e4.examples.di.product.pluginLocation" value="platform:/plugin/org.eclipse.e4.examples.di.product/dynamic/org.acme.walrus.polishing"/>
         </children>
+        <children xsi:type="menu:HandledMenuItem" xmi:id="_dVDCgJGyEeOOJcq7EyvOdA" elementId="org.eclipse.e4.examples.di.product.handledmenuitem.loadWalrus" label="Load Apocalypse Starter Kit" mnemonics="A" command="_RZKhYJDYEeOitcD8MTrJqw">
+          <parameters xmi:id="_dVDCgZGyEeOOJcq7EyvOdA" elementId="apocalypsePluginLocation" name="org.eclipse.e4.examples.di.product.pluginLocation" value="platform:/plugin/org.eclipse.e4.examples.di.product/dynamic/org.acme.apocalypse.starter.kit"/>
+        </children>
       </children>
       <children xsi:type="menu:Menu" xmi:id="_JgyHYZDBEeOitcD8MTrJqw" label="Help">
         <children xsi:type="menu:HandledMenuItem" xmi:id="_JgyHYpDBEeOitcD8MTrJqw" label="About" command="_JgyHWZDBEeOitcD8MTrJqw"/>

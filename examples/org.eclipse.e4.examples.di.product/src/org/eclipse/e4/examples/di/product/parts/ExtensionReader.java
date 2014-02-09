@@ -23,16 +23,22 @@ public class ExtensionReader {
 	@Inject
 	@Optional
 	public void setExtensions(
-			@Extension(SamplePart.EXTENSION_POINT) List<IConfigurationElement> elements) {
+			final @Extension(SamplePart.EXTENSION_POINT) List<IConfigurationElement> elements) {
 		if (elements == null) {
 			return;
 		}
-		for (IConfigurationElement element : elements) {
-			if (SamplePart.ELEMENT_AUTHOR.equals(element.getName())) {
-				authors.add(new AuthorCompany(element
-						.getAttribute(SamplePart.ATTR_NAME), element
-						.getAttribute(SamplePart.ATTR_COMPANY)));
+		viewer.getControl().getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				for (IConfigurationElement element : elements) {
+					if (SamplePart.ELEMENT_AUTHOR.equals(element.getName())) {
+						authors.add(new AuthorCompany(element
+								.getAttribute(SamplePart.ATTR_NAME), element
+								.getAttribute(SamplePart.ATTR_COMPANY)));
+					}
+				}
+				viewer.refresh();
 			}
-		}
+		});
 	}
 }
