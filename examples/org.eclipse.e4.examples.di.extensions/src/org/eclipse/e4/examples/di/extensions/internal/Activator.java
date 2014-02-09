@@ -1,4 +1,4 @@
-package org.eclipse.e4.examples.di.extensions;
+package org.eclipse.e4.examples.di.extensions.internal;
 
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
