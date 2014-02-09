@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.ui.di.Focus;
 import org.eclipse.e4.ui.di.Persist;
@@ -38,6 +39,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 
 public class SamplePart {
+	public static final String EXTENSION_POINT = "org.eclipse.e4.examples.di.product.authors";
+	public static final String ELEMENT_AUTHOR = "author";
+	public static final String ATTR_NAME = "name";
+	public static final String ATTR_COMPANY = "companyName";
 
 	private static class AuthorLabelProvider extends LabelProvider {
 		@Override
@@ -104,11 +109,16 @@ public class SamplePart {
 		ViewerComparator comparator = new ViewerComparator();
 		tableViewer.setComparator(comparator);
 
-		OldExtensionReader reader = new OldExtensionReader(pluginAuthors,
-				tableViewer);
-		reader.process();
+		// OldExtensionReader reader = new OldExtensionReader(pluginAuthors,
+		// tableViewer);
+		// reader.process();
 
-		ContextInjectionFactory.make(ExtensionReader.class, context);
+		IEclipseContext staticContext = EclipseContextFactory.create();
+		staticContext.set("myViewer", tableViewer);
+		staticContext.set("myList", pluginAuthors);
+		ContextInjectionFactory.make(ExtensionReader.class, context,
+				staticContext);
+		staticContext.dispose();
 
 		tableViewer.setInput(pluginAuthors);
 	}

@@ -16,7 +16,5 @@ import javax.inject.Qualifier;
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Extension {
-	String value() default ""; // key in the node
-
-	ExtensionUpdates updates() default ExtensionUpdates.NONE;
+	String value(); // The extension point id
 }

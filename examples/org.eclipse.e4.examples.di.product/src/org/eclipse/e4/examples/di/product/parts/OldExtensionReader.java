@@ -30,22 +30,22 @@ public class OldExtensionReader implements IRegistryEventListener {
 
 	public void process() {
 		IExtensionPoint ep = extensionRegistry
-				.getExtensionPoint("org.eclipse.e4.examples.di.product.authors");
+				.getExtensionPoint(SamplePart.EXTENSION_POINT);
 		IExtension[] extensions = ep.getExtensions();
 		for (IExtension extension : extensions) {
 			addAuthors(extension);
 		}
 		viewer.refresh();
-		extensionRegistry.addListener(this,
-				"org.eclipse.e4.examples.di.product.authors");
+		extensionRegistry.addListener(this, SamplePart.EXTENSION_POINT);
 	}
 
 	private void addAuthors(IExtension extension) {
 		for (IConfigurationElement element : extension
 				.getConfigurationElements()) {
-			if ("author".equals(element.getName())) {
-				authors.add(new AuthorCompany(element.getAttribute("name"),
-						element.getAttribute("companyName")));
+			if (SamplePart.ELEMENT_AUTHOR.equals(element.getName())) {
+				authors.add(new AuthorCompany(element
+						.getAttribute(SamplePart.ATTR_NAME), element
+						.getAttribute(SamplePart.ATTR_COMPANY)));
 			}
 		}
 	}

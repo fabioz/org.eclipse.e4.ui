@@ -27,10 +27,12 @@ import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
 
 public class LoadDynamicPluginHandler {
+	private static final String PLUGIN_LOCATION_PARAMETER = "org.eclipse.e4.examples.di.product.pluginLocation";
+
 	@Execute
 	public void execute(
 			@OSGiBundle BundleContext bundleContext,
-			@Named("org.eclipse.e4.examples.di.product.pluginLocation") String pluginLocation,
+			@Named(PLUGIN_LOCATION_PARAMETER) String pluginLocation,
 			@Optional Logger logger) {
 		try {
 			URL fileURL = FileLocator.toFileURL(new URL(pluginLocation));
