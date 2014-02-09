@@ -1,8 +1,8 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Apocalypse Starter Kit
-Bundle-SymbolicName: org.acme.apocalypse.starter.kit;singleton:=true
+Bundle-Name: Walrus Polishing Kit
+Bundle-SymbolicName: org.example.walrus.polishing;singleton:=true
 Bundle-Version: 0.1.0.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-ActivationPolicy: lazy
-Bundle-Vendor: Cyberdine Systems, Inc
+Bundle-Vendor: Acme, Inc
