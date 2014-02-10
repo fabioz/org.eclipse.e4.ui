@@ -39,6 +39,11 @@ public class OldExtensionReader implements IRegistryEventListener {
 		extensionRegistry.addListener(this, SamplePart.EXTENSION_POINT);
 	}
 
+	public void dispose() {
+		extensionRegistry.removeListener(this);
+		authors.clear();
+	}
+
 	private void addAuthors(IExtension extension) {
 		for (IConfigurationElement element : extension
 				.getConfigurationElements()) {

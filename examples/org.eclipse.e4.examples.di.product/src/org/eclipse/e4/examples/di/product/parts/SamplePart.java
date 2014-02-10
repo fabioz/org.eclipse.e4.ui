@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
@@ -60,11 +61,15 @@ public class SamplePart {
 	private Set<AuthorCompany> pluginAuthors = new HashSet<AuthorCompany>();
 
 	@Inject
+	private IEclipseContext context;
+
+	@Inject
 	private MDirtyable dirty;
+	// private OldExtensionReader reader;
 	private ExtensionReader extensionReader;
 
 	@PostConstruct
-	public void createComposite(Composite parent, IEclipseContext context) {
+	public void createComposite(Composite parent) {
 		parent.setLayout(new GridLayout(1, false));
 
 		txtInput = new Text(parent, SWT.BORDER);
@@ -110,15 +115,15 @@ public class SamplePart {
 		ViewerComparator comparator = new ViewerComparator();
 		tableViewer.setComparator(comparator);
 
-		// OldExtensionReader reader = new OldExtensionReader(pluginAuthors,
+		// reader = new OldExtensionReader(pluginAuthors,
 		// tableViewer);
 		// reader.process();
 
 		IEclipseContext staticContext = EclipseContextFactory.create();
 		staticContext.set("myViewer", tableViewer);
 		staticContext.set("myList", pluginAuthors);
-		extensionReader = ContextInjectionFactory.make(ExtensionReader.class, context,
-				staticContext);
+		extensionReader = ContextInjectionFactory.make(ExtensionReader.class,
+				context, staticContext);
 		staticContext.dispose();
 
 		tableViewer.setInput(pluginAuthors);
@@ -132,5 +137,10 @@ public class SamplePart {
 	@Persist
 	public void save() {
 		dirty.setDirty(false);
+	}
+
+	@PreDestroy
+	public void dispose() {
+		// reader.dispose();
 	}
 }

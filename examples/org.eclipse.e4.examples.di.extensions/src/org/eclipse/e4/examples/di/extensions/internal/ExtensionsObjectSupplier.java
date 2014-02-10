@@ -62,9 +62,11 @@ public class ExtensionsObjectSupplier extends ExtendedObjectSupplier {
 		private void removeListener() {
 			registry.removeListener(this);
 			Map<String, RegistryListener> l = listeners.remove(requestor);
-			for (RegistryListener listener : l.values()) {
-				registry.removeListener(listener);
-				;
+			if (l != null) {
+				for (RegistryListener listener : l.values()) {
+					registry.removeListener(listener);
+					;
+				}
 			}
 		}
 

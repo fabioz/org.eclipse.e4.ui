@@ -22,6 +22,7 @@ import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.di.extensions.OSGiBundle;
 import org.eclipse.e4.core.services.log.Logger;
+import org.eclipse.e4.examples.di.product.internal.Activator;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -30,8 +31,7 @@ public class LoadDynamicPluginHandler {
 	private static final String PLUGIN_LOCATION_PARAMETER = "org.eclipse.e4.examples.di.product.pluginLocation";
 
 	@Execute
-	public void execute(
-			@OSGiBundle BundleContext bundleContext,
+	public void execute(@OSGiBundle BundleContext bundleContext,
 			@Named(PLUGIN_LOCATION_PARAMETER) String pluginLocation,
 			@Optional Logger logger) {
 		try {
@@ -39,6 +39,7 @@ public class LoadDynamicPluginHandler {
 			String refLocation = "reference:" + fileURL.toExternalForm();
 			Bundle installedBundle = bundleContext.installBundle(refLocation);
 			installedBundle.start(Bundle.START_TRANSIENT);
+			Activator.getDefault().addDynamicBundle(installedBundle);
 		} catch (BundleException e) {
 			if (logger != null) {
 				logger.warn(e, "Failed to load plugin from: " + pluginLocation);

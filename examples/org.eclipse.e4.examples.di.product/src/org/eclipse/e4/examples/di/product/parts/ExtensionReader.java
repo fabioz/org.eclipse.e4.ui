@@ -3,6 +3,7 @@ package org.eclipse.e4.examples.di.product.parts;
 import java.util.List;
 import java.util.Set;
 
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -14,11 +15,11 @@ import org.eclipse.jface.viewers.TableViewer;
 public class ExtensionReader {
 	@Inject
 	@Named("myList")
-	Set<AuthorCompany> authors;
+	private Set<AuthorCompany> authors;
 
 	@Inject
 	@Named("myViewer")
-	TableViewer viewer;
+	private TableViewer viewer;
 
 	@Inject
 	@Optional
@@ -40,5 +41,10 @@ public class ExtensionReader {
 				viewer.refresh();
 			}
 		});
+	}
+
+	@PreDestroy
+	public void dispose() {
+		authors.clear();
 	}
 }
