@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.examples.di.extensions.Extension;
 import org.eclipse.jface.viewers.TableViewer;
+import org.eclipse.swt.widgets.Control;
 
 public class ExtensionReader {
 	@Inject
@@ -28,7 +29,11 @@ public class ExtensionReader {
 		if (elements == null) {
 			return;
 		}
-		viewer.getControl().getDisplay().asyncExec(new Runnable() {
+		Control control = viewer.getControl();
+		if (control.isDisposed()) {
+			return;
+		}
+		control.getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
 				for (IConfigurationElement element : elements) {
@@ -38,7 +43,9 @@ public class ExtensionReader {
 								.getAttribute(SamplePart.ATTR_COMPANY)));
 					}
 				}
-				viewer.refresh();
+				if (!viewer.getControl().isDisposed()) {
+					viewer.refresh();
+				}
 			}
 		});
 	}

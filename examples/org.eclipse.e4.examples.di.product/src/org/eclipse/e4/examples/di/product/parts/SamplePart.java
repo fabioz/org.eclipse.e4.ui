@@ -65,7 +65,8 @@ public class SamplePart {
 
 	@Inject
 	private MDirtyable dirty;
-	// private OldExtensionReader reader;
+
+	private OldExtensionReader reader;
 	private ExtensionReader extensionReader;
 
 	@PostConstruct
@@ -115,18 +116,24 @@ public class SamplePart {
 		ViewerComparator comparator = new ViewerComparator();
 		tableViewer.setComparator(comparator);
 
-		// reader = new OldExtensionReader(pluginAuthors,
-		// tableViewer);
-		// reader.process();
+		createLegacyReader();
+		// createDiReader();
 
+		tableViewer.setInput(pluginAuthors);
+	}
+
+	private void createLegacyReader() {
+		reader = new OldExtensionReader(pluginAuthors, tableViewer);
+		reader.process();
+	}
+
+	private void createDiReader() {
 		IEclipseContext staticContext = EclipseContextFactory.create();
 		staticContext.set("myViewer", tableViewer);
 		staticContext.set("myList", pluginAuthors);
 		extensionReader = ContextInjectionFactory.make(ExtensionReader.class,
 				context, staticContext);
 		staticContext.dispose();
-
-		tableViewer.setInput(pluginAuthors);
 	}
 
 	@Focus
@@ -141,6 +148,8 @@ public class SamplePart {
 
 	@PreDestroy
 	public void dispose() {
-		// reader.dispose();
+		if (reader != null) {
+			reader.dispose();
+		}
 	}
 }
