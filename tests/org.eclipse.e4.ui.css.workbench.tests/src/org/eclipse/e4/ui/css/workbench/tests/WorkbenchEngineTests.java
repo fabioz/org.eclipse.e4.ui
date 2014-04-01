@@ -164,14 +164,16 @@ public class WorkbenchEngineTests {
 		assertTrue(part1.isVisible());
 		assertTrue(part2.isVisible());
 		assertTrue(win.isVisible());
+		assertEquals("visible",
+				engine.retrieveCSSProperty(part1, "visibility", ""));
 
-		clearAndApply(engine, app, "#part1 { visibility: false; }");
+		clearAndApply(engine, app, "#part1 { visibility: hidden; }");
 		assertFalse(part1.isVisible());
 		assertTrue(part2.isVisible());
 		assertTrue(win.isVisible());
 
-		String value = engine.retrieveCSSProperty(part1, "visibility", "");
-		assertEquals("false", value);
+		assertEquals("hidden",
+				engine.retrieveCSSProperty(part1, "visibility", ""));
 	}
 
 	@Test
@@ -179,47 +181,51 @@ public class WorkbenchEngineTests {
 		assertTrue(part1.isToBeRendered());
 		assertTrue(part2.isToBeRendered());
 		assertTrue(win.isToBeRendered());
+		assertEquals("true",
+				engine.retrieveCSSProperty(part1, "wm-toBeRendered", ""));
 
 		clearAndApply(engine, app, "#part1 { wm-toBeRendered: false; }");
 		assertFalse(part1.isToBeRendered());
 		assertTrue(part2.isToBeRendered());
 		assertTrue(win.isToBeRendered());
 
-		String value = engine.retrieveCSSProperty(part1, "wm-toBeRendered", "");
-		assertEquals("false", value);
+		assertEquals("false",
+				engine.retrieveCSSProperty(part1, "wm-toBeRendered", ""));
 	}
 
 	@Test
 	public void testIcon() {
 		assertNull(part1.getIconURI());
+		assertNull(engine.retrieveCSSProperty(part1, "icon", ""));
 
 		clearAndApply(engine, app, "#part1 { icon: url(about:none); }");
 		assertNotNull(part1.getIconURI());
 
-		String value = engine.retrieveCSSProperty(part1, "icon", "");
-		assertEquals("about:none", value);
+		assertEquals("about:none",
+				engine.retrieveCSSProperty(part1, "icon", ""));
 	}
 
 	@Test
 	public void testLabel() {
 		assertNull(part1.getLabel());
+		assertNull(engine.retrieveCSSProperty(part1, "wm-label", ""));
 
 		clearAndApply(engine, app, "#part1 { wm-label: 'Test'; }");
 		assertEquals("Test", part1.getLabel());
 
-		String value = engine.retrieveCSSProperty(part1, "wm-label", "");
-		assertEquals("Test", value);
+		assertEquals("Test", engine.retrieveCSSProperty(part1, "wm-label", ""));
 	}
 
 	@Test
 	public void testTooltip() {
 		assertNull(part1.getTooltip());
+		assertNull(engine.retrieveCSSProperty(part1, "wm-tooltip", ""));
 
 		clearAndApply(engine, app, "#part1 { wm-tooltip: 'Test'; }");
 		assertEquals("Test", part1.getTooltip());
 
-		String value = engine.retrieveCSSProperty(part1, "wm-tooltip", "");
-		assertEquals("Test", value);
+		assertEquals("Test",
+				engine.retrieveCSSProperty(part1, "wm-tooltip", ""));
 	}
 
 }

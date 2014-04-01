@@ -26,12 +26,11 @@ public class CSSWorkbenchVisibilityHandler implements ICSSPropertyHandler {
 			return false;
 		}
 		MUIElement uiElement = ((WMUIElement) wbElement).getUIElement();
-		Boolean asBoolean = (Boolean) engine
-				.getCSSValueConverter(Boolean.class).convert(value, engine,
-						null);
 		if ("visibility".equals(property)) {
-			uiElement.setVisible(asBoolean);
+			uiElement.setVisible(!"hidden".equals(value.getCssText()));
 		} else if ("wm-toBeRendered".equals(property)) {
+			Boolean asBoolean = (Boolean) engine.getCSSValueConverter(
+					Boolean.class).convert(value, engine, null);
 			uiElement.setToBeRendered(asBoolean);
 		} else {
 			return false;
@@ -47,7 +46,7 @@ public class CSSWorkbenchVisibilityHandler implements ICSSPropertyHandler {
 		}
 		MUIElement uiElement = ((WMUIElement) wbElement).getUIElement();
 		if ("visibility".equals(property)) {
-			return Boolean.toString(uiElement.isVisible());
+			return uiElement.isVisible() ? "visible" : "hidden";
 		} else if ("wm-toBeRendered".equals(property)) {
 			return Boolean.toString(uiElement.isToBeRendered());
 		}
