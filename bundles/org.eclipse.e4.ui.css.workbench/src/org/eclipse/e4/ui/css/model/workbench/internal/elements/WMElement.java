@@ -65,7 +65,7 @@ public class WMElement extends ElementAdapter {
 	 * @return CSS ID
 	 */
 	public static String getID(MApplicationElement element) {
-		return element.getElementId();
+		return element.getElementId().replace(".", "-");
 	}
 
 	protected String localName;
