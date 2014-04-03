@@ -28,6 +28,7 @@ public class WMTrimmedWindow extends WMUIElement {
 		MTrimmedWindow win = (MTrimmedWindow) getNativeWidget();
 		ArrayList<MApplicationElement> children = new ArrayList<MApplicationElement>();
 		children.addAll(win.getChildren());
+		children.addAll(win.getSharedElements());
 		for (MTrimBar tb : win.getTrimBars()) {
 			children.addAll(tb.getChildren());
 		}
