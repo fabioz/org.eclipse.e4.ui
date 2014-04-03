@@ -22,7 +22,7 @@ public class CSSWorkbenchVisibilityHandler implements ICSSPropertyHandler {
 	public boolean applyCSSProperty(Object element, String property,
 			CSSValue value, String pseudo, CSSEngine engine) throws Exception {
 		Element wbElement = engine.getElement(element);
-		if (!(element instanceof WMUIElement)) {
+		if (!(wbElement instanceof WMUIElement)) {
 			return false;
 		}
 		MUIElement uiElement = ((WMUIElement) wbElement).getUIElement();
@@ -41,7 +41,7 @@ public class CSSWorkbenchVisibilityHandler implements ICSSPropertyHandler {
 	public String retrieveCSSProperty(Object element, String property,
 			String pseudo, CSSEngine engine) throws Exception {
 		Element wbElement = engine.getElement(element);
-		if (!(element instanceof WMUIElement)) {
+		if (!(wbElement instanceof WMUIElement)) {
 			return null;
 		}
 		MUIElement uiElement = ((WMUIElement) wbElement).getUIElement();

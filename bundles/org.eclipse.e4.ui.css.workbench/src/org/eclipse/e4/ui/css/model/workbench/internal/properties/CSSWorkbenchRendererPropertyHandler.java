@@ -24,7 +24,7 @@ public class CSSWorkbenchRendererPropertyHandler implements ICSSPropertyHandler 
 	public boolean applyCSSProperty(Object element, String property,
 			CSSValue value, String pseudo, CSSEngine engine) throws Exception {
 		WMElement wbElement = (WMElement) engine.getElement(element);
-		if (element == null) {
+		if (wbElement == null) {
 			return false;
 		}
 		MUIElement uiElement = wbElement.getUIElement();
@@ -40,7 +40,7 @@ public class CSSWorkbenchRendererPropertyHandler implements ICSSPropertyHandler 
 	public String retrieveCSSProperty(Object element, String property,
 			String pseudo, CSSEngine engine) throws Exception {
 		WMElement wbElement = (WMElement) engine.getElement(element);
-		if (element == null) {
+		if (wbElement == null) {
 			return null;
 		}
 		MUIElement uiElement = wbElement.getUIElement();
