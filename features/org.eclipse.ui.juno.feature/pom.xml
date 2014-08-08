@@ -14,7 +14,7 @@
   <parent>
     <artifactId>eclipse-juno-parent</artifactId>
     <groupId>org.eclipse.e4.ui</groupId>
-    <version>0.16.0-SNAPSHOT</version>
+    <version>0.17.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.e4.ui</groupId>
   <artifactId>org.eclipse.ui.juno.feature</artifactId>
