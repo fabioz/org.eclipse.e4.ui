@@ -5,13 +5,13 @@
   <parent>
     <groupId>org.eclipse.e4.ui</groupId>
     <artifactId>e4-ui-aggregator</artifactId>
-    <version>0.16.0-SNAPSHOT</version>
+    <version>0.17.0-SNAPSHOT</version>
     <relativePath>../../</relativePath>
   </parent>
 
   <groupId>org.eclipse.e4</groupId>
   <artifactId>org.eclipse.e4.ui.update</artifactId>
-  <version>0.16.0-SNAPSHOT</version>
+  <version>0.17.0-SNAPSHOT</version>
   <packaging>eclipse-repository</packaging>
 
   <name>org.eclipse.e4.ui update site</name>
