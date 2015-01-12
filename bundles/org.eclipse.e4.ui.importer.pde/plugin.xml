@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.e4.ui.importer.projectConfigurators">
+      <projectConfigurator
+            class="org.eclipse.pde.internal.ui.wizards.BundleProjectConfigurator">
+         <activeWhen>
+            <hasFile
+                  path="META-INF/MANIFEST.MF">
+            </hasFile>
+         </activeWhen>
+      </projectConfigurator>
+      <projectConfigurator
+            class="org.eclipse.pde.internal.ui.wizards.FeatureProjectConfigurator">
+         <activeWhen>
+            <hasFile
+                  path="feature.xml">
+            </hasFile>
+         </activeWhen>
+      </projectConfigurator>
+   </extension>
+</plugin>

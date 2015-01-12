@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Easymport :: PDE support
+Bundle-SymbolicName: org.eclipse.e4.ui.importer.pde;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: Eclipse.org
+Require-Bundle: org.eclipse.e4.ui.importer,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.ui.ide,
+ org.eclipse.jdt.core,
+ org.eclipse.pde.core,
+ org.eclipse.jdt.launching,
+ org.eclipse.ui.navigator.resources,
+ org.eclipse.ui.navigator,
+ org.eclipse.e4.ui.importer.java
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.pde.internal.ui.wizards.Activator

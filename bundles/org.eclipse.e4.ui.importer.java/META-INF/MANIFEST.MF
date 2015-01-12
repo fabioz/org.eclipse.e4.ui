@@ -1,0 +1,16 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Easymport :: Java/JDT support
+Bundle-SymbolicName: org.eclipse.e4.ui.importer.java;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: Eclipse.org
+Require-Bundle: org.eclipse.e4.ui.importer,
+ org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.core.resources,
+ org.eclipse.jdt.core,
+ org.eclipse.jdt.launching
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Bundle-ActivationPolicy: lazy
+Bundle-Activator: org.eclipse.jdt.internal.ui.wizards.Activator
+Export-Package: org.eclipse.jdt.ui.wizards

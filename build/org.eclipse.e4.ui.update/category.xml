@@ -6,7 +6,15 @@
    <feature url="features/org.eclipse.e4.ui.keys.feature.source_0.15.0.qualifier.jar" id="org.eclipse.e4.ui.keys.feature.source" version="0.15.0.qualifier">
       <category name="org.eclipse.e4.ui.keys"/>
    </feature>
-
+   <bundle id="org.eclipse.e4.ui.importer" version="0.1.0.qualifier">
+      <category name="Importer"/>
+   </bundle>
+   <bundle id="org.eclipse.e4.ui.importer.java" version="0.1.0.qualifier">
+      <category name="Importer"/>
+   </bundle>
+   <bundle id="org.eclipse.e4.ui.importer.pde" version="0.1.0.qualifier">
+      <category name="Importer"/>
+   </bundle>
    <category-def name="org.eclipse.e4.ui.keys" label="Eclipse e4 Key Schemes"/>
+   <category-def name="Importer" label="Import framework"/>
 </site>
-

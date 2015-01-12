@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension-point id="projectConfigurators" name="projectConfigurators" schema="schema/projectConfigurators.exsd"/>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:file?after=new.ext">
+         <command
+               commandId="org.eclipse.e4.ui.importer.openDirectory"
+               id="org.eclipse.e4.ui.importer.openDirectory.menu"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            id="org.eclipse.e4.ui.importer.openDirectory"
+            name="%importProjectsFromFolder">
+      </command>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="org.eclipse.ui.internal.wizards.datatransfer.OpenFolderCommand"
+            commandId="org.eclipse.e4.ui.importer.openDirectory">
+      </handler>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commandImages">
+      <image
+            commandId="org.eclipse.e4.ui.importer.openDirectory"
+            icon="pics/prj_obj.png">
+      </image>
+   </extension>
+
+   <!-- Drop folders -->
+   <extension
+         point="org.eclipse.e4.ui.importer.projectConfigurators">
+      <projectConfigurator
+            class="org.eclipse.ui.internal.wizards.datatransfer.EclipseProjectConfigurator">
+         <activeWhen>
+            <hasFile
+                  path=".project">
+            </hasFile>
+         </activeWhen>
+      </projectConfigurator>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.importWizards">
+      <wizard
+            category="org.eclipse.ui.Basic"
+            class="org.eclipse.ui.internal.wizards.datatransfer.EasymportWizard"
+            id="org.eclipse.e4.ui.importer.wizard"
+            name="%importProjectsFromFolder">
+      </wizard>
+   </extension>
+
+</plugin>

@@ -39,6 +39,11 @@
   <modules>
     <module>bundles/org.eclipse.e4.ui.keys.common</module>
     <module>features/org.eclipse.e4.ui.keys.feature</module>
+
+    <module>bundles/org.eclipse.e4.ui.importer</module>
+    <module>bundles/org.eclipse.e4.ui.importer.java</module>
+    <module>bundles/org.eclipse.e4.ui.importer.pde</module>
+
     <module>build/org.eclipse.e4.ui.update</module>
   </modules>
 </project>
