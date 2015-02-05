@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mickael Istria (Red Hat Inc.) - initial API and implementation
+ *     Snjezana Peco (Red Hat Inc.)
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
@@ -14,6 +15,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -34,6 +36,7 @@ import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 
 public class EasymportWizardPage extends WizardPage {
 
+	public static final String ROOT_DIRECTORY = "rootDirectory";
 	private File selection;
 	private Set<IWorkingSet> workingSets;
 	private ControlDecoration rootDirectoryTextDecorator;
@@ -54,7 +57,7 @@ public class EasymportWizardPage extends WizardPage {
 		Label rootDirectoryLabel = new Label(res, SWT.NONE);
 		rootDirectoryLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		rootDirectoryLabel.setText(Messages.EasymportWizardPage_selectRootDirectory);
-		Text rootDirectoryText = new Text(res, SWT.BORDER);
+		final Text rootDirectoryText = new Text(res, SWT.BORDER);
 		rootDirectoryText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		rootDirectoryText.addModifyListener(new ModifyListener() {
 			@Override
@@ -67,14 +70,21 @@ public class EasymportWizardPage extends WizardPage {
 		this.rootDirectoryTextDecorator.setImage(getShell().getDisplay().getSystemImage(SWT.ERROR));
 		this.rootDirectoryTextDecorator.setDescriptionText(Messages.EasymportWizardPage_incorrectRootDirectory);
 		this.rootDirectoryTextDecorator.hide();
-		Button browseButton = new Button(res, SWT.BORDER);
+		IDialogSettings dialogSettings = getDialogSettings();
+		String rootDirectory = dialogSettings.get(ROOT_DIRECTORY);
+		if (rootDirectory != null) {
+			rootDirectoryText.setText(rootDirectory);
+		}
+		Button browseButton = new Button(res, SWT.PUSH);
 		browseButton.setText(Messages.EasymportWizardPAge_browse);
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dialog = new DirectoryDialog(getShell());
+				dialog.setText(rootDirectoryText.getText());
 				String res = dialog.open();
 				if (res != null) {
+					rootDirectoryText.setText(res);
 					EasymportWizardPage.this.selection = new File(res);
 					EasymportWizardPage.this.validatePage();
 				}

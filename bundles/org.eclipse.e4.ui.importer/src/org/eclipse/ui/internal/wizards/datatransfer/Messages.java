@@ -15,7 +15,7 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 
 	static {
-		NLS.initializeMessages(Messages.class.getPackage().getName().replace('.', '/') + "/messages", Messages.class);
+		NLS.initializeMessages(Messages.class.getPackage().getName().replace('.', '/') + "/Messages", Messages.class);
 	}
 
 	public static String selectFolderToImport;
