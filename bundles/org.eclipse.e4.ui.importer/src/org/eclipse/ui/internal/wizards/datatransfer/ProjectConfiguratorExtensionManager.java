@@ -10,9 +10,11 @@
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -96,7 +98,15 @@ public class ProjectConfiguratorExtensionManager {
 		} else {
 			return this.configuratorsByExtension.get(extension);
 		}
-
+	}
+	
+	public static List<String> getAllExtensionLabels() {
+		IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_ID);
+		List<String> res = new ArrayList<String>(extensions.length);
+		for (IConfigurationElement extension : extensions) {
+			res.add(extension.getAttribute("label"));
+		}
+		return res;
 	}
 
 }

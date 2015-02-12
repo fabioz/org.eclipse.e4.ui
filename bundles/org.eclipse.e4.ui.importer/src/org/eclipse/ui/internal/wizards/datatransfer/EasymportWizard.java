@@ -15,12 +15,13 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
@@ -31,6 +32,11 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	private Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
 	private EasymportWizardPage page;
 
+	public EasymportWizard() {
+		super();
+		setNeedsProgressMonitor(true);
+	}
+	
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		if (selection != null) {
@@ -73,24 +79,18 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 
 	@Override
 	public void addPages() {
-		this.page = new EasymportWizardPage(this.initialSelection, this.initialWorkingSets);
-		this.page.setWizard(this);
+		this.page = new EasymportWizardPage(this, this.initialSelection, this.initialWorkingSets);
 		addPage(this.page);
+	}
+	
+	@Override
+	public IWizardPage getPreviousPage(IWizardPage page) {
+		return null;
 	}
 
 	@Override
 	public boolean performFinish() {
 		getDialogSettings().put(EasymportWizardPage.ROOT_DIRECTORY, page.getSelectedRootDirectory().getAbsolutePath());
-		final File directory = this.page.getSelectedRootDirectory();
-		final Set<IWorkingSet> workingSets = this.page.getSelectedWorkingSets();
-		Display.getCurrent().asyncExec(new Runnable() {
-
-			@Override
-			public void run() {
-				new OpenFolderCommand().importProjectsFromDirectory(directory, workingSets);
-			}
-		});
-
 		return true;
 	}
 	
@@ -104,4 +104,11 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 		return dialogSettings;
 	}
 
+	public IProject getProject() {
+		return this.page.getProject();
+	}
+
+	public Set<IWorkingSet> getSelectedWorkingSets() {
+		return this.page.getSelectedWorkingSets();
+	}
 }

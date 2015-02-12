@@ -12,11 +12,18 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -37,15 +44,18 @@ import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
 public class EasymportWizardPage extends WizardPage {
 
 	public static final String ROOT_DIRECTORY = "rootDirectory";
+	
 	private File selection;
+	private IProject rootProject;
 	private Set<IWorkingSet> workingSets;
 	private ControlDecoration rootDirectoryTextDecorator;
 	private WorkingSetConfigurationBlock workingSetsBlock;
 
-	public EasymportWizardPage(File initialSelection, Set<IWorkingSet> initialWorkingSets) {
+	public EasymportWizardPage(EasymportWizard wizard, File initialSelection, Set<IWorkingSet> initialWorkingSets) {
 		super(EasymportWizard.class.getName());
 		this.selection = initialSelection;
 		this.workingSets = initialWorkingSets;
+		setWizard(wizard);
 	}
 
 	@Override
@@ -76,7 +86,7 @@ public class EasymportWizardPage extends WizardPage {
 			rootDirectoryText.setText(rootDirectory);
 		}
 		Button browseButton = new Button(res, SWT.PUSH);
-		browseButton.setText(Messages.EasymportWizardPAge_browse);
+		browseButton.setText(Messages.EasymportWizardPage_browse);
 		browseButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -108,7 +118,7 @@ public class EasymportWizardPage extends WizardPage {
 			rootDirectoryText.setText(this.selection.getAbsolutePath());
 			validatePage();
 		}
-
+		
 		setControl(res);
 	}
 
@@ -133,5 +143,38 @@ public class EasymportWizardPage extends WizardPage {
 		}
 		return res;
 	}
+	
+	@Override
+	public EasymportWizard getWizard() {
+		return (EasymportWizard)super.getWizard();
+	}
 
+	@Override
+	public boolean canFlipToNextPage() {
+		return this.selection != null && this.selection.isDirectory();
+	}
+	
+	@Override
+	public IWizardPage getNextPage() {
+		try {
+			getContainer().run(false, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					try {
+						EasymportWizardPage.this.rootProject = new OpenFolderCommand().toExistingOrNewProject(EasymportWizardPage.this.selection, EasymportWizardPage.this.workingSets, monitor);
+					} catch (CouldNotImportProjectException ex) {
+						throw new InvocationTargetException(ex);
+					}
+				}
+			});
+			return new ImportReportWizardPage(getWizard());
+		} catch (Exception ex) {
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex));
+		}
+		return null;
+	}
+	
+	public IProject getProject() {
+		return this.rootProject;
+	}
 }

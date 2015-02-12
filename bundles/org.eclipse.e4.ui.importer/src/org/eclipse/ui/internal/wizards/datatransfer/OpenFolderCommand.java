@@ -11,8 +11,6 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Collections;
@@ -22,8 +20,6 @@ import java.util.Set;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.internal.resources.ProjectDescription;
-import org.eclipse.core.internal.resources.ProjectDescriptionReader;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
@@ -46,7 +42,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
-import org.xml.sax.InputSource;
 
 public class OpenFolderCommand extends AbstractHandler {
 
@@ -54,6 +49,15 @@ public class OpenFolderCommand extends AbstractHandler {
 	private IWorkspaceRoot workspaceRoot;
 	private ProjectConfiguratorExtensionManager configurationManager;
 
+	public OpenFolderCommand() {
+		this(ResourcesPlugin.getWorkspace().getRoot());
+	}
+	
+	public OpenFolderCommand(IWorkspaceRoot workspaceRoot) {
+		super();
+		this.workspaceRoot = workspaceRoot;
+	}
+	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		this.shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
@@ -239,14 +243,13 @@ public class OpenFolderCommand extends AbstractHandler {
 		try {
 			progressMonitor.setTaskName("Import project at " + directory.getAbsolutePath());
 			IProject project = projectAlreadyExistsInWorkspace(directory);
-			if (project != null) {
-				return project;
+			if (project == null) {
+				project = createOrImportProject(directory, workingSets, progressMonitor);
 			}
 
 			if (progressMonitor.isCanceled()) {
 				return null;
 			}
-			project = createOrImportProject(directory, workingSets, progressMonitor);
 			project.open(progressMonitor);
 			return project;
 		} catch (Exception ex) {
@@ -269,11 +272,7 @@ public class OpenFolderCommand extends AbstractHandler {
 		IProjectDescription desc = null;
 		File expectedProjectDescriptionFile = new File(directory, IProjectDescription.DESCRIPTION_FILE_NAME);
 		if (expectedProjectDescriptionFile.exists()) {
-			InputStream stream = null;
-			stream = new FileInputStream(expectedProjectDescriptionFile);
-			InputSource source = new InputSource(stream);
-			desc = new ProjectDescriptionReader().read(source);
-			stream.close();
+			desc = ResourcesPlugin.getWorkspace().loadProjectDescription(new Path(expectedProjectDescriptionFile.getAbsolutePath()));
 			String expectedName = desc.getName();
 			IProject projectWithSameName = this.workspaceRoot.getProject(expectedName);
 			if (projectWithSameName.exists()) {
@@ -286,8 +285,7 @@ public class OpenFolderCommand extends AbstractHandler {
 			while (this.workspaceRoot.getProject(currentName).exists()) {
 				currentName += "_";
 			}
-			desc = new ProjectDescription();
-			desc.setName(currentName);
+			desc = ResourcesPlugin.getWorkspace().newProjectDescription(currentName);
 		}
 		desc.setLocation(new Path(directory.getAbsolutePath()));
 		IProject res = workspaceRoot.getProject(desc.getName());

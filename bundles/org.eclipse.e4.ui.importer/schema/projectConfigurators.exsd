@@ -24,17 +24,23 @@
          </sequence>
          <attribute name="point" type="string" use="required">
             <annotation>
-               <documentation/>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
          <attribute name="id" type="string">
             <annotation>
-               <documentation/>
+               <documentation>
+                  
+               </documentation>
             </annotation>
          </attribute>
          <attribute name="name" type="string">
             <annotation>
-               <documentation/>
+               <documentation>
+                  
+               </documentation>
                <appinfo>
                   <meta.attribute translatable="true"/>
                </appinfo>
@@ -52,11 +58,11 @@
             <annotation>
                <documentation>
                   Class defining the import startegy contribution. This class is responsible of 3 things:
-                  &lt;ul>
-                    &lt;li>Detecting and deciding whether a given folder is meant to be an Eclipse project in workspace, generally depending on the existence of particular files, pattern or text&lt;/li>
-                    &lt;li>Whether it applies on an existing Eclipse project, generally depending on the existence of particular files, pattern or text&lt;/li>
-                    &lt;li>Apply configuration for new or existing Eclipse project in workspace&lt;/li>
-                  &lt;/ul>
+                  &lt;ul&gt;
+                    &lt;li&gt;Detecting and deciding whether a given folder is meant to be an Eclipse project in workspace, generally depending on the existence of particular files, pattern or text&lt;/li&gt;
+                    &lt;li&gt;Whether it applies on an existing Eclipse project, generally depending on the existence of particular files, pattern or text&lt;/li&gt;
+                    &lt;li&gt;Apply configuration for new or existing Eclipse project in workspace&lt;/li&gt;
+                  &lt;/ul&gt;
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.ui.wizard.datatransfer.ProjectConfigurator"/>
@@ -155,13 +161,6 @@
       <documentation>
          API is currently instable. Feature is incubation.
       </documentation>
-   </annotation>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="implementation"/>
-      </appinfo>
-      <documentation/>
    </annotation>
 
 </schema>

@@ -18,7 +18,7 @@
          point="org.eclipse.ui.commands">
       <command
             id="org.eclipse.e4.ui.importer.openDirectory"
-            name="%importProjectsFromFolder">
+            name="%importProjectsFromFolder_menu">
       </command>
    </extension>
    <extension
@@ -40,7 +40,8 @@
    <extension
          point="org.eclipse.e4.ui.importer.projectConfigurators">
       <projectConfigurator
-            class="org.eclipse.ui.internal.wizards.datatransfer.EclipseProjectConfigurator">
+            class="org.eclipse.ui.internal.wizards.datatransfer.EclipseProjectConfigurator"
+            label="Eclipse project">
          <activeWhen>
             <hasFile
                   path=".project">
@@ -55,7 +56,7 @@
             category="org.eclipse.ui.Basic"
             class="org.eclipse.ui.internal.wizards.datatransfer.EasymportWizard"
             id="org.eclipse.e4.ui.importer.wizard"
-            name="%importProjectsFromFolder">
+            name="%importProjectsFromFolder_wizard">
       </wizard>
    </extension>
 

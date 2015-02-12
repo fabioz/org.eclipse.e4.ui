@@ -4,7 +4,8 @@
    <extension
          point="org.eclipse.e4.ui.importer.projectConfigurators">
       <projectConfigurator
-            class="org.eclipse.jdt.ui.wizards.JDTProjectNature">
+            class="org.eclipse.jdt.ui.wizards.JDTProjectNature"
+            label="Java">
          <activeWhen>
             <hasFileWithSuffixRecursively
                   suffix=".java">
