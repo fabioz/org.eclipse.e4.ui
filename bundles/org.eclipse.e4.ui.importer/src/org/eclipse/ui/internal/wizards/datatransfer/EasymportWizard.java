@@ -35,6 +35,15 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	public EasymportWizard() {
 		super();
 		setNeedsProgressMonitor(true);
+		setForcePreviousAndNextButtons(true);
+	}
+	
+	public void setInitialDirectory(File directory) {
+		this.initialSelection = directory;
+	}
+	
+	public void setInitialWorkingSets(Set<IWorkingSet> workingSets) {
+		this.initialWorkingSets = workingSets;
 	}
 	
 	@Override
@@ -53,8 +62,8 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 			}
 		}
 	}
-
-	private File toFile(Object o) {
+	
+	public static File toFile(Object o) {
 		if (o instanceof File) {
 			return (File)o;
 		} else if (o instanceof IResource) {
@@ -85,9 +94,18 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	
 	@Override
 	public IWizardPage getPreviousPage(IWizardPage page) {
-		return null;
+		if (page instanceof ImportReportWizardPage) {
+			// not sure how/whether to support "Back" at that time
+			return null;
+		}
+		return super.getPreviousPage(page);
 	}
-
+	
+	@Override
+	public boolean canFinish() {
+		return !getContainer().getCurrentPage().canFlipToNextPage();
+	}
+	
 	@Override
 	public boolean performFinish() {
 		getDialogSettings().put(EasymportWizardPage.ROOT_DIRECTORY, page.getSelectedRootDirectory().getAbsolutePath());

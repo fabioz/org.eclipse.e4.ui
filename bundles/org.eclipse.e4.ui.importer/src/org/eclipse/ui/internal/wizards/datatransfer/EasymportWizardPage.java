@@ -39,7 +39,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
+import org.eclipse.ui.dialogs.WorkingSetGroup;
 
 public class EasymportWizardPage extends WizardPage {
 
@@ -105,13 +107,10 @@ public class EasymportWizardPage extends WizardPage {
 		workingSetsGroup.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 3, 1));
 		workingSetsGroup.setLayout(new GridLayout(1, false));
 		workingSetsGroup.setText(Messages.EasymportWizardPage_workingSets);
-		String[] initialWS = new String[this.workingSets.size()];
-		int i = 0;
-		for (IWorkingSet ws : this.workingSets) {
-			initialWS[i] = ws.getName();
-			i++;
+		workingSetsBlock = new WorkingSetConfigurationBlock(new String[] { "org.eclipse.ui.resourceWorkingSetPage" }, getDialogSettings()); //$NON-NLS-1$
+		if (this.workingSets != null) {
+			workingSetsBlock.setWorkingSets(this.workingSets.toArray(new IWorkingSet[this.workingSets.size()]));
 		}
-		workingSetsBlock = new WorkingSetConfigurationBlock(initialWS, getDialogSettings());
 		workingSetsBlock.createContent(workingSetsGroup);
 
 		if (this.selection != null) {

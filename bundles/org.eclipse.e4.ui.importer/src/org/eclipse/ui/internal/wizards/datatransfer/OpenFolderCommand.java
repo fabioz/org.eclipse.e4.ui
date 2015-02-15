@@ -27,6 +27,7 @@ import org.eclipse.core.resources.IProjectDescription;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -35,10 +36,12 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
@@ -60,23 +63,48 @@ public class OpenFolderCommand extends AbstractHandler {
 	
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		this.shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		this.shell = workbench.getActiveWorkbenchWindow().getShell();
 		DirectoryDialog directoryDialog = new DirectoryDialog(shell);
 		directoryDialog.setText(Messages.selectFolderToImport);
+		IStructuredSelection sel = (IStructuredSelection)workbench.getActiveWorkbenchWindow().getSelectionService().getSelection();
+		if (!sel.isEmpty()) {
+			File selectedFile = EasymportWizard.toFile(sel.getFirstElement());
+			if (selectedFile != null) {
+				directoryDialog.setFilterPath(selectedFile.getAbsolutePath());
+			}
+		}
 		String res = directoryDialog.open();
 		if (res == null) {
 			return null;
 		}
+		EasymportWizard wizard = new EasymportWizard();
 		final File directory = new File(res);
-		final HashSet<IWorkingSet> workingSets = new HashSet<IWorkingSet>();
-		IStructuredSelection sel = (IStructuredSelection)PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService().getSelection();
-		for (Object o : sel.toList()) {
-			if (o instanceof IWorkingSet) {
-				workingSets.add((IWorkingSet)o);
+		wizard.setInitialDirectory(directory);
+		// inherit workingSets
+		final Path asPath = new Path(directory.getAbsolutePath());
+		IProject parentProject = null;
+		for (IProject project : this.workspaceRoot.getProjects()) {
+			if (project.getLocation().isPrefixOf(asPath) && (parentProject == null || parentProject.getLocation().isPrefixOf(project.getLocation())) ) {
+				parentProject = project;
 			}
 		}
-		importProjectsFromDirectory(directory, workingSets);
-		return null; //TODO find something more useful to return
+		Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
+		if (parentProject != null) {
+			for (IWorkingSet workingSet : workbench.getWorkingSetManager().getAllWorkingSets()) {
+				for (IAdaptable element : workingSet.getElements()) {
+					if (element.equals(parentProject)) {
+						initialWorkingSets.add(workingSet);
+					}
+				}
+			}
+		}
+		if (initialWorkingSets.isEmpty()) {
+			wizard.init(workbench, sel);
+		} else {
+			wizard.setInitialWorkingSets(initialWorkingSets);
+		}
+		return new WizardDialog(workbench.getActiveWorkbenchWindow().getShell(), wizard).open();
 	}
 
 	/**
@@ -291,6 +319,7 @@ public class OpenFolderCommand extends AbstractHandler {
 		IProject res = workspaceRoot.getProject(desc.getName());
 		// TODO? open Configuration wizard
 		res.create(desc, progressMonitor);
+		PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(res, workingSets.toArray(new IWorkingSet[workingSets.size()]));
 		return res;
 	}
 

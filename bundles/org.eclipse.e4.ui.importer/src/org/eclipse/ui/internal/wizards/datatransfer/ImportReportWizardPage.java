@@ -79,6 +79,7 @@ public class ImportReportWizardPage extends WizardPage {
 			} catch (Exception ex) {
 				Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex));
 			}
+			getWizard().getContainer().updateButtons();
 			return this;
 		} else {
 			return null;
