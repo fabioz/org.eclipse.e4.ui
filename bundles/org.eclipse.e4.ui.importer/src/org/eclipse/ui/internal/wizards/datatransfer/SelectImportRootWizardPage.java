@@ -39,11 +39,9 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
-import org.eclipse.ui.dialogs.WorkingSetGroup;
 
-public class EasymportWizardPage extends WizardPage {
+public class SelectImportRootWizardPage extends WizardPage {
 
 	public static final String ROOT_DIRECTORY = "rootDirectory";
 	
@@ -53,7 +51,7 @@ public class EasymportWizardPage extends WizardPage {
 	private ControlDecoration rootDirectoryTextDecorator;
 	private WorkingSetConfigurationBlock workingSetsBlock;
 
-	public EasymportWizardPage(EasymportWizard wizard, File initialSelection, Set<IWorkingSet> initialWorkingSets) {
+	public SelectImportRootWizardPage(EasymportWizard wizard, File initialSelection, Set<IWorkingSet> initialWorkingSets) {
 		super(EasymportWizard.class.getName());
 		this.selection = initialSelection;
 		this.workingSets = initialWorkingSets;
@@ -74,19 +72,14 @@ public class EasymportWizardPage extends WizardPage {
 		rootDirectoryText.addModifyListener(new ModifyListener() {
 			@Override
 			public void modifyText(ModifyEvent e) {
-				EasymportWizardPage.this.selection = new File( ((Text)e.widget).getText() );
-				EasymportWizardPage.this.validatePage();
+				SelectImportRootWizardPage.this.selection = new File( ((Text)e.widget).getText() );
+				SelectImportRootWizardPage.this.validatePage();
 			}
 		});
 		this.rootDirectoryTextDecorator = new ControlDecoration(rootDirectoryText, SWT.TOP | SWT.LEFT);
 		this.rootDirectoryTextDecorator.setImage(getShell().getDisplay().getSystemImage(SWT.ERROR));
 		this.rootDirectoryTextDecorator.setDescriptionText(Messages.EasymportWizardPage_incorrectRootDirectory);
 		this.rootDirectoryTextDecorator.hide();
-		IDialogSettings dialogSettings = getDialogSettings();
-		String rootDirectory = dialogSettings.get(ROOT_DIRECTORY);
-		if (rootDirectory != null) {
-			rootDirectoryText.setText(rootDirectory);
-		}
 		Button browseButton = new Button(res, SWT.PUSH);
 		browseButton.setText(Messages.EasymportWizardPage_browse);
 		browseButton.addSelectionListener(new SelectionAdapter() {
@@ -97,8 +90,8 @@ public class EasymportWizardPage extends WizardPage {
 				String res = dialog.open();
 				if (res != null) {
 					rootDirectoryText.setText(res);
-					EasymportWizardPage.this.selection = new File(res);
-					EasymportWizardPage.this.validatePage();
+					SelectImportRootWizardPage.this.selection = new File(res);
+					SelectImportRootWizardPage.this.validatePage();
 				}
 			}
 		});
@@ -113,10 +106,14 @@ public class EasymportWizardPage extends WizardPage {
 		}
 		workingSetsBlock.createContent(workingSetsGroup);
 
+		if (this.selection == null) {
+			IDialogSettings dialogSettings = getDialogSettings();
+			this.selection = new File(dialogSettings.get(ROOT_DIRECTORY));
+		}
 		if (this.selection != null) {
 			rootDirectoryText.setText(this.selection.getAbsolutePath());
 			validatePage();
-		}
+		} 
 		
 		setControl(res);
 	}
@@ -160,13 +157,13 @@ public class EasymportWizardPage extends WizardPage {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					try {
-						EasymportWizardPage.this.rootProject = new OpenFolderCommand().toExistingOrNewProject(EasymportWizardPage.this.selection, EasymportWizardPage.this.workingSets, monitor);
+						SelectImportRootWizardPage.this.rootProject = new OpenFolderCommand().toExistingOrNewProject(SelectImportRootWizardPage.this.selection, SelectImportRootWizardPage.this.workingSets, monitor);
 					} catch (CouldNotImportProjectException ex) {
 						throw new InvocationTargetException(ex);
 					}
 				}
 			});
-			return new ImportReportWizardPage(getWizard());
+			return super.getNextPage();
 		} catch (Exception ex) {
 			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex));
 		}

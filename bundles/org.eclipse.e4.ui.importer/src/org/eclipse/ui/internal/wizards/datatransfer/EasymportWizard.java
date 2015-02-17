@@ -12,15 +12,19 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
-import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
@@ -30,7 +34,8 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 
 	private File initialSelection;
 	private Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
-	private EasymportWizardPage page;
+	private SelectImportRootWizardPage projectRootPage;
+	private NestedProjectsWizardPage nestedProjectsPage;
 
 	public EasymportWizard() {
 		super();
@@ -88,27 +93,35 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 
 	@Override
 	public void addPages() {
-		this.page = new EasymportWizardPage(this, this.initialSelection, this.initialWorkingSets);
-		addPage(this.page);
+		this.projectRootPage = new SelectImportRootWizardPage(this, this.initialSelection, this.initialWorkingSets);
+		addPage(this.projectRootPage);
+		this.nestedProjectsPage = new NestedProjectsWizardPage(this);
+		addPage(this.nestedProjectsPage);
 	}
-	
-	@Override
-	public IWizardPage getPreviousPage(IWizardPage page) {
-		if (page instanceof ImportReportWizardPage) {
-			// not sure how/whether to support "Back" at that time
-			return null;
-		}
-		return super.getPreviousPage(page);
-	}
-	
-	@Override
-	public boolean canFinish() {
-		return !getContainer().getCurrentPage().canFlipToNextPage();
-	}
-	
+
 	@Override
 	public boolean performFinish() {
-		getDialogSettings().put(EasymportWizardPage.ROOT_DIRECTORY, page.getSelectedRootDirectory().getAbsolutePath());
+		try {
+			getContainer().run(false, false, new IRunnableWithProgress() {
+				@Override
+				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+					try {
+						IProject rootProject = new OpenFolderCommand().toExistingOrNewProject(EasymportWizard.this.projectRootPage.getSelectedRootDirectory(), getSelectedWorkingSets(), monitor);
+						if (EasymportWizard.this.nestedProjectsPage.mustProcessProject()) {
+							new OpenFolderCommand().importProjectAndChildrenRecursively(rootProject, true, getSelectedWorkingSets(), monitor);						
+						}
+					} catch (Exception ex) {
+						throw new InvocationTargetException(ex);
+					}
+				}
+			});
+		} catch (InterruptedException ex) {
+			return false;
+		} catch (InvocationTargetException ex) {
+			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex));
+			return false;
+		}
+		getDialogSettings().put(SelectImportRootWizardPage.ROOT_DIRECTORY, projectRootPage.getSelectedRootDirectory().getAbsolutePath());
 		return true;
 	}
 	
@@ -123,10 +136,10 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	}
 
 	public IProject getProject() {
-		return this.page.getProject();
+		return this.projectRootPage.getProject();
 	}
 
 	public Set<IWorkingSet> getSelectedWorkingSets() {
-		return this.page.getSelectedWorkingSets();
+		return this.projectRootPage.getSelectedWorkingSets();
 	}
 }
