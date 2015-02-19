@@ -119,11 +119,6 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 	}
 
 	@Override
-	public String getLabel() {
-		return Messages.bundleConfiguratorLabel;
-	}
-
-	@Override
 	public boolean shouldBeAnEclipseProject(IContainer container, IProgressMonitor monitor) {
 		return container.getFile(new Path("META-INF/MANIFEST.MF")).exists();
 	}

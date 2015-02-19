@@ -36,7 +36,6 @@ import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.wizards.Activator;
-import org.eclipse.jdt.internal.ui.wizards.Messages;
 import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
@@ -205,11 +204,6 @@ public class JDTProjectNature implements ProjectConfigurator {
 					ex.getMessage(),
 					ex));
 		}
-	}
-
-	@Override
-	public String getLabel() {
-		return Messages.jdtConfiguratorLabel;
 	}
 
 	@Override

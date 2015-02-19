@@ -111,7 +111,7 @@ public class OpenFolderCommand extends AbstractHandler {
 	 * @param directory
 	 * @param workingSets
 	 */
-	public void importProjectsFromDirectory(final File directory, final Set<IWorkingSet> workingSets) {
+	public void importProjectsFromDirectory(final File directory, final Set<IWorkingSet> workingSets, final RecursiveImportListener listener) {
 		this.workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		try {
 			PlatformUI.getWorkbench().getProgressService().run(true, true, new IRunnableWithProgress() {
@@ -119,7 +119,7 @@ public class OpenFolderCommand extends AbstractHandler {
 				public void run(IProgressMonitor progressMonitor) throws InvocationTargetException, InterruptedException {
 					try {
 						final IProject project = toExistingOrNewProject(directory, workingSets, progressMonitor);
-						importProjectAndChildrenRecursively(project, true, workingSets, progressMonitor);
+						importProjectAndChildrenRecursively(project, true, workingSets, progressMonitor, listener);
 					} catch (final Exception ex) {
 						final Status status = new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);
 						Activator.getDefault().getLog().log(status);
@@ -145,7 +145,7 @@ public class OpenFolderCommand extends AbstractHandler {
 		}
 	}
 
-	private Set<IProject> searchAndImportChildrenProjectsRecursively(IContainer parentContainer, Set<IPath> directoriesToExclude, Set<IWorkingSet> workingSets, IProgressMonitor progressMonitor) throws Exception {
+	private Set<IProject> searchAndImportChildrenProjectsRecursively(IContainer parentContainer, Set<IPath> directoriesToExclude, Set<IWorkingSet> workingSets, IProgressMonitor progressMonitor, RecursiveImportListener listener) throws Exception {
 		Set<IFolder> childrenToProcess = new HashSet<IFolder>();
 		Set<IProject> res = new HashSet<IProject>();
 		for (IResource childResource : parentContainer.members()) {
@@ -165,7 +165,7 @@ public class OpenFolderCommand extends AbstractHandler {
 		}
 		for (IFolder childFolder : childrenToProcess) {
 			try {
-				Set<IProject> projectFromCurrentContainer = importProjectAndChildrenRecursively(childFolder, false, workingSets, progressMonitor);
+				Set<IProject> projectFromCurrentContainer = importProjectAndChildrenRecursively(childFolder, false, workingSets, progressMonitor, listener);
 				res.addAll(projectFromCurrentContainer);
 			} catch (CouldNotImportProjectException ex) {
 				// TODO accumulate the multiple issues and present it to users after import
@@ -179,10 +179,11 @@ public class OpenFolderCommand extends AbstractHandler {
 	 * @param folder
 	 * @param workingSets
 	 * @param progressMonitor
+	 * @param listener 
 	 * @return
 	 * @throws Exception
 	 */
-	public Set<IProject> importProjectAndChildrenRecursively(IContainer container, boolean isRootProject, Set<IWorkingSet> workingSets, IProgressMonitor progressMonitor) throws Exception {
+	public Set<IProject> importProjectAndChildrenRecursively(IContainer container, boolean isRootProject, Set<IWorkingSet> workingSets, IProgressMonitor progressMonitor, RecursiveImportListener listener) throws Exception {
 		if (progressMonitor.isCanceled()) {
 			return null;
 		}
@@ -214,24 +215,27 @@ public class OpenFolderCommand extends AbstractHandler {
 			 * 4. Applied additional configurators
 			 */
 			IProject project = toExistingOrNewProject(container.getLocation().toFile(), workingSets, progressMonitor);
+			listener.projectCreated(project);
 			projectFromCurrentContainer.add(project);
 			for (ProjectConfigurator configurator : mainProjectConfigurators) {
 				configurator.configure(project, excludedPaths, progressMonitor);
+				listener.projectConfigured(project, configurator);
 				excludedPaths.addAll(toPathSet(configurator.getDirectoriesToIgnore(project, progressMonitor)));
 			}
-			Set<IProject> allNestedProjects = searchAndImportChildrenProjectsRecursively(project, excludedPaths, workingSets, progressMonitor);
+			Set<IProject> allNestedProjects = searchAndImportChildrenProjectsRecursively(project, excludedPaths, workingSets, progressMonitor, listener);
 			excludedPaths.addAll(toPathSet(allNestedProjects));
 			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), secondaryConfigurators.size());
 			for (ProjectConfigurator additionalConfigurator : secondaryConfigurators) {
 				if (additionalConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
 					additionalConfigurator.configure(project, excludedPaths, progressMonitor);
+					listener.projectConfigured(project, additionalConfigurator);	
 					excludedPaths.addAll(toPathSet(additionalConfigurator.getDirectoriesToIgnore(project, progressMonitor)));
 				}
 				progressMonitor.worked(1);
 			}
 			projectFromCurrentContainer.addAll(allNestedProjects);
 		} else {
-			Set<IProject> nestedProjects = searchAndImportChildrenProjectsRecursively(container, null, workingSets, progressMonitor);
+			Set<IProject> nestedProjects = searchAndImportChildrenProjectsRecursively(container, null, workingSets, progressMonitor, listener);
 			projectFromCurrentContainer.addAll(nestedProjects);
 			if (nestedProjects.isEmpty() && isRootProject) {
 				// No sub-project found, so apply available configurators anyway
@@ -241,6 +245,7 @@ public class OpenFolderCommand extends AbstractHandler {
 				for (ProjectConfigurator activeConfigurator : activeConfigurators) {
 					if (activeConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
 						activeConfigurator.configure(project, excludedPaths, progressMonitor);
+						listener.projectConfigured(project, activeConfigurator);
 						excludedPaths.addAll(toPathSet(activeConfigurator.getDirectoriesToIgnore(project, progressMonitor)));
 					}
 					progressMonitor.worked(1);

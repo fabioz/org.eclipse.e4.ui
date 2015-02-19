@@ -77,6 +77,4 @@ public interface ProjectConfigurator {
 	 */
 	public void configure(IProject project, Set<IPath> excludedDirectories, IProgressMonitor monitor);
 
-	public String getLabel();
-
 }

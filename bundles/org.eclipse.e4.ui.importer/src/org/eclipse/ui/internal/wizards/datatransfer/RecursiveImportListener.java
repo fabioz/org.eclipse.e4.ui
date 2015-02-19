@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 Red Hat Inc., and others
+ * Copyright (c) 2015 Red Hat Inc.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,16 +8,15 @@
  * Contributors:
  *     Mickael Istria (Red Hat Inc.) - initial API and implementation
  ******************************************************************************/
-package org.eclipse.jdt.internal.ui.wizards;
+package org.eclipse.ui.internal.wizards.datatransfer;
 
-import org.eclipse.osgi.util.NLS;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
-public class Messages extends NLS {
+public interface RecursiveImportListener {
 
-	static {
-		NLS.initializeMessages(Messages.class.getPackage().getName().replace('.', '/') + "/messages", Messages.class);
-	}
+	public void projectCreated(IProject project);
 
-	public static String jdtConfiguratorLabel;
-
+	public void projectConfigured(IProject project, ProjectConfigurator configurator);
+	
 }

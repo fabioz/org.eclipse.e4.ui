@@ -107,8 +107,10 @@ public class SelectImportRootWizardPage extends WizardPage {
 		workingSetsBlock.createContent(workingSetsGroup);
 
 		if (this.selection == null) {
-			IDialogSettings dialogSettings = getDialogSettings();
-			this.selection = new File(dialogSettings.get(ROOT_DIRECTORY));
+			String dialogSetting = getDialogSettings().get(ROOT_DIRECTORY);
+			if (dialogSetting != null) {
+				this.selection = new File(dialogSetting);
+			}
 		}
 		if (this.selection != null) {
 			rootDirectoryText.setText(this.selection.getAbsolutePath());
@@ -121,12 +123,17 @@ public class SelectImportRootWizardPage extends WizardPage {
 	protected void validatePage() {
 		if (this.selection == null || !this.selection.isDirectory()) {
 			this.rootDirectoryTextDecorator.show();
-			setPageComplete(false);
 		} else {
 			this.rootDirectoryTextDecorator.hide();
-			setPageComplete(true);
 		}
+		setPageComplete(isPageComplete());
 	}
+	
+	@Override
+	public boolean isPageComplete() {
+		return this.selection != null && this.selection.isDirectory();
+	}
+	
 
 	public File getSelectedRootDirectory() {
 		return this.selection;

@@ -49,9 +49,4 @@ public class EclipseProjectConfigurator implements ProjectConfigurator {
 		// Nothing to do
 	}
 
-	@Override
-	public String getLabel() {
-		return Messages.eclipseProjectConfigurationLabel;
-	}
-
 }

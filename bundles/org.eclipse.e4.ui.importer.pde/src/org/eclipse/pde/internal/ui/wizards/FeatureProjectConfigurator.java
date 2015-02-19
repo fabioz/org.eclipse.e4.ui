@@ -61,11 +61,6 @@ public class FeatureProjectConfigurator implements ProjectConfigurator {
 	}
 
 	@Override
-	public String getLabel() {
-		return Messages.featureConfiguratorLabel;
-	}
-
-	@Override
 	public boolean shouldBeAnEclipseProject(IContainer container, IProgressMonitor monitor) {
 		return container.getFile(new Path("feature.xml")).exists();
 	}

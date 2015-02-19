@@ -16,15 +16,18 @@ import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.dnd.DropTargetEvent;
 import org.eclipse.swt.dnd.FileTransfer;
 import org.eclipse.swt.dnd.TransferData;
+import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.navigator.CommonDropAdapter;
 import org.eclipse.ui.navigator.CommonDropAdapterAssistant;
 
@@ -55,6 +58,7 @@ public class OpenFolderDropAdapterAssistant extends CommonDropAdapterAssistant {
 	@Override
 	public IStatus handleDrop(CommonDropAdapter aDropAdapter, DropTargetEvent aDropTargetEvent, Object aTarget) {
 		try {
+			IWorkbench workbench = PlatformUI.getWorkbench();
 			String[] files = (String[]) aDropTargetEvent.data;
 			// Currently only support single directory
 			if (files.length != 1) {
@@ -64,20 +68,45 @@ public class OpenFolderDropAdapterAssistant extends CommonDropAdapterAssistant {
 			if (!directory.isDirectory()) {
 				return Status.CANCEL_STATUS;
 			}
-			IWorkingSet workingSet = null;
+			IWorkingSet targetWorkingSet = null;
 			if (aTarget != null) {
 				if (aTarget instanceof IWorkingSet) {
-					workingSet = (IWorkingSet)aTarget;
+					targetWorkingSet = (IWorkingSet)aTarget;
 				} else if (aTarget instanceof IAdaptable) {
-					workingSet = (IWorkingSet) ((IAdaptable)aTarget).getAdapter(IWorkingSet.class);
+					targetWorkingSet = (IWorkingSet) ((IAdaptable)aTarget).getAdapter(IWorkingSet.class);
 				}
 			}
 			Set<IWorkingSet> workingSets = new HashSet<IWorkingSet>();
-			workingSets.add(workingSet);
-			IProgressMonitor progressMonitor = new NullProgressMonitor();
-			OpenFolderCommand openFolder = new OpenFolderCommand();
-			IProject project = openFolder.toExistingOrNewProject(directory, workingSets, progressMonitor);
-			openFolder.importProjectAndChildrenRecursively(project, true, workingSets, progressMonitor);
+			workingSets.add(targetWorkingSet);
+			EasymportWizard wizard = new EasymportWizard();
+			wizard.setInitialDirectory(directory);
+			Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
+			if (targetWorkingSet != null) {
+				initialWorkingSets.add(targetWorkingSet);
+			} else {
+				// inherit workingSets
+				IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+				final Path asPath = new Path(directory.getAbsolutePath());
+				IProject parentProject = null;
+				for (IProject project : workspaceRoot.getProjects()) {
+					if (project.getLocation().isPrefixOf(asPath) && (parentProject == null || parentProject.getLocation().isPrefixOf(project.getLocation())) ) {
+						parentProject = project;
+					}
+				}
+				if (parentProject != null) {
+					for (IWorkingSet workingSet : workbench.getWorkingSetManager().getAllWorkingSets()) {
+						for (IAdaptable element : workingSet.getElements()) {
+							if (element.equals(parentProject)) {
+								initialWorkingSets.add(workingSet);
+							}
+						}
+					}
+				}
+			}
+			wizard.setInitialWorkingSets(initialWorkingSets);
+			WizardDialog wizardDialog = new WizardDialog(workbench.getActiveWorkbenchWindow().getShell(), wizard);
+			wizardDialog.setBlockOnOpen(false);
+			wizardDialog.open();
 			return Status.OK_STATUS;
 		} catch (Exception ex) {
 			return new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);

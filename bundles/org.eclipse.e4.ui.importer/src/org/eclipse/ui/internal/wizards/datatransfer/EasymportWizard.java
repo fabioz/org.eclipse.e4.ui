@@ -108,7 +108,7 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 					try {
 						IProject rootProject = new OpenFolderCommand().toExistingOrNewProject(EasymportWizard.this.projectRootPage.getSelectedRootDirectory(), getSelectedWorkingSets(), monitor);
 						if (EasymportWizard.this.nestedProjectsPage.mustProcessProject()) {
-							new OpenFolderCommand().importProjectAndChildrenRecursively(rootProject, true, getSelectedWorkingSets(), monitor);						
+							new OpenFolderCommand().importProjectAndChildrenRecursively(rootProject, true, getSelectedWorkingSets(), monitor, EasymportWizard.this.nestedProjectsPage.getImportListener());						
 						}
 					} catch (Exception ex) {
 						throw new InvocationTargetException(ex);

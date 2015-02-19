@@ -109,4 +109,14 @@ public class ProjectConfiguratorExtensionManager {
 		return res;
 	}
 
+	public static Object getLabel(ProjectConfigurator configurator) {
+		IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_ID);
+		for (IConfigurationElement extension : extensions) {
+			if (configurator.getClass().getName().equals(extension.getAttribute("class"))) {
+				return extension.getAttribute("label");
+			}
+		}
+		return "Missing label for " + configurator.getClass().getName(); //$NON-NLS-1$
+	}
+
 }
