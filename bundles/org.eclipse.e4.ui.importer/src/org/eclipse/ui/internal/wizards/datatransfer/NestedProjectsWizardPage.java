@@ -34,6 +34,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -44,23 +45,20 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IWorkingSet;
-import org.eclipse.ui.internal.navigator.resources.nested.NestedProjectManager;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
 public class NestedProjectsWizardPage extends WizardPage {
 	
 	private boolean detectNestedProjects = true;
 	private RecursiveImportListener tableReportFiller;
+	private IProject rootProject;
 	private Map<IProject, List<ProjectConfigurator>> processedProjects = new HashMap<IProject, List<ProjectConfigurator>>();
+	private SelectImportRootWizardPage projectRootPage;
 	
-	protected NestedProjectsWizardPage(EasymportWizard wizard) {
+	public NestedProjectsWizardPage(IWizard wizard, SelectImportRootWizardPage projectRootPage) {
 		super(NestedProjectsWizardPage.class.getName());
 		setWizard(wizard);
-	}
-
-	@Override
-	public EasymportWizard getWizard() {
-		return (EasymportWizard)super.getWizard();
+		this.projectRootPage = projectRootPage;
 	}
 	
 	@Override
@@ -116,7 +114,7 @@ public class NestedProjectsWizardPage extends WizardPage {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
 				Entry<IProject, List<ProjectConfigurator>> entry = (Entry<IProject, List<ProjectConfigurator>>) element;
-				return getWizard().getProject().getLocation().isPrefixOf(entry.getKey().getLocation());
+				return NestedProjectsWizardPage.this.rootProject.getLocation().isPrefixOf(entry.getKey().getLocation());
 			}
 		} });
 		nestedProjectsTable.getTable().setHeaderVisible(true);
@@ -157,7 +155,7 @@ public class NestedProjectsWizardPage extends WizardPage {
 			@Override
 			public String getText(Object element) {
 				IProject project = ((Entry<IProject, List<ProjectConfigurator>>)element).getKey();
-				return project.getLocation().removeFirstSegments(getWizard().getProject().getLocation().segmentCount()).toString();
+				return project.getLocation().removeFirstSegments(NestedProjectsWizardPage.this.rootProject.getLocation().segmentCount()).toString();
 			}
 		});
 
@@ -192,27 +190,47 @@ public class NestedProjectsWizardPage extends WizardPage {
 	
 	@Override
 	public boolean canFlipToNextPage() {
-		return mustProcessProject();
+		return mustProcessCurrentProject();
 	}
 	
 
 	/**
 	 * @return
 	 */
-	public boolean mustProcessProject() {
-		return this.detectNestedProjects && !this.processedProjects.containsKey(getWizard().getProject());
+	public boolean mustProcessCurrentProject() {
+		return this.detectNestedProjects && !this.processedProjects.containsKey(this.rootProject);
 	}
 	
 	@Override
 	public NestedProjectsWizardPage getNextPage() {
-		if (mustProcessProject()) {
-			final Set<IWorkingSet> workingSets = getWizard().getSelectedWorkingSets();
+		if (mustProcessCurrentProject()) {
+			performNestedImport();
+			return this;
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void performNestedImport() {
+		if (rootProjectChanged() || mustProcessCurrentProject()) {
+			final Set<IWorkingSet> workingSets = this.projectRootPage.getSelectedWorkingSets();
 			try {
 				getContainer().run(false, false, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						try {
-							Set<IProject> newProjects = new OpenFolderCommand().importProjectAndChildrenRecursively(getWizard().getProject(), true, workingSets, monitor, tableReportFiller);
+							if (rootProjectChanged()) {
+								NestedProjectsWizardPage.this.rootProject = new OpenFolderCommand().toExistingOrNewProject(
+										NestedProjectsWizardPage.this.projectRootPage.getSelectedRootDirectory(),
+										NestedProjectsWizardPage.this.projectRootPage.getSelectedWorkingSets(),
+										monitor);
+							}
+							if (mustProcessCurrentProject()) {
+								new OpenFolderCommand().importProjectAndChildrenRecursively(NestedProjectsWizardPage.this.rootProject, true, workingSets, monitor, tableReportFiller);
+							}
 						} catch (Exception ex) {
 							throw new InvocationTargetException(ex);
 						}
@@ -222,13 +240,45 @@ public class NestedProjectsWizardPage extends WizardPage {
 				Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex));
 			}
 			getWizard().getContainer().updateButtons();
-			return this;
-		} else {
-			return null;
 		}
 	}
 
 	public RecursiveImportListener getImportListener() {
 		return this.tableReportFiller;
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		if (visible && rootProjectChanged()) {
+			try {
+				getContainer().run(false, false, new IRunnableWithProgress() {
+					@Override
+					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+						try {
+							NestedProjectsWizardPage.this.rootProject = new OpenFolderCommand().toExistingOrNewProject(
+									NestedProjectsWizardPage.this.projectRootPage.getSelectedRootDirectory(),
+									NestedProjectsWizardPage.this.projectRootPage.getSelectedWorkingSets(),
+									monitor);
+						} catch (CouldNotImportProjectException ex) {
+							throw new InvocationTargetException(ex);
+						}
+					}
+				});
+			} catch (InterruptedException ex) {
+				// Ignore
+			} catch (InvocationTargetException ex) {
+				Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex));
+			}
+			// TODO Update UI
+		}
+		super.setVisible(visible);
+	}
+
+	/**
+	 * @return
+	 */
+	public boolean rootProjectChanged() {
+		return this.rootProject == null ||
+				!this.rootProject.getLocation().toFile().getAbsoluteFile().equals(this.projectRootPage.getSelectedRootDirectory());
 	}
 }

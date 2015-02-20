@@ -12,18 +12,11 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.fieldassist.ControlDecoration;
-import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.eclipse.jface.wizard.IWizardPage;
+import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ModifyEvent;
@@ -46,12 +39,13 @@ public class SelectImportRootWizardPage extends WizardPage {
 	public static final String ROOT_DIRECTORY = "rootDirectory";
 	
 	private File selection;
-	private IProject rootProject;
 	private Set<IWorkingSet> workingSets;
 	private ControlDecoration rootDirectoryTextDecorator;
 	private WorkingSetConfigurationBlock workingSetsBlock;
 
-	public SelectImportRootWizardPage(EasymportWizard wizard, File initialSelection, Set<IWorkingSet> initialWorkingSets) {
+	private Text rootDirectoryText;
+
+	public SelectImportRootWizardPage(IWizard wizard, File initialSelection, Set<IWorkingSet> initialWorkingSets) {
 		super(EasymportWizard.class.getName());
 		this.selection = initialSelection;
 		this.workingSets = initialWorkingSets;
@@ -67,7 +61,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 		Label rootDirectoryLabel = new Label(res, SWT.NONE);
 		rootDirectoryLabel.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false));
 		rootDirectoryLabel.setText(Messages.EasymportWizardPage_selectRootDirectory);
-		final Text rootDirectoryText = new Text(res, SWT.BORDER);
+		rootDirectoryText = new Text(res, SWT.BORDER);
 		rootDirectoryText.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 		rootDirectoryText.addModifyListener(new ModifyListener() {
 			@Override
@@ -136,7 +130,12 @@ public class SelectImportRootWizardPage extends WizardPage {
 	
 
 	public File getSelectedRootDirectory() {
-		return this.selection;
+		return this.selection.getAbsoluteFile();
+	}
+	
+	public void setInitialSelectedDirectory(File directory) {
+		this.selection = directory;
+		this.rootDirectoryText.setText(directory.getAbsolutePath());
 	}
 
 	public Set<IWorkingSet> getSelectedWorkingSets() {
@@ -146,38 +145,10 @@ public class SelectImportRootWizardPage extends WizardPage {
 		}
 		return res;
 	}
-	
-	@Override
-	public EasymportWizard getWizard() {
-		return (EasymportWizard)super.getWizard();
-	}
 
 	@Override
 	public boolean canFlipToNextPage() {
 		return this.selection != null && this.selection.isDirectory();
 	}
 	
-	@Override
-	public IWizardPage getNextPage() {
-		try {
-			getContainer().run(false, false, new IRunnableWithProgress() {
-				@Override
-				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					try {
-						SelectImportRootWizardPage.this.rootProject = new OpenFolderCommand().toExistingOrNewProject(SelectImportRootWizardPage.this.selection, SelectImportRootWizardPage.this.workingSets, monitor);
-					} catch (CouldNotImportProjectException ex) {
-						throw new InvocationTargetException(ex);
-					}
-				}
-			});
-			return super.getNextPage();
-		} catch (Exception ex) {
-			Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex));
-		}
-		return null;
-	}
-	
-	public IProject getProject() {
-		return this.rootProject;
-	}
 }
