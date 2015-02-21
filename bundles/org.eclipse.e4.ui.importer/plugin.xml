@@ -55,6 +55,7 @@
       <wizard
             category="org.eclipse.ui.Basic"
             class="org.eclipse.ui.internal.wizards.datatransfer.EasymportWizard"
+            icon="pics/prj_obj.png"
             id="org.eclipse.e4.ui.importer.wizard"
             name="%importProjectsFromFolder_wizard">
       </wizard>

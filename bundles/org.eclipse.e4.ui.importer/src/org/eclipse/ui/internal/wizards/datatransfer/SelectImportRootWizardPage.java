@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.jface.fieldassist.ControlDecoration;
+import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
@@ -23,6 +24,7 @@ import org.eclipse.swt.events.ModifyEvent;
 import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
@@ -33,6 +35,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 public class SelectImportRootWizardPage extends WizardPage {
 
@@ -56,6 +59,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 	public void createControl(Composite parent) {
 		setTitle(Messages.EasymportWizardPage_importProjectsInFolderTitle);
 		setDescription(Messages.EasymportWizardPage_importProjectsInFolderDescription);
+		setImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/newprj_wiz.png")); //$NON-NLS-1$
 		Composite res = new Composite(parent, SWT.NONE);
 		res.setLayout(new GridLayout(3, false));
 		Label rootDirectoryLabel = new Label(res, SWT.NONE);
@@ -71,7 +75,8 @@ public class SelectImportRootWizardPage extends WizardPage {
 			}
 		});
 		this.rootDirectoryTextDecorator = new ControlDecoration(rootDirectoryText, SWT.TOP | SWT.LEFT);
-		this.rootDirectoryTextDecorator.setImage(getShell().getDisplay().getSystemImage(SWT.ERROR));
+		Image errorImage = FieldDecorationRegistry.getDefault().getFieldDecoration(FieldDecorationRegistry.DEC_ERROR).getImage();
+		this.rootDirectoryTextDecorator.setImage(errorImage);
 		this.rootDirectoryTextDecorator.setDescriptionText(Messages.EasymportWizardPage_incorrectRootDirectory);
 		this.rootDirectoryTextDecorator.hide();
 		Button browseButton = new Button(res, SWT.PUSH);
@@ -117,8 +122,10 @@ public class SelectImportRootWizardPage extends WizardPage {
 	protected void validatePage() {
 		if (this.selection == null || !this.selection.isDirectory()) {
 			this.rootDirectoryTextDecorator.show();
+			setErrorMessage(this.rootDirectoryTextDecorator.getDescriptionText());
 		} else {
 			this.rootDirectoryTextDecorator.hide();
+			setErrorMessage(null);
 		}
 		setPageComplete(isPageComplete());
 	}

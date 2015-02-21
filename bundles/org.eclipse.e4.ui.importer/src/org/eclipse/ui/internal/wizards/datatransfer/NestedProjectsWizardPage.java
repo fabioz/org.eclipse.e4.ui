@@ -65,6 +65,7 @@ public class NestedProjectsWizardPage extends WizardPage {
 	public void createControl(Composite parent) {
 		setTitle(Messages.EasymportWizardPage_nestedProjects);
 		setDescription(Messages.EasymportWizardPage_detectNestedProjects);
+		setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.getDefault().getBundle().getSymbolicName(), "pics/wizban/nestedProjects.png")); //$NON-NLS-1$
 		Composite res = new Composite(parent, SWT.NONE);
 		res.setLayout(new GridLayout(1, false));
 		final Button detectNestedProjectCheckbox = new Button(res, SWT.CHECK);
