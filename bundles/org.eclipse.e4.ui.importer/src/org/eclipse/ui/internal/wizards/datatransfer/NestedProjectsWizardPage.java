@@ -19,9 +19,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ColumnLabelProvider;
@@ -44,6 +48,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
@@ -54,6 +59,7 @@ public class NestedProjectsWizardPage extends WizardPage {
 	private IProject rootProject;
 	private Map<IProject, List<ProjectConfigurator>> processedProjects = new HashMap<IProject, List<ProjectConfigurator>>();
 	private SelectImportRootWizardPage projectRootPage;
+	private TableViewer nestedProjectsTable;
 	
 	public NestedProjectsWizardPage(IWizard wizard, SelectImportRootWizardPage projectRootPage) {
 		super(NestedProjectsWizardPage.class.getName());
@@ -79,16 +85,9 @@ public class NestedProjectsWizardPage extends WizardPage {
 				setPageComplete(isPageComplete());
 			}
 		});
-		new Label(res, SWT.NONE).setText("The following detectors will be used to detect and configure nested projects.");
-		ListViewer detectorsList = new ListViewer(res, SWT.V_SCROLL | SWT.H_SCROLL);
-		detectorsList.setContentProvider(new ArrayContentProvider());
-		detectorsList.setLabelProvider(new LabelProvider());
-		detectorsList.setInput(ProjectConfiguratorExtensionManager.getAllExtensionLabels());
-		detectorsList.getControl().setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
-		
 		
 		new Label(res, SWT.NONE).setText(Messages.EasymportWizardPage_importedProjects);
-		final TableViewer nestedProjectsTable = new TableViewer(res);
+		nestedProjectsTable = new TableViewer(res);
 		nestedProjectsTable.setContentProvider(new IStructuredContentProvider() {
 			@Override
 			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
@@ -119,7 +118,7 @@ public class NestedProjectsWizardPage extends WizardPage {
 			}
 		} });
 		nestedProjectsTable.getTable().setHeaderVisible(true);
-		nestedProjectsTable.getControl().setLayoutData(new GridData(SWT.FILL, SWT.DEFAULT, true, false));
+		nestedProjectsTable.getControl().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		TableViewerColumn projectColumn = new TableViewerColumn(nestedProjectsTable, SWT.V_SCROLL | SWT.H_SCROLL | SWT.BORDER);
 		projectColumn.getColumn().setWidth(200);
@@ -166,12 +165,10 @@ public class NestedProjectsWizardPage extends WizardPage {
 			public void projectCreated(IProject project) {
 				if (!NestedProjectsWizardPage.this.processedProjects.containsKey(project)) {
 					NestedProjectsWizardPage.this.processedProjects.put(project, new ArrayList<ProjectConfigurator>());
-					nestedProjectsTable.getControl().getDisplay().syncExec(new Runnable() {
+					nestedProjectsTable.getControl().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
-							nestedProjectsTable.refresh();
-							nestedProjectsTable.getTable().update();
-							nestedProjectsTable.getTable().redraw();
+							getShell().layout(true);
 						}
 					});
 				}
@@ -180,11 +177,31 @@ public class NestedProjectsWizardPage extends WizardPage {
 			@Override
 			public void projectConfigured(IProject project, ProjectConfigurator configurator) {
 				NestedProjectsWizardPage.this.processedProjects.get(project).add(configurator);
-				nestedProjectsTable.refresh();
-				nestedProjectsTable.getTable().update();
-				nestedProjectsTable.getTable().redraw();
+				nestedProjectsTable.getControl().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						nestedProjectsTable.refresh();
+						nestedProjectsTable.getTable().update();
+						nestedProjectsTable.getTable().redraw();
+					}
+				});
 			}
 		};
+		
+		Link showDetectorsLink = new Link(res, SWT.NONE);
+		showDetectorsLink.setText("<A>Show available detectors that will be used to detect and configure nested projects.</A>");
+		showDetectorsLink.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				StringBuilder message = new StringBuilder();
+				for (String extensionLabel : ProjectConfiguratorExtensionManager.getAllExtensionLabels()) {
+					message.append(extensionLabel);
+					message.append('\n');
+				}
+				MessageDialog.openInformation(getShell(), "Available detectors and configurators", message.toString());
+			}
+		});
+		
 		
 		setControl(res);
 	}
@@ -219,7 +236,7 @@ public class NestedProjectsWizardPage extends WizardPage {
 		if (rootProjectChanged() || mustProcessCurrentProject()) {
 			final Set<IWorkingSet> workingSets = this.projectRootPage.getSelectedWorkingSets();
 			try {
-				getContainer().run(false, false, new IRunnableWithProgress() {
+				getContainer().run(true, false, new IRunnableWithProgress() {
 					@Override
 					public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 						try {
@@ -230,7 +247,20 @@ public class NestedProjectsWizardPage extends WizardPage {
 										monitor);
 							}
 							if (mustProcessCurrentProject()) {
+						        IWorkspace workspace = ResourcesPlugin.getWorkspace();
+						        IWorkspaceDescription description = workspace.getDescription();
+						        boolean isAutoBuilding = workspace.isAutoBuilding();
+						        if (isAutoBuilding) {
+						        	description.setAutoBuilding(false);
+						        	workspace.setDescription(description);
+						        }
+						        
 								new OpenFolderCommand().importProjectAndChildrenRecursively(NestedProjectsWizardPage.this.rootProject, true, workingSets, monitor, tableReportFiller);
+								
+								if (isAutoBuilding) {
+									description.setAutoBuilding(true);
+						        	workspace.setDescription(description);
+								}
 							}
 						} catch (Exception ex) {
 							throw new InvocationTargetException(ex);
@@ -265,6 +295,11 @@ public class NestedProjectsWizardPage extends WizardPage {
 						}
 					}
 				});
+				if (nestedProjectsTable != null && !nestedProjectsTable.getTable().isDisposed()) {
+					nestedProjectsTable.refresh();
+					nestedProjectsTable.getTable().update();
+					nestedProjectsTable.getTable().redraw();
+				}
 			} catch (InterruptedException ex) {
 				// Ignore
 			} catch (InvocationTargetException ex) {
