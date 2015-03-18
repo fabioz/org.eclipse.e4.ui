@@ -28,7 +28,7 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
-import org.eclipse.jdt.ui.wizards.JDTProjectNature;
+import org.eclipse.jdt.ui.wizards.JavaProjectNature;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.pde.core.build.IBuildEntry;
 import org.eclipse.pde.internal.core.ClasspathComputer;
@@ -125,7 +125,7 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 
 	@Override
 	public Set<IFolder> getDirectoriesToIgnore(IProject project, IProgressMonitor monitor) {
-		return new JDTProjectNature().getDirectoriesToIgnore(project, monitor);
+		return new JavaProjectNature().getDirectoriesToIgnore(project, monitor);
 		// TODO add directories declared for src.* and bin.* in build.properties
 	}
 
