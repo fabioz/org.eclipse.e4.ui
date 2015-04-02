@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.osgi.util.NLS;
@@ -67,11 +68,15 @@ public class OpenFolderCommand extends AbstractHandler {
 		this.shell = workbench.getActiveWorkbenchWindow().getShell();
 		DirectoryDialog directoryDialog = new DirectoryDialog(shell);
 		directoryDialog.setText(Messages.selectFolderToImport);
-		IStructuredSelection sel = (IStructuredSelection)workbench.getActiveWorkbenchWindow().getSelectionService().getSelection();
-		if (!sel.isEmpty()) {
-			File selectedFile = EasymportWizard.toFile(sel.getFirstElement());
-			if (selectedFile != null) {
-				directoryDialog.setFilterPath(selectedFile.getAbsolutePath());
+		ISelection sel = workbench.getActiveWorkbenchWindow().getSelectionService().getSelection();
+		IStructuredSelection structuredSel = null;
+		if (sel != null && sel instanceof IStructuredSelection) {
+			structuredSel = (IStructuredSelection)sel;
+			if (!structuredSel.isEmpty()) {
+				File selectedFile = EasymportWizard.toFile(structuredSel.getFirstElement());
+				if (selectedFile != null) {
+					directoryDialog.setFilterPath(selectedFile.getAbsolutePath());
+				}
 			}
 		}
 		String res = directoryDialog.open();
@@ -100,7 +105,7 @@ public class OpenFolderCommand extends AbstractHandler {
 			}
 		}
 		if (initialWorkingSets.isEmpty()) {
-			wizard.init(workbench, sel);
+			wizard.init(workbench, structuredSel);
 		} else {
 			wizard.setInitialWorkingSets(initialWorkingSets);
 		}
