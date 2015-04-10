@@ -30,6 +30,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
@@ -146,11 +147,22 @@ public class SelectImportRootWizardPage extends WizardPage {
 	}
 
 	public Set<IWorkingSet> getSelectedWorkingSets() {
-		Set<IWorkingSet> res = new HashSet<IWorkingSet>(this.workingSetsBlock.getSelectedWorkingSets().length);
-		for (IWorkingSet workingSet : this.workingSetsBlock.getSelectedWorkingSets()) {
-			res.add(workingSet);
+		this.workingSets.clear();
+		// workingSetsBlock doesn't support listeners...
+		Runnable workingSetsRetriever = new Runnable() {
+			@Override
+			public void run() {
+				for (IWorkingSet workingSet : SelectImportRootWizardPage.this.workingSetsBlock.getSelectedWorkingSets()) {
+					SelectImportRootWizardPage.this.workingSets.add(workingSet);
+				}
+			}
+		}; 
+		if (Display.getCurrent() == null) {
+			getContainer().getShell().getDisplay().syncExec(workingSetsRetriever);
+		} else {
+			workingSetsRetriever.run();
 		}
-		return res;
+		return this.workingSets;
 	}
 
 	@Override
