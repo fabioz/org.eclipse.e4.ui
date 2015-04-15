@@ -11,9 +11,8 @@ Require-Bundle: org.eclipse.e4.ui.importer,
  org.eclipse.ui.ide,
  org.eclipse.jdt.core,
  org.eclipse.pde.core,
+ org.eclipse.pde.ui,
  org.eclipse.jdt.launching,
- org.eclipse.ui.navigator.resources,
- org.eclipse.ui.navigator,
  org.eclipse.e4.ui.importer.java
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Bundle-ActivationPolicy: lazy

@@ -42,23 +42,15 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 
 	@Override
 	public boolean canConfigure(IProject project, Set<IPath> ignoredDirectories, IProgressMonitor monitor) {
-		try {
-			IFile manifestResource = project.getFolder("META-INF").getFile("MANIFEST.MF");
-			if (manifestResource.exists()) {
-				Manifest manifest = new Manifest();
-				InputStream stream = manifestResource.getContents();
-				manifest.read(stream);
-				stream.close();
-				return manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
+		IFile manifestFile = project.getFile(new Path("META-INF/MANIFEST.MF"));
+		if (manifestFile.exists()) {
+			for (IPath ignoredDirectory : ignoredDirectories) {
+				if (ignoredDirectory.isPrefixOf(manifestFile.getLocation())) {
+					return false;
+				}
 			}
-		} catch (Exception ex) {
-			Activator.getDefault().getLog().log(new Status(
-					IStatus.ERROR,
-					Activator.PLUGIN_ID,
-					ex.getMessage(),
-					ex));
 		}
-		return false;
+		return hasOSGiManifest(project);
 	}
 
 	@Override
@@ -120,7 +112,27 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 
 	@Override
 	public boolean shouldBeAnEclipseProject(IContainer container, IProgressMonitor monitor) {
-		return container.getFile(new Path("META-INF/MANIFEST.MF")).exists();
+		return hasOSGiManifest(container);
+	}
+
+	private boolean hasOSGiManifest(IContainer container) {
+		try {
+			IFile manifestResource = container.getFile(new Path("META-INF/MANIFEST.MF"));
+			if (manifestResource.exists()) {
+				Manifest manifest = new Manifest();
+				InputStream stream = manifestResource.getContents();
+				manifest.read(stream);
+				stream.close();
+				return manifest.getMainAttributes().getValue(Constants.BUNDLE_SYMBOLICNAME) != null;
+			}
+		} catch (Exception ex) {
+			Activator.getDefault().getLog().log(new Status(
+					IStatus.ERROR,
+					Activator.PLUGIN_ID,
+					ex.getMessage(),
+					ex));
+		}
+		return false;
 	}
 
 	@Override
