@@ -53,6 +53,9 @@ public class SelectImportRootWizardPage extends WizardPage {
 		super(EasymportWizard.class.getName());
 		this.selection = initialSelection;
 		this.workingSets = initialWorkingSets;
+		if (this.workingSets == null) {
+			this.workingSets = new HashSet<>();
+		}
 		setWizard(wizard);
 	}
 
