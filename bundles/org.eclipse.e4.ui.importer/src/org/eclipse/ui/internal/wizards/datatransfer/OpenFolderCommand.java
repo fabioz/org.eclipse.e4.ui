@@ -168,6 +168,8 @@ public class OpenFolderCommand extends AbstractHandler {
 				}
 			}
 		}
+		// TODO parallelize here
+		
 		for (IFolder childFolder : childrenToProcess) {
 			try {
 				Set<IProject> projectFromCurrentContainer = importProjectAndChildrenRecursively(childFolder, false, workingSets, progressMonitor, listener);
@@ -195,8 +197,8 @@ public class OpenFolderCommand extends AbstractHandler {
 		if (this.configurationManager == null) {
 			this.configurationManager = new ProjectConfiguratorExtensionManager();
 		}
+		progressMonitor.setTaskName("Inspecting " + container.getLocation().toFile().getAbsolutePath());
 		Collection<ProjectConfigurator> activeConfigurators = this.configurationManager.getAllActiveProjectConfigurators(container);
-		progressMonitor.beginTask("Start configuration of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
 		Set<IProject> projectFromCurrentContainer = new HashSet<IProject>();
 		Set<ProjectConfigurator> mainProjectConfigurators = new HashSet<ProjectConfigurator>();
 		Set<ProjectConfigurator> secondaryConfigurators = new HashSet<ProjectConfigurator>();
@@ -212,14 +214,11 @@ public class OpenFolderCommand extends AbstractHandler {
 			}
 			progressMonitor.worked(1);
 		}
+		
+		IProject project = null;
 		if (!mainProjectConfigurators.isEmpty()) {
-			/*
-			 * 1. Create project
-			 * 2. Apply ensured project configurators + populate excludedPaths
-			 * 3. Look recursively (ignored excluded paths)
-			 * 4. Applied additional configurators
-			 */
-			IProject project = toExistingOrNewProject(container.getLocation().toFile(), workingSets, progressMonitor);
+			// Create project and apply main configurators
+			project = toExistingOrNewProject(container.getLocation().toFile(), workingSets, progressMonitor);
 			listener.projectCreated(project);
 			projectFromCurrentContainer.add(project);
 			for (ProjectConfigurator configurator : mainProjectConfigurators) {
@@ -227,8 +226,21 @@ public class OpenFolderCommand extends AbstractHandler {
 				listener.projectConfigured(project, configurator);
 				excludedPaths.addAll(toPathSet(configurator.getDirectoriesToIgnore(project, progressMonitor)));
 			}
-			Set<IProject> allNestedProjects = searchAndImportChildrenProjectsRecursively(project, excludedPaths, workingSets, progressMonitor, listener);
-			excludedPaths.addAll(toPathSet(allNestedProjects));
+		}
+		
+		Set<IProject> allNestedProjects = searchAndImportChildrenProjectsRecursively(container, excludedPaths, workingSets, progressMonitor, listener);
+		excludedPaths.addAll(toPathSet(allNestedProjects));
+		
+		if (allNestedProjects.isEmpty() && isRootProject) {
+			// No sub-project found, so apply available configurators anyway
+			progressMonitor.beginTask("Configuring 'leaf' of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
+			project = toExistingOrNewProject(container.getLocation().toFile(), workingSets, progressMonitor);
+			listener.projectCreated(project);
+			projectFromCurrentContainer.add(project);
+		}
+		
+		if (project != null) {
+			// Apply secondary configurators
 			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), secondaryConfigurators.size());
 			for (ProjectConfigurator additionalConfigurator : secondaryConfigurators) {
 				if (additionalConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
@@ -239,23 +251,6 @@ public class OpenFolderCommand extends AbstractHandler {
 				progressMonitor.worked(1);
 			}
 			projectFromCurrentContainer.addAll(allNestedProjects);
-		} else {
-			Set<IProject> nestedProjects = searchAndImportChildrenProjectsRecursively(container, null, workingSets, progressMonitor, listener);
-			projectFromCurrentContainer.addAll(nestedProjects);
-			if (nestedProjects.isEmpty() && isRootProject) {
-				// No sub-project found, so apply available configurators anyway
-				progressMonitor.beginTask("Configuring 'leaf' of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
-				IProject project = toExistingOrNewProject(container.getLocation().toFile(), workingSets, progressMonitor);
-				projectFromCurrentContainer.add(project);
-				for (ProjectConfigurator activeConfigurator : activeConfigurators) {
-					if (activeConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
-						activeConfigurator.configure(project, excludedPaths, progressMonitor);
-						listener.projectConfigured(project, activeConfigurator);
-						excludedPaths.addAll(toPathSet(activeConfigurator.getDirectoriesToIgnore(project, progressMonitor)));
-					}
-					progressMonitor.worked(1);
-				}
-			}
 		}
 		return projectFromCurrentContainer;
 	}
@@ -319,11 +314,11 @@ public class OpenFolderCommand extends AbstractHandler {
 				}
 			}
 		} else {
-			String currentName = directory.getName();
-			while (this.workspaceRoot.getProject(currentName).exists()) {
-				currentName += "_";
+			StringBuilder currentName = new StringBuilder(directory.getName());
+			while (this.workspaceRoot.getProject(currentName.toString()).exists()) {
+				currentName.append('_');
 			}
-			desc = ResourcesPlugin.getWorkspace().newProjectDescription(currentName);
+			desc = ResourcesPlugin.getWorkspace().newProjectDescription(currentName.toString());
 		}
 		desc.setLocation(new Path(directory.getAbsolutePath()));
 		IProject res = workspaceRoot.getProject(desc.getName());

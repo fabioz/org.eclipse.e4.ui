@@ -57,60 +57,56 @@ public class OpenFolderDropAdapterAssistant extends CommonDropAdapterAssistant {
 
 	@Override
 	public IStatus handleDrop(CommonDropAdapter aDropAdapter, DropTargetEvent aDropTargetEvent, Object aTarget) {
-		try {
-			IWorkbench workbench = PlatformUI.getWorkbench();
-			String[] files = (String[]) aDropTargetEvent.data;
-			// Currently only support single directory
-			if (files.length != 1) {
-				return Status.CANCEL_STATUS;
+		IWorkbench workbench = PlatformUI.getWorkbench();
+		String[] files = (String[]) aDropTargetEvent.data;
+		// Currently only support single directory
+		if (files.length != 1) {
+			return Status.CANCEL_STATUS;
+		}
+		File directory = new File(files[0]);
+		if (!directory.isDirectory()) {
+			return Status.CANCEL_STATUS;
+		}
+		IWorkingSet targetWorkingSet = null;
+		if (aTarget != null) {
+			if (aTarget instanceof IWorkingSet) {
+				targetWorkingSet = (IWorkingSet)aTarget;
+			} else if (aTarget instanceof IAdaptable) {
+				targetWorkingSet = (IWorkingSet) ((IAdaptable)aTarget).getAdapter(IWorkingSet.class);
 			}
-			File directory = new File(files[0]);
-			if (!directory.isDirectory()) {
-				return Status.CANCEL_STATUS;
-			}
-			IWorkingSet targetWorkingSet = null;
-			if (aTarget != null) {
-				if (aTarget instanceof IWorkingSet) {
-					targetWorkingSet = (IWorkingSet)aTarget;
-				} else if (aTarget instanceof IAdaptable) {
-					targetWorkingSet = (IWorkingSet) ((IAdaptable)aTarget).getAdapter(IWorkingSet.class);
+		}
+		Set<IWorkingSet> workingSets = new HashSet<IWorkingSet>();
+		workingSets.add(targetWorkingSet);
+		EasymportWizard wizard = new EasymportWizard();
+		wizard.setInitialDirectory(directory);
+		Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
+		if (targetWorkingSet != null) {
+			initialWorkingSets.add(targetWorkingSet);
+		} else {
+			// inherit workingSets
+			IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			final Path asPath = new Path(directory.getAbsolutePath());
+			IProject parentProject = null;
+			for (IProject project : workspaceRoot.getProjects()) {
+				if (project.getLocation().isPrefixOf(asPath) && (parentProject == null || parentProject.getLocation().isPrefixOf(project.getLocation())) ) {
+					parentProject = project;
 				}
 			}
-			Set<IWorkingSet> workingSets = new HashSet<IWorkingSet>();
-			workingSets.add(targetWorkingSet);
-			EasymportWizard wizard = new EasymportWizard();
-			wizard.setInitialDirectory(directory);
-			Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
-			if (targetWorkingSet != null) {
-				initialWorkingSets.add(targetWorkingSet);
-			} else {
-				// inherit workingSets
-				IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-				final Path asPath = new Path(directory.getAbsolutePath());
-				IProject parentProject = null;
-				for (IProject project : workspaceRoot.getProjects()) {
-					if (project.getLocation().isPrefixOf(asPath) && (parentProject == null || parentProject.getLocation().isPrefixOf(project.getLocation())) ) {
-						parentProject = project;
-					}
-				}
-				if (parentProject != null) {
-					for (IWorkingSet workingSet : workbench.getWorkingSetManager().getAllWorkingSets()) {
-						for (IAdaptable element : workingSet.getElements()) {
-							if (element.equals(parentProject)) {
-								initialWorkingSets.add(workingSet);
-							}
+			if (parentProject != null) {
+				for (IWorkingSet workingSet : workbench.getWorkingSetManager().getAllWorkingSets()) {
+					for (IAdaptable element : workingSet.getElements()) {
+						if (element.equals(parentProject)) {
+							initialWorkingSets.add(workingSet);
 						}
 					}
 				}
 			}
-			wizard.setInitialWorkingSets(initialWorkingSets);
-			WizardDialog wizardDialog = new WizardDialog(workbench.getActiveWorkbenchWindow().getShell(), wizard);
-			wizardDialog.setBlockOnOpen(false);
-			wizardDialog.open();
-			return Status.OK_STATUS;
-		} catch (Exception ex) {
-			return new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);
 		}
+		wizard.setInitialWorkingSets(initialWorkingSets);
+		WizardDialog wizardDialog = new WizardDialog(workbench.getActiveWorkbenchWindow().getShell(), wizard);
+		wizardDialog.setBlockOnOpen(false);
+		wizardDialog.open();
+		return Status.OK_STATUS;
 	}
 
 }
