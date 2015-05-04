@@ -35,10 +35,12 @@ public class Messages extends NLS {
 	public static String EasymportWizardPage_workingSets;
 	public static String EasymportWizardPage_nestedProjects;
 	public static String EasymportWizardPage_detectNestedProjects;
+	public static String EasymportWizardPage_importRawProject;
 	public static String EasymportWizardPage_availableDetectors;
 	public static String EasymportWizardPage_importedProjects;
 	public static String EasymportWizardPage_relativePath;
 	public static String EasymportWizardPage_project;
 	public static String EasymportWizardPage_natures;
+
 
 }

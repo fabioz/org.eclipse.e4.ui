@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
 import org.eclipse.jface.wizard.IWizard;
@@ -33,6 +34,7 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Link;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.dialogs.WorkingSetConfigurationBlock;
@@ -43,6 +45,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 	public static final String ROOT_DIRECTORY = "rootDirectory";
 	
 	private File selection;
+	private boolean detectNestedProjects = true;
 	private Set<IWorkingSet> workingSets;
 	private ControlDecoration rootDirectoryTextDecorator;
 	private WorkingSetConfigurationBlock workingSetsBlock;
@@ -96,6 +99,45 @@ public class SelectImportRootWizardPage extends WizardPage {
 					SelectImportRootWizardPage.this.selection = new File(res);
 					SelectImportRootWizardPage.this.validatePage();
 				}
+			}
+		});
+		
+		final Button importRawProjectRadio = new Button(res, SWT.RADIO);
+		importRawProjectRadio.setText(Messages.EasymportWizardPage_importRawProject);
+		importRawProjectRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		importRawProjectRadio.setSelection(!this.detectNestedProjects);
+		importRawProjectRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean selection = importRawProjectRadio.getSelection();
+				SelectImportRootWizardPage.this.detectNestedProjects = !selection;
+				setPageComplete(isPageComplete());
+			}
+		});
+		final Button detectNestedProjectCheckbox = new Button(res, SWT.RADIO);
+		detectNestedProjectCheckbox.setText(Messages.EasymportWizardPage_detectNestedProjects);
+		detectNestedProjectCheckbox.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		detectNestedProjectCheckbox.setSelection(this.detectNestedProjects);
+		detectNestedProjectCheckbox.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean selection = detectNestedProjectCheckbox.getSelection();
+				SelectImportRootWizardPage.this.detectNestedProjects = selection;
+				setPageComplete(isPageComplete());
+			}
+		});
+		Link showDetectorsLink = new Link(res, SWT.NONE);
+		showDetectorsLink.setText("<A>Show available detectors that will be used to detect and configure nested projects.</A>");
+		showDetectorsLink.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		showDetectorsLink.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				StringBuilder message = new StringBuilder();
+				for (String extensionLabel : ProjectConfiguratorExtensionManager.getAllExtensionLabels()) {
+					message.append(extensionLabel);
+					message.append('\n');
+				}
+				MessageDialog.openInformation(getShell(), "Available detectors and configurators", message.toString());
 			}
 		});
 
@@ -167,10 +209,9 @@ public class SelectImportRootWizardPage extends WizardPage {
 		}
 		return this.workingSets;
 	}
-
-	@Override
-	public boolean canFlipToNextPage() {
-		return this.selection != null && this.selection.isDirectory();
-	}
 	
+	public boolean isConfigureAndDetectNestedProject() {
+		return this.detectNestedProjects;
+	}
+
 }

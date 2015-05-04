@@ -12,12 +12,21 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.IWorkspaceDescription;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
+import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
@@ -29,7 +38,7 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	private File initialSelection;
 	private Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
 	private SelectImportRootWizardPage projectRootPage;
-	private NestedProjectsWizardPage nestedProjectsPage;
+	private IProject newProject;
 
 	public EasymportWizard() {
 		super();
@@ -94,14 +103,15 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	public void addPages() {
 		this.projectRootPage = new SelectImportRootWizardPage(this, this.initialSelection, this.initialWorkingSets);
 		addPage(this.projectRootPage);
-		this.nestedProjectsPage = new NestedProjectsWizardPage(this, this.projectRootPage);
-		addPage(this.nestedProjectsPage);
 	}
 
 	@Override
 	public boolean performFinish() {
-		this.nestedProjectsPage.performNestedImport();
 		getDialogSettings().put(SelectImportRootWizardPage.ROOT_DIRECTORY, projectRootPage.getSelectedRootDirectory().getAbsolutePath());
+		EasymportJob job = new EasymportJob(projectRootPage.getSelectedRootDirectory(), projectRootPage.getSelectedWorkingSets(), projectRootPage.isConfigureAndDetectNestedProject());
+		EasymportJobReportDialog dialog = new EasymportJobReportDialog(getShell(), job);
+		job.schedule();
+		dialog.open();
 		return true;
 	}
 	
