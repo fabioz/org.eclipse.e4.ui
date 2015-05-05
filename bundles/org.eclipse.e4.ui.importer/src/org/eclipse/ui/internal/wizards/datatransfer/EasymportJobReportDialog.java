@@ -27,6 +27,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.jface.wizard.ProgressMonitorPart;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -191,6 +192,8 @@ public class EasymportJobReportDialog extends Dialog {
 			}
 		};
 		this.job.setListener(tableReportFiller);
+		
+		ProgressMonitorPart progressMonitorPart = new ProgressMonitorPart(res, null);
 		
 		return res;
 	}

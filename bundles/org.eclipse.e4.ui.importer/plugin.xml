@@ -13,6 +13,23 @@
                style="push">
          </command>
       </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:org.eclipse.ui.projectConfigure?after=additions">
+         <command
+               commandId="org.eclipse.e4.ui.importer.configureProject"
+               id="org.eclipse.e4.ui.importer.configureProject.popupMenu"
+               style="push">
+               <visibleWhen>
+				<with variable="selection">
+					<count value="1"/>
+					<iterate ifEmpty="false">
+						<instanceof value="org.eclipse.core.resources.IProject"/>
+					</iterate>
+				</with>
+	       	  </visibleWhen>
+         </command>
+      </menuContribution>
    </extension>
    <extension
          point="org.eclipse.ui.commands">
@@ -20,12 +37,28 @@
             id="org.eclipse.e4.ui.importer.openDirectory"
             name="%importProjectsFromFolder_menu">
       </command>
+      <command
+            id="org.eclipse.e4.ui.importer.configureProject"
+            name="%configureProject_contextMenu">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.handlers">
       <handler
             class="org.eclipse.ui.internal.wizards.datatransfer.OpenFolderCommand"
             commandId="org.eclipse.e4.ui.importer.openDirectory">
+      </handler>
+      <handler
+            class="org.eclipse.ui.internal.wizards.datatransfer.ConfigureProjectHandler"
+            commandId="org.eclipse.e4.ui.importer.configureProject">
+            <enabledWhen>
+				<with variable="selection">
+					<count value="1"/>
+					<iterate ifEmpty="false">
+						<instanceof value="org.eclipse.core.resources.IProject"/>
+					</iterate>
+				</with>
+            </enabledWhen>            
       </handler>
    </extension>
    <extension

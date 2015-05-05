@@ -111,7 +111,9 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 		EasymportJob job = new EasymportJob(projectRootPage.getSelectedRootDirectory(), projectRootPage.getSelectedWorkingSets(), projectRootPage.isConfigureAndDetectNestedProject());
 		EasymportJobReportDialog dialog = new EasymportJobReportDialog(getShell(), job);
 		job.schedule();
-		dialog.open();
+		if (projectRootPage.isConfigureAndDetectNestedProject()) {
+			dialog.open();
+		}
 		return true;
 	}
 	
