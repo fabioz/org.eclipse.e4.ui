@@ -124,7 +124,7 @@ public class EasymportJob extends Job {
 		Set<IFolder> childrenToProcess = new HashSet<IFolder>();
 		final Set<IProject> res = Collections.synchronizedSet(new HashSet<IProject>());
 		for (IResource childResource : parentContainer.members()) {
-			if (childResource.getType() == IResource.FOLDER) {
+			if (childResource.getType() == IResource.FOLDER && !childResource.isDerived()) {
 				boolean excluded = false;
 				if (directoriesToExclude != null) {
 					for (IPath excludedPath : directoriesToExclude) {
@@ -168,26 +168,31 @@ public class EasymportJob extends Job {
 		Set<ProjectConfigurator> mainProjectConfigurators = new HashSet<ProjectConfigurator>();
 		Set<ProjectConfigurator> secondaryConfigurators = new HashSet<ProjectConfigurator>();
 		Set<IPath> excludedPaths = new HashSet<IPath>();
+		IProject project = null;
 		for (ProjectConfigurator configurator : activeConfigurators) {
 			if (progressMonitor.isCanceled()) {
 				return null;
 			}
 			if (configurator.shouldBeAnEclipseProject(container, progressMonitor)) {
 				mainProjectConfigurators.add(configurator);
+				if (project == null) {
+					// Create project
+					project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor);
+					if (this.listener != null) {
+						this.listener.projectCreated(project);
+					}
+					// use directly project for next analysis
+					container = project;
+					projectFromCurrentContainer.add(project);					
+				}
 			} else {
 				secondaryConfigurators.add(configurator);
 			}
 			progressMonitor.worked(1);
 		}
 		
-		IProject project = null;
+
 		if (!mainProjectConfigurators.isEmpty()) {
-			// Create project and apply main configurators
-			project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor);
-			if (this.listener != null) {
-				this.listener.projectCreated(project);
-			}
-			projectFromCurrentContainer.add(project);
 			for (ProjectConfigurator configurator : mainProjectConfigurators) {
 				configurator.configure(project, excludedPaths, progressMonitor);
 				this.report.get(project).add(configurator);

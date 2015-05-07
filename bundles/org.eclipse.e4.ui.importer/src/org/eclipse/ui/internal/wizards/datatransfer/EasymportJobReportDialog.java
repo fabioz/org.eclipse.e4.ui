@@ -90,7 +90,7 @@ public class EasymportJobReportDialog extends Dialog {
 //		setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.getDefault().getBundle().getSymbolicName(), "pics/wizban/nestedProjects.png")); //$NON-NLS-1$
 		Composite res = new Composite(parent, SWT.NONE);
 		res.setLayout(new GridLayout(1, false));
-		res.setLayoutData(new GridData(SWT.DEFAULT, SWT.FILL, false, true));
+		res.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		
 		new Label(res, SWT.NONE).setText(Messages.EasymportWizardPage_importedProjects);
 		final TableViewer nestedProjectsTable = new TableViewer(res);

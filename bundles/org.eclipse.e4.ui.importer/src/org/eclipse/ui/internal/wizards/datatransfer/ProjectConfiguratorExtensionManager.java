@@ -47,6 +47,17 @@ public class ProjectConfiguratorExtensionManager {
 	 */
 	public ProjectConfiguratorExtensionManager() {
 		this.extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_ID);
+		// Force Eclipse configurator to be 1st
+		int eclipseConfiguratorIndex = 0;
+		while (eclipseConfiguratorIndex < this.extensions.length && !this.extensions[eclipseConfiguratorIndex].getAttribute("class").equals(EclipseProjectConfigurator.class.getName())) {
+			eclipseConfiguratorIndex++;
+		}
+		if (eclipseConfiguratorIndex != 0 && eclipseConfiguratorIndex < this.extensions.length) {
+			// swap
+			IConfigurationElement tmp = this.extensions[eclipseConfiguratorIndex];
+			this.extensions[eclipseConfiguratorIndex] = this.extensions[0];
+			this.extensions[0] = tmp;
+		}
 		this.expressionConverter = new ExpressionConverter(new ElementHandler[] {
 			ElementHandler.getDefault(),
 			new FileExpressionHandler()
