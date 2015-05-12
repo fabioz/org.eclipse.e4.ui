@@ -35,7 +35,9 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
@@ -49,8 +51,11 @@ public class EasymportJob extends Job {
 	private IWorkspaceRoot workspaceRoot;
 	private ProjectConfiguratorExtensionManager configurationManager;
 	private RecursiveImportListener listener;
+
 	private Map<IProject, List<ProjectConfigurator>> report;
-	
+	private boolean isRootANewProject;
+	private boolean discardRootProject;
+
 	public EasymportJob(File rootDirectory, Set<IWorkingSet> workingSets, boolean recuriveConfigure) {
 		super(rootDirectory.getAbsolutePath());
 		this.workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -63,18 +68,19 @@ public class EasymportJob extends Job {
 		this.recursiveConfigure = recuriveConfigure;
 		this.report = new HashMap<>();
 	}
-	
+
 	public void setListener(RecursiveImportListener listener) {
 		this.listener = listener;
 	}
-	
+
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		try {
+			this.isRootANewProject = projectAlreadyExistsInWorkspace(this.rootDirectory) == null;
 			this.rootProject = toExistingOrNewProject(
 					this.rootDirectory,
 					monitor);
-			
+
 			if (this.recursiveConfigure) {
 		        IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		        IWorkspaceDescription description = workspace.getDescription();
@@ -83,12 +89,29 @@ public class EasymportJob extends Job {
 		        	description.setAutoBuilding(false);
 		        	workspace.setDescription(description);
 		        }
-		        
+
 				importProjectAndChildrenRecursively(this.rootProject, true, monitor);
-				
+
 				if (isAutoBuilding) {
 					description.setAutoBuilding(true);
 		        	workspace.setDescription(description);
+				}
+
+				if (this.isRootANewProject && this.report.size() > 1 &&
+						(this.report.get(this.rootProject).isEmpty()
+						|| (this.report.get(this.rootProject).size() == 1 && this.report.get(this.rootProject).get(0) instanceof EclipseProjectConfigurator))) {
+					Display.getDefault().syncExec(new Runnable() {
+						@Override
+						public void run() {
+							discardRootProject = MessageDialog.openQuestion(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(),
+								Messages.discardRootProject_title,
+								Messages.discardRootProject_description);
+						}
+					});
+					if (this.discardRootProject) {
+						this.rootProject.delete(false, true, monitor);
+						this.report.remove(this.rootProject);
+					}
 				}
 			}
 		} catch (Exception ex) {
@@ -97,7 +120,7 @@ public class EasymportJob extends Job {
 		return Status.OK_STATUS;
 	}
 
-	
+
 	private final class CrawlFolderJob extends Job {
 		private final IFolder childFolder;
 		private final Set<IProject> res;
@@ -139,7 +162,7 @@ public class EasymportJob extends Job {
 			}
 		}
 		// TODO parallelize here
-		
+
 		for (final IFolder childFolder : childrenToProcess) {
 			CrawlFolderJob crawlerJob = new CrawlFolderJob("Crawling " + childFolder.getLocation().toString(), childFolder, res);
 			crawlerJob.run(progressMonitor);
@@ -151,7 +174,7 @@ public class EasymportJob extends Job {
 	 * @param folder
 	 * @param workingSets
 	 * @param progressMonitor
-	 * @param listener 
+	 * @param listener
 	 * @return
 	 * @throws Exception
 	 */
@@ -183,29 +206,29 @@ public class EasymportJob extends Job {
 					}
 					// use directly project for next analysis
 					container = project;
-					projectFromCurrentContainer.add(project);					
+					projectFromCurrentContainer.add(project);
 				}
 			} else {
 				secondaryConfigurators.add(configurator);
 			}
 			progressMonitor.worked(1);
 		}
-		
+
 
 		if (!mainProjectConfigurators.isEmpty()) {
 			for (ProjectConfigurator configurator : mainProjectConfigurators) {
 				configurator.configure(project, excludedPaths, progressMonitor);
 				this.report.get(project).add(configurator);
-				if (this.listener != null) { 
+				if (this.listener != null) {
 					listener.projectConfigured(project, configurator);
 				}
 				excludedPaths.addAll(toPathSet(configurator.getDirectoriesToIgnore(project, progressMonitor)));
 			}
 		}
-		
+
 		Set<IProject> allNestedProjects = searchAndImportChildrenProjectsRecursively(container, excludedPaths, progressMonitor);
 		excludedPaths.addAll(toPathSet(allNestedProjects));
-		
+
 		if (allNestedProjects.isEmpty() && isRootProject) {
 			// No sub-project found, so apply available configurators anyway
 			progressMonitor.beginTask("Configuring 'leaf' of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
@@ -215,7 +238,7 @@ public class EasymportJob extends Job {
 			}
 			projectFromCurrentContainer.add(project);
 		}
-		
+
 		if (project != null) {
 			// Apply secondary configurators
 			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), secondaryConfigurators.size());
@@ -237,7 +260,7 @@ public class EasymportJob extends Job {
 
 	private Set<IPath> toPathSet(Set<? extends IContainer> resources) {
 		if (resources == null || resources.isEmpty()) {
-			return (Set<IPath>)Collections.EMPTY_SET;
+			return Collections.EMPTY_SET;
 		}
 		Set<IPath> res = new HashSet<IPath>();
 		for (IContainer container : resources) {
@@ -308,11 +331,11 @@ public class EasymportJob extends Job {
 		PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(res, this.workingSets);
 		return res;
 	}
-	
+
 	public IProject getRootProject() {
 		return this.rootProject;
 	}
-	
+
 	public Map<IProject, List<ProjectConfigurator>> getConfiguredProjects() {
 		return report;
 	}
