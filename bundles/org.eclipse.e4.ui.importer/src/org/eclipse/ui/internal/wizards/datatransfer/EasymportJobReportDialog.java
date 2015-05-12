@@ -61,8 +61,8 @@ public class EasymportJobReportDialog extends Dialog {
 			}
 			
 			@Override
-			public void done(IJobChangeEvent arg0) {
-				if (arg0.getJob() == EasymportJobReportDialog.this.job) {
+			public void done(IJobChangeEvent job) {
+				if (job.getJob() == EasymportJobReportDialog.this.job && getShell() != null) {
 					getShell().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
