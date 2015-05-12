@@ -20,6 +20,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,9 +32,14 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.JavaProjectNature;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.pde.core.build.IBuildEntry;
+import org.eclipse.pde.core.plugin.IPluginModelBase;
+import org.eclipse.pde.core.plugin.PluginRegistry;
 import org.eclipse.pde.internal.core.ClasspathComputer;
+import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.build.WorkspaceBuildModel;
 import org.eclipse.pde.internal.core.natures.PDE;
+import org.eclipse.pde.internal.core.natures.PluginProject;
+import org.eclipse.pde.internal.core.project.PDEProject;
 import org.eclipse.pde.internal.core.util.CoreUtility;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 import org.osgi.framework.Constants;
@@ -73,34 +79,33 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 				javaProject = (IJavaProject) project.getNature(JavaCore.NATURE_ID);
 			}
 			CoreUtility.addNatureToProject(project, PDE.PLUGIN_NATURE, monitor);
-			IFile buildProperties = project.getFile("build.properties");
-			if (buildProperties.exists()) {
-				WorkspaceBuildModel build = new WorkspaceBuildModel(buildProperties);
-				Set<IContainer> sources = new HashSet<IContainer>();
-				for (IBuildEntry entry : build.getBuild().getBuildEntries()) {
-					if (entry.getName().startsWith("src.")) {
-						for (String token : entry.getTokens()) {
-							IFolder folder = project.getFolder(token);
-							if (folder.exists()) {
-								sources.add(folder);
-							}
+			IFile buildProperties = PDEProject.getBuildProperties(project);
+			PluginProject pdeProject = (PluginProject) project.getNature(PDE.PLUGIN_NATURE);
+			IPluginModelBase model = PDECore.getDefault().getModelManager().findModel(project);
+			Set<IContainer> sources = new HashSet<IContainer>();
+			for (IBuildEntry entry : PluginRegistry.createBuildModel(model).getBuild().getBuildEntries()) {
+				if (entry.getName().startsWith("src.")) {
+					for (String token : entry.getTokens()) {
+						IFolder folder = project.getFolder(token);
+						if (folder.exists()) {
+							sources.add(folder);
 						}
 					}
 				}
-				Set<IClasspathEntry> cpEntries = new HashSet<IClasspathEntry>(Arrays.asList(javaProject.getRawClasspath()));
-				if (!sources.isEmpty()) {
-					for (IClasspathEntry entry : javaProject.getRawClasspath()) {
-						if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
-							cpEntries.remove(entry);
-						}
-					}
-					for (IContainer sourceFolder : sources) {
-						cpEntries.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
-					}
-				}
-				cpEntries.add(ClasspathComputer.createContainerEntry());
-				javaProject.setRawClasspath(cpEntries.toArray(new IClasspathEntry[cpEntries.size()]), monitor);
 			}
+			Set<IClasspathEntry> cpEntries = new HashSet<IClasspathEntry>(Arrays.asList(javaProject.getRawClasspath()));
+			if (!sources.isEmpty()) {
+				for (IClasspathEntry entry : javaProject.getRawClasspath()) {
+					if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
+						cpEntries.remove(entry);
+					}
+				}
+				for (IContainer sourceFolder : sources) {
+					cpEntries.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
+				}
+			}
+			cpEntries.add(ClasspathComputer.createContainerEntry());
+			javaProject.setRawClasspath(cpEntries.toArray(new IClasspathEntry[cpEntries.size()]), monitor);
 		} catch (Exception ex) {
 			Activator.getDefault().getLog().log(new Status(
 					IStatus.ERROR,
@@ -137,8 +142,33 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 
 	@Override
 	public Set<IFolder> getDirectoriesToIgnore(IProject project, IProgressMonitor monitor) {
-		return new JavaProjectNature().getDirectoriesToIgnore(project, monitor);
-		// TODO add directories declared for src.* and bin.* in build.properties
+		Set<IFolder> res = new HashSet<IFolder>();
+		res.addAll(new JavaProjectNature().getDirectoriesToIgnore(project, monitor));
+		try {
+			IFile buildProperties = PDEProject.getBuildProperties(project);
+			PluginProject pdeProject = (PluginProject) project.getNature(PDE.PLUGIN_NATURE);
+			IPluginModelBase model = PDECore.getDefault().getModelManager().findModel(project);
+			for (IBuildEntry entry : PluginRegistry.createBuildModel(model).getBuild().getBuildEntries()) {
+				if (entry.getName().startsWith("src.") || entry.getName().startsWith("bin.")) {
+					for (String token : entry.getTokens()) {
+						if (token.endsWith("/")) {
+							token = token.substring(0, token.length() - 1);
+						}
+						IFolder folder = project.getFolder(token);
+						if (folder.exists()) {
+							res.add(folder);
+						}
+					}
+				}
+			}
+		} catch (CoreException ex) {
+			Activator.getDefault().getLog().log(new Status(
+					IStatus.ERROR,
+					Activator.PLUGIN_ID,
+					ex.getMessage(),
+					ex));
+		}
+		return res;
 	}
 
 }
