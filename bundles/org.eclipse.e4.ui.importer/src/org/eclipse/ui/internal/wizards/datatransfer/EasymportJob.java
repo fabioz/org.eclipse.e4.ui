@@ -303,7 +303,9 @@ public class EasymportJob extends Job {
 				return null;
 			}
 			project.open(progressMonitor);
-			this.report.put(project, new ArrayList<ProjectConfigurator>());
+			if (!this.report.containsKey(project)) {
+				this.report.put(project, new ArrayList<ProjectConfigurator>());
+			}
 			return project;
 		} catch (Exception ex) {
 			throw new CouldNotImportProjectException(directory, ex);
