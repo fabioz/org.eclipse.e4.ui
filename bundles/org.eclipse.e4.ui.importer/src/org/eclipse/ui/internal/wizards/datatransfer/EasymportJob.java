@@ -97,9 +97,7 @@ public class EasymportJob extends Job {
 		        	workspace.setDescription(description);
 				}
 
-				if (this.isRootANewProject && this.report.size() > 1 &&
-						(this.report.get(this.rootProject).isEmpty()
-						|| (this.report.get(this.rootProject).size() == 1 && this.report.get(this.rootProject).get(0) instanceof EclipseProjectConfigurator))) {
+				if (rootProjectWorthBeingRemoved()) {
 					Display.getDefault().syncExec(new Runnable() {
 						@Override
 						public void run() {
@@ -118,6 +116,25 @@ public class EasymportJob extends Job {
 			return new Status(IStatus.ERROR, Activator.PLUGIN_ID, ex.getMessage(), ex);
 		}
 		return Status.OK_STATUS;
+	}
+
+	protected boolean rootProjectWorthBeingRemoved() {
+		if (!this.isRootANewProject) {
+			return false;
+		}
+		if (this.report.size() == 1) {
+			return false;
+		}
+		List<ProjectConfigurator> rootProjectConfigurators = this.report.get(this.rootProject);
+		if (rootProjectConfigurators.isEmpty()) {
+			return true;
+		}
+		boolean areOnlyDummyConfigurators = true;
+		for (ProjectConfigurator configurator : rootProjectConfigurators) {
+			// TODO: semantics whether configurator is "strong enough" for a root project should be put inside configurator
+			areOnlyDummyConfigurators &= (configurator instanceof EclipseProjectConfigurator || configurator instanceof EclipseWorkspaceConfigurator);
+		}
+		return areOnlyDummyConfigurators;
 	}
 
 
@@ -189,7 +206,7 @@ public class EasymportJob extends Job {
 		Collection<ProjectConfigurator> activeConfigurators = this.configurationManager.getAllActiveProjectConfigurators(container);
 		Set<IProject> projectFromCurrentContainer = new HashSet<IProject>();
 		Set<ProjectConfigurator> mainProjectConfigurators = new HashSet<ProjectConfigurator>();
-		Set<ProjectConfigurator> secondaryConfigurators = new HashSet<ProjectConfigurator>();
+		Set<ProjectConfigurator> potentialSecondaryConfigurators = new HashSet<ProjectConfigurator>();
 		Set<IPath> excludedPaths = new HashSet<IPath>();
 		IProject project = null;
 		for (ProjectConfigurator configurator : activeConfigurators) {
@@ -209,11 +226,10 @@ public class EasymportJob extends Job {
 					projectFromCurrentContainer.add(project);
 				}
 			} else {
-				secondaryConfigurators.add(configurator);
+				potentialSecondaryConfigurators.add(configurator);
 			}
 			progressMonitor.worked(1);
 		}
-
 
 		if (!mainProjectConfigurators.isEmpty()) {
 			for (ProjectConfigurator configurator : mainProjectConfigurators) {
@@ -241,8 +257,8 @@ public class EasymportJob extends Job {
 
 		if (project != null) {
 			// Apply secondary configurators
-			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), secondaryConfigurators.size());
-			for (ProjectConfigurator additionalConfigurator : secondaryConfigurators) {
+			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), potentialSecondaryConfigurators.size());
+			for (ProjectConfigurator additionalConfigurator : potentialSecondaryConfigurators) {
 				if (additionalConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
 					additionalConfigurator.configure(project, excludedPaths, progressMonitor);
 					this.report.get(project).add(additionalConfigurator);
@@ -326,7 +342,6 @@ public class EasymportJob extends Job {
 		}
 		desc.setLocation(new Path(directory.getAbsolutePath()));
 		IProject res = workspaceRoot.getProject(desc.getName());
-		// TODO? open Configuration wizard
 		res.create(desc, progressMonitor);
 		PlatformUI.getWorkbench().getWorkingSetManager().addToWorkingSets(res, this.workingSets);
 		return res;

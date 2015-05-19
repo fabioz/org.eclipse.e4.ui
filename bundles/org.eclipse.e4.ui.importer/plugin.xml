@@ -69,8 +69,19 @@
       </image>
    </extension>
 
-   <!-- Drop folders -->
    <extension
+         point="org.eclipse.e4.ui.importer.projectConfigurators">
+      <projectConfigurator
+            class="org.eclipse.ui.internal.wizards.datatransfer.EclipseWorkspaceConfigurator"
+            label="Eclipse workspace">
+         <activeWhen>
+            <hasFolder
+                  path=".metadata">
+            </hasFolder>
+         </activeWhen>
+      </projectConfigurator>
+   </extension>
+      <extension
          point="org.eclipse.e4.ui.importer.projectConfigurators">
       <projectConfigurator
             class="org.eclipse.ui.internal.wizards.datatransfer.EclipseProjectConfigurator"

@@ -27,6 +27,8 @@ public class FileExpressionHandler extends ElementHandler {
 			return new HasFileRecursivelyExpression(element);
 		} else if (HasFileWithSuffixRecursivelyExpression.TAG.equals(name)) {
 			return new HasFileWithSuffixRecursivelyExpression(element);
+		} else if (HasFolderExpression.TAG.equals(name)) {
+			return new HasFolderExpression(element);
 		}
 		return null;
 	}
