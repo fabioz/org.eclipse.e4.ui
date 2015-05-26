@@ -32,19 +32,21 @@ import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
 
 public class OpenFolderCommand extends AbstractHandler {
-	
+
 	private Shell shell;
-	
+
 	public OpenFolderCommand() {
 		super();
 	}
-	
+
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
 		IWorkbench workbench = PlatformUI.getWorkbench();
 		this.shell = workbench.getActiveWorkbenchWindow().getShell();
 		DirectoryDialog directoryDialog = new DirectoryDialog(shell);
 		directoryDialog.setText(Messages.selectFolderToImport);
+		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+		directoryDialog.setFilterPath(workspaceRoot.getLocation().toFile().toString());
 		ISelection sel = workbench.getActiveWorkbenchWindow().getSelectionService().getSelection();
 		IStructuredSelection structuredSel = null;
 		if (sel != null && sel instanceof IStructuredSelection) {
@@ -66,7 +68,6 @@ public class OpenFolderCommand extends AbstractHandler {
 		// inherit workingSets
 		final Path asPath = new Path(directory.getAbsolutePath());
 		IProject parentProject = null;
-		IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		for (IProject project : workspaceRoot.getProjects()) {
 			if (project.getLocation().isPrefixOf(asPath) && (parentProject == null || parentProject.getLocation().isPrefixOf(project.getLocation())) ) {
 				parentProject = project;

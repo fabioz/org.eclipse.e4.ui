@@ -15,6 +15,7 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.fieldassist.ControlDecoration;
 import org.eclipse.jface.fieldassist.FieldDecorationRegistry;
@@ -43,7 +44,7 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 public class SelectImportRootWizardPage extends WizardPage {
 
 	public static final String ROOT_DIRECTORY = "rootDirectory";
-	
+
 	private File selection;
 	private boolean detectNestedProjects = true;
 	private Set<IWorkingSet> workingSets;
@@ -92,7 +93,12 @@ public class SelectImportRootWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				DirectoryDialog dialog = new DirectoryDialog(getShell());
-				dialog.setText(rootDirectoryText.getText());
+				dialog.setText(Messages.selectFolderToImport);
+				if (rootDirectoryText.getText() != null && new File(rootDirectoryText.getText()).isDirectory()) {
+					dialog.setFilterPath(rootDirectoryText.getText());
+				} else {
+					dialog.setFilterPath(ResourcesPlugin.getWorkspace().getRoot().getLocation().toFile().toString());
+				}
 				String res = dialog.open();
 				if (res != null) {
 					rootDirectoryText.setText(res);
@@ -101,7 +107,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 				}
 			}
 		});
-		
+
 		final Button importRawProjectRadio = new Button(res, SWT.RADIO);
 		importRawProjectRadio.setText(Messages.EasymportWizardPage_importRawProject);
 		importRawProjectRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
@@ -160,8 +166,8 @@ public class SelectImportRootWizardPage extends WizardPage {
 		if (this.selection != null) {
 			rootDirectoryText.setText(this.selection.getAbsolutePath());
 			validatePage();
-		} 
-		
+		}
+
 		setControl(res);
 	}
 
@@ -175,17 +181,17 @@ public class SelectImportRootWizardPage extends WizardPage {
 		}
 		setPageComplete(isPageComplete());
 	}
-	
+
 	@Override
 	public boolean isPageComplete() {
 		return this.selection != null && this.selection.isDirectory();
 	}
-	
+
 
 	public File getSelectedRootDirectory() {
 		return this.selection.getAbsoluteFile();
 	}
-	
+
 	public void setInitialSelectedDirectory(File directory) {
 		this.selection = directory;
 		this.rootDirectoryText.setText(directory.getAbsolutePath());
@@ -201,7 +207,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 					SelectImportRootWizardPage.this.workingSets.add(workingSet);
 				}
 			}
-		}; 
+		};
 		if (Display.getCurrent() == null) {
 			getContainer().getShell().getDisplay().syncExec(workingSetsRetriever);
 		} else {
@@ -209,7 +215,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 		}
 		return this.workingSets;
 	}
-	
+
 	public boolean isConfigureAndDetectNestedProject() {
 		return this.detectNestedProjects;
 	}
