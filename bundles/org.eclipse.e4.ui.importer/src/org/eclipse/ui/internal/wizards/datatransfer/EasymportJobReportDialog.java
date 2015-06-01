@@ -27,21 +27,33 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
-import org.eclipse.jface.wizard.ProgressMonitorPart;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.ProgressBar;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.internal.WorkbenchImages;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
 public class EasymportJobReportDialog extends Dialog {
 
 	private EasymportJob job;
 	private IJobChangeListener jobChangeListener;
+
+	private StackLayout progressLayout;
+	private Composite progressComposite;
+	private ProgressBar progressBar;
+	private Label completedStatusLabel;
+	private Label abortedStatusLabel;
+	private Button stopButton;
+	private boolean cancel;
 
 	public EasymportJobReportDialog(Shell shell, EasymportJob job) {
 		super(shell);
@@ -61,11 +73,18 @@ public class EasymportJobReportDialog extends Dialog {
 			}
 
 			@Override
-			public void done(IJobChangeEvent job) {
-				if (job.getJob() == EasymportJobReportDialog.this.job && getShell() != null) {
+			public void done(final IJobChangeEvent jobEvent) {
+				if (jobEvent.getJob() == EasymportJobReportDialog.this.job && getShell() != null) {
 					getShell().getDisplay().asyncExec(new Runnable() {
 						@Override
 						public void run() {
+							EasymportJobReportDialog.this.progressLayout.topControl.setVisible(false);
+							if (!cancel) {
+								EasymportJobReportDialog.this.progressLayout.topControl = completedStatusLabel;
+							} else {
+								EasymportJobReportDialog.this.progressLayout.topControl = abortedStatusLabel;
+							}
+							progressComposite.layout();
 							updateButtons();
 						}
 					});
@@ -89,10 +108,12 @@ public class EasymportJobReportDialog extends Dialog {
 //		setDescription(Messages.EasymportWizardPage_detectNestedProjects);
 //		setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.getDefault().getBundle().getSymbolicName(), "pics/wizban/nestedProjects.png")); //$NON-NLS-1$
 		Composite res = new Composite(parent, SWT.NONE);
-		res.setLayout(new GridLayout(1, false));
+		res.setLayout(new GridLayout(2, false));
 		res.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		new Label(res, SWT.NONE).setText(Messages.EasymportWizardPage_importedProjects);
+		Label label = new Label(res, SWT.NONE);
+		label.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
+		label.setText(Messages.EasymportWizardPage_importedProjects);
 		final TableViewer nestedProjectsTable = new TableViewer(res);
 		nestedProjectsTable.setContentProvider(new IStructuredContentProvider() {
 			@Override
@@ -124,7 +145,7 @@ public class EasymportJobReportDialog extends Dialog {
 			}
 		} });
 		nestedProjectsTable.getTable().setHeaderVisible(true);
-		GridData tableLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true);
+		GridData tableLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 		tableLayoutData.heightHint = 400;
 		nestedProjectsTable.getControl().setLayoutData(tableLayoutData);
 
@@ -193,20 +214,34 @@ public class EasymportJobReportDialog extends Dialog {
 		};
 		this.job.setListener(tableReportFiller);
 
-		ProgressMonitorPart progressMonitorPart = new ProgressMonitorPart(res, null);
-
+		this.progressComposite = new Composite(res, SWT.NONE);
+		progressComposite.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		this.progressLayout = new StackLayout();
+		progressComposite.setLayout(progressLayout);
+		this.progressBar = new ProgressBar(progressComposite, SWT.SMOOTH | SWT.INDETERMINATE);
+		this.progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+		this.progressBar.setToolTipText(Messages.EasymportWizardPage_progressBarTooltip);
+		this.completedStatusLabel = new Label(progressComposite, SWT.NONE);
+		completedStatusLabel.setText("Completed");
+		this.abortedStatusLabel = new Label(progressComposite, SWT.NONE);
+		abortedStatusLabel.setText("Aborted");
+		progressLayout.topControl = this.progressBar;
+		this.stopButton = new Button(res, SWT.PUSH);
+		stopButton.setToolTipText("Abort");
+		stopButton.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				EasymportJobReportDialog.this.cancel = true;
+				job.cancel();
+			}
+		});
+		stopButton.setLayoutData(new GridData(SWT.NONE, SWT.CENTER, false, false));
+		stopButton.setImage(WorkbenchImages.getImage(ISharedImages.IMG_ELCL_STOP));
 		return res;
 	}
 
 	@Override
 	protected void createButtonsForButtonBar(Composite parent) {
-		createButton(parent, CANCEL, "Abort", false).addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				job.cancel();
-				close();
-			}
-		});
 		createButton(parent, OK, "OK", true).addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -217,8 +252,8 @@ public class EasymportJobReportDialog extends Dialog {
 	}
 
 	private void updateButtons() {
+		this.stopButton.setEnabled(this.job.getResult() == null);
 		getButton(OK).setEnabled(this.job.getResult() != null);
-		getButton(CANCEL).setEnabled(this.job.getResult() == null);
 	}
 
 	@Override
