@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     Mickael Istria (Red Hat Inc.) - initial API and implementation
+ *     Aurelien Pupier (Bonitasoft S.A.) - bug fix 470024
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
@@ -184,7 +186,9 @@ public class EasymportJobReportDialog extends Dialog {
 			@Override
 			public String getText(Object element) {
 				IProject project = ((Entry<IProject, List<ProjectConfigurator>>)element).getKey();
-				return project.getLocation().removeFirstSegments(job.getRootProject().getLocation().segmentCount()).toString();
+				IPath rootLocation = job.getRootProject().getLocation();
+				IPath projectLocation = project.getLocation();
+				return projectLocation.makeRelativeTo(rootLocation).toString();
 			}
 		});
 
