@@ -29,6 +29,7 @@ import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.jface.viewers.ViewerSorter;
+import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -56,6 +57,7 @@ public class EasymportJobReportDialog extends Dialog {
 	private Label abortedStatusLabel;
 	private Button stopButton;
 	private boolean cancel;
+	private Label label;
 
 	public EasymportJobReportDialog(Shell shell, EasymportJob job) {
 		super(shell);
@@ -113,9 +115,9 @@ public class EasymportJobReportDialog extends Dialog {
 		res.setLayout(new GridLayout(2, false));
 		res.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Label label = new Label(res, SWT.NONE);
+		label = new Label(res, SWT.NONE);
 		label.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
-		label.setText(Messages.EasymportWizardPage_importedProjects);
+		label.setText(NLS.bind(Messages.EasymportWizardPage_importedProjects, 1));
 		final TableViewer nestedProjectsTable = new TableViewer(res);
 		nestedProjectsTable.setContentProvider(new IStructuredContentProvider() {
 			@Override
@@ -200,6 +202,7 @@ public class EasymportJobReportDialog extends Dialog {
 					@Override
 					public void run() {
 						getShell().layout(true);
+						label.setText(NLS.bind(Messages.EasymportWizardPage_importedProjects, nestedProjectsTable.getTable().getItemCount()));
 					}
 				});
 			}
