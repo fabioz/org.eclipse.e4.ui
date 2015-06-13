@@ -45,5 +45,8 @@
     <module>bundles/org.eclipse.e4.ui.importer.pde</module>
 
     <module>build/org.eclipse.e4.ui.update</module>
+
+    <module>bundles/org.eclipse.e4.ui.macros</module>
+    <module>bundles/org.eclipse.e4.ui.macros.jdt</module>
   </modules>
 </project>

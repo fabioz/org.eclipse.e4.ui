@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: E4 Macros - JDT Support
+Bundle-SymbolicName: org.eclipse.e4.ui.macros.jdt;singleton:=true
+Bundle-Version: 0.1.0.qualifier
+Bundle-Vendor: Eclipse.org
+Fragment-Host: org.eclipse.jdt.ui
+Bundle-RequiredExecutionEnvironment: JavaSE-1.7
+Require-Bundle: org.eclipse.e4.ui.macros
