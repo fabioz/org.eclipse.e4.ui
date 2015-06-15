@@ -79,7 +79,8 @@ public class EasymportJob extends Job {
 			this.isRootANewProject = projectAlreadyExistsInWorkspace(this.rootDirectory) == null;
 			this.rootProject = toExistingOrNewProject(
 					this.rootDirectory,
-					monitor);
+					monitor,
+					IResource.NONE); // complete load of the root project
 
 			if (this.recursiveConfigure) {
 		        IWorkspace workspace = ResourcesPlugin.getWorkspace();
@@ -161,6 +162,7 @@ public class EasymportJob extends Job {
 	}
 
 	private Set<IProject> searchAndImportChildrenProjectsRecursively(IContainer parentContainer, Set<IPath> directoriesToExclude, final IProgressMonitor progressMonitor) throws Exception {
+		parentContainer.refreshLocal(IResource.DEPTH_ONE, progressMonitor); // make sure we know all children
 		Set<IFolder> childrenToProcess = new HashSet<IFolder>();
 		final Set<IProject> res = Collections.synchronizedSet(new HashSet<IProject>());
 		for (IResource childResource : parentContainer.members()) {
@@ -179,7 +181,6 @@ public class EasymportJob extends Job {
 			}
 		}
 		// TODO parallelize here
-
 		for (final IFolder childFolder : childrenToProcess) {
 			CrawlFolderJob crawlerJob = new CrawlFolderJob("Crawling " + childFolder.getLocation().toString(), childFolder, res);
 			crawlerJob.run(progressMonitor);
@@ -199,6 +200,7 @@ public class EasymportJob extends Job {
 		if (progressMonitor.isCanceled()) {
 			return null;
 		}
+		container.refreshLocal(IResource.DEPTH_INFINITE, progressMonitor); // Make sure we have folder content
 		if (this.configurationManager == null) {
 			this.configurationManager = new ProjectConfiguratorExtensionManager();
 		}
@@ -217,12 +219,10 @@ public class EasymportJob extends Job {
 				mainProjectConfigurators.add(configurator);
 				if (project == null) {
 					// Create project
-					project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor);
+					project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.BACKGROUND_REFRESH);
 					if (this.listener != null) {
 						this.listener.projectCreated(project);
 					}
-					// use directly project for next analysis
-					container = project;
 					projectFromCurrentContainer.add(project);
 				}
 			} else {
@@ -248,7 +248,7 @@ public class EasymportJob extends Job {
 		if (allNestedProjects.isEmpty() && isRootProject) {
 			// No sub-project found, so apply available configurators anyway
 			progressMonitor.beginTask("Configuring 'leaf' of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
-			project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor);
+			project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.NONE);
 			if (this.listener != null) {
 				listener.projectCreated(project);
 			}
@@ -288,10 +288,11 @@ public class EasymportJob extends Job {
 	/**
 	 * @param directory
 	 * @param workingSets
+	 * @param refreshMode One {@link IResource#BACKGROUND_REFRESH} for background refresh, or {@link IResource#NONE} for immediate refresh
 	 * @return
 	 * @throws Exception
 	 */
-	private IProject toExistingOrNewProject(File directory, IProgressMonitor progressMonitor) throws CouldNotImportProjectException {
+	private IProject toExistingOrNewProject(File directory, IProgressMonitor progressMonitor, int refreshMode) throws CouldNotImportProjectException {
 		try {
 			progressMonitor.setTaskName("Import project at " + directory.getAbsolutePath());
 			IProject project = projectAlreadyExistsInWorkspace(directory);
@@ -302,7 +303,7 @@ public class EasymportJob extends Job {
 			if (progressMonitor.isCanceled()) {
 				return null;
 			}
-			project.open(progressMonitor);
+			project.open(refreshMode, progressMonitor);
 			if (!this.report.containsKey(project)) {
 				this.report.put(project, new ArrayList<ProjectConfigurator>());
 			}
