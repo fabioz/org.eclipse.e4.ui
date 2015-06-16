@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.core.runtime.jobs.JobGroup;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.widgets.Display;
@@ -56,6 +57,8 @@ public class EasymportJob extends Job {
 	private boolean isRootANewProject;
 	private boolean discardRootProject;
 
+	private JobGroup crawlerJobGroup;
+
 	public EasymportJob(File rootDirectory, Set<IWorkingSet> workingSets, boolean recuriveConfigure) {
 		super(rootDirectory.getAbsolutePath());
 		this.workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
@@ -67,6 +70,7 @@ public class EasymportJob extends Job {
 		}
 		this.recursiveConfigure = recuriveConfigure;
 		this.report = new HashMap<>();
+		this.crawlerJobGroup = new JobGroup("Detecting and configurating nested projects", 0, 1);
 	}
 
 	public void setListener(RecursiveImportListener listener) {
@@ -180,10 +184,20 @@ public class EasymportJob extends Job {
 				}
 			}
 		}
-		// TODO parallelize here
+
+		Set<CrawlFolderJob> jobs = new HashSet<>();
 		for (final IFolder childFolder : childrenToProcess) {
 			CrawlFolderJob crawlerJob = new CrawlFolderJob("Crawling " + childFolder.getLocation().toString(), childFolder, res);
-			crawlerJob.run(progressMonitor);
+			if (crawlerJobGroup.getMaxThreads() == 0 || crawlerJobGroup.getActiveJobs().size() < crawlerJobGroup.getMaxThreads()) {
+				crawlerJob.setJobGroup(crawlerJobGroup);
+				jobs.add(crawlerJob);
+				crawlerJob.schedule();
+			} else {
+				crawlerJob.run(progressMonitor);
+			}
+		}
+		for (CrawlFolderJob job : jobs) {
+			job.join();
 		}
 		return res;
 	}
@@ -255,8 +269,9 @@ public class EasymportJob extends Job {
 			projectFromCurrentContainer.add(project);
 		}
 
-		if (project != null) {
+		if (project != null && !potentialSecondaryConfigurators.isEmpty()) {
 			// Apply secondary configurators
+			project.refreshLocal(IResource.DEPTH_ONE, progressMonitor); // At least one, maybe INFINITE is necessary
 			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), potentialSecondaryConfigurators.size());
 			for (ProjectConfigurator additionalConfigurator : potentialSecondaryConfigurators) {
 				if (additionalConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
