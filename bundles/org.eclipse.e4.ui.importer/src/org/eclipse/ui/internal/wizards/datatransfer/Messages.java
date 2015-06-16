@@ -42,6 +42,8 @@ public class Messages extends NLS {
 	public static String EasymportWizardPage_relativePath;
 	public static String EasymportWizardPage_project;
 	public static String EasymportWizardPage_natures;
+	public static String EasymportWizardPage_importErrors;
+	public static String EasymportWizardPage_error;
 
 	public static String discardRootProject_title;
 	public static String discardRootProject_description;

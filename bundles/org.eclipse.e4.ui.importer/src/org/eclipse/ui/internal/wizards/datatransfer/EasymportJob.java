@@ -56,6 +56,7 @@ public class EasymportJob extends Job {
 	private Map<IProject, List<ProjectConfigurator>> report;
 	private boolean isRootANewProject;
 	private boolean discardRootProject;
+	private Map<IPath, Exception> errors;
 
 	private JobGroup crawlerJobGroup;
 
@@ -71,6 +72,7 @@ public class EasymportJob extends Job {
 		this.recursiveConfigure = recuriveConfigure;
 		this.report = new HashMap<>();
 		this.crawlerJobGroup = new JobGroup("Detecting and configurating nested projects", 0, 1);
+		this.errors = new HashMap<>();
 	}
 
 	public void setListener(RecursiveImportListener listener) {
@@ -233,7 +235,15 @@ public class EasymportJob extends Job {
 				mainProjectConfigurators.add(configurator);
 				if (project == null) {
 					// Create project
-					project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.BACKGROUND_REFRESH);
+					try {
+						project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.BACKGROUND_REFRESH);
+					} catch (CouldNotImportProjectException ex) {
+						this.errors.put(container.getLocation(), ex);
+						if (this.listener != null) {
+							this.listener.errorHappened(container.getLocation(), ex);
+						}
+						return projectFromCurrentContainer;
+					}
 					if (this.listener != null) {
 						this.listener.projectCreated(project);
 					}
@@ -262,7 +272,15 @@ public class EasymportJob extends Job {
 		if (allNestedProjects.isEmpty() && isRootProject) {
 			// No sub-project found, so apply available configurators anyway
 			progressMonitor.beginTask("Configuring 'leaf' of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
-			project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.NONE);
+			try {
+				project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.BACKGROUND_REFRESH);
+			} catch (CouldNotImportProjectException ex) {
+				this.errors.put(container.getLocation(), ex);
+				if (this.listener != null) {
+					this.listener.errorHappened(container.getLocation(), ex);
+				}
+				return projectFromCurrentContainer;
+			}
 			if (this.listener != null) {
 				listener.projectCreated(project);
 			}
@@ -370,6 +388,10 @@ public class EasymportJob extends Job {
 	}
 
 	public Map<IProject, List<ProjectConfigurator>> getConfiguredProjects() {
-		return report;
+		return this.report;
+	}
+
+	public Map<IPath, Exception> getErrors() {
+		return this.errors;
 	}
 }

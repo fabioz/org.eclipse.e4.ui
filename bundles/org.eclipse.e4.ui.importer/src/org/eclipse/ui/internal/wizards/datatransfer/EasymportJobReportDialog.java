@@ -57,7 +57,6 @@ public class EasymportJobReportDialog extends Dialog {
 	private Label abortedStatusLabel;
 	private Button stopButton;
 	private boolean cancel;
-	private Label label;
 
 	public EasymportJobReportDialog(Shell shell, EasymportJob job) {
 		super(shell);
@@ -111,13 +110,15 @@ public class EasymportJobReportDialog extends Dialog {
 		getShell().setText(Messages.EasymportWizardPage_nestedProjects);
 //		setDescription(Messages.EasymportWizardPage_detectNestedProjects);
 //		setImageDescriptor(Activator.imageDescriptorFromPlugin(Activator.getDefault().getBundle().getSymbolicName(), "pics/wizban/nestedProjects.png")); //$NON-NLS-1$
-		Composite res = new Composite(parent, SWT.NONE);
+		final Composite res = new Composite(parent, SWT.NONE);
 		res.setLayout(new GridLayout(2, false));
 		res.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		label = new Label(res, SWT.NONE);
-		label.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
-		label.setText(NLS.bind(Messages.EasymportWizardPage_importedProjects, 1));
+		//// Nested projects
+		final Label nestedProjectsLabel = new Label(res, SWT.NONE);
+		nestedProjectsLabel.setLayoutData(new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1));
+		nestedProjectsLabel.setText(NLS.bind(Messages.EasymportWizardPage_importedProjects, 0));
+
 		final TableViewer nestedProjectsTable = new TableViewer(res);
 		nestedProjectsTable.setContentProvider(new IStructuredContentProvider() {
 			@Override
@@ -193,16 +194,86 @@ public class EasymportJobReportDialog extends Dialog {
 				return projectLocation.makeRelativeTo(rootLocation).toString();
 			}
 		});
-
 		nestedProjectsTable.setInput(this.job.getConfiguredProjects());
+
+
+		//// Errors
+		final Label errorsLabel = new Label(res, SWT.NONE);
+		GridData errorLabelLayoutData = new GridData(SWT.FILL, SWT.NONE, true, false, 2, 1);
+		errorLabelLayoutData.exclude = true;
+		errorsLabel.setLayoutData(errorLabelLayoutData);
+		errorsLabel.setText(NLS.bind(Messages.EasymportWizardPage_importErrors, 0));
+
+		final TableViewer errorsTable = new TableViewer(res);
+		errorsTable.setContentProvider(new IStructuredContentProvider() {
+			@Override
+			public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+			}
+
+			@Override
+			public void dispose() {
+			}
+
+			@Override
+			public Object[] getElements(Object root) {
+				return ((Map<IPath, Exception>)root).entrySet().toArray();
+			}
+		});
+		errorsTable.setSorter(new ViewerSorter() {
+			@Override
+			public int compare(Viewer viewer, Object o1, Object o2) {
+				IPath location1 = ((Entry<IPath, Exception>) o1).getKey();
+				IPath location2 = ((Entry<IPath, Exception>) o2).getKey();
+				return location1.toString().compareTo(location2.toString());
+			}
+		});
+		errorsTable.setFilters(new ViewerFilter[] { new ViewerFilter() {
+			@Override
+			public boolean select(Viewer viewer, Object parentElement, Object element) {
+				Entry<IPath, Exception> entry = (Entry<IPath, Exception>) element;
+				return job.getRootProject().getLocation().isPrefixOf(entry.getKey());
+			}
+		} });
+		errorsTable.getTable().setHeaderVisible(true);
+		GridData errorTableLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		errorTableLayoutData.heightHint = 100;
+		errorTableLayoutData.exclude = true;
+		errorsTable.getControl().setLayoutData(errorTableLayoutData);
+
+		TableViewerColumn errorRelativePathColumn = new TableViewerColumn(errorsTable, SWT.LEFT);
+		errorRelativePathColumn.getColumn().setText(Messages.EasymportWizardPage_relativePath);
+		errorRelativePathColumn.getColumn().setWidth(300);
+		errorRelativePathColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				IPath rootLocation = job.getRootProject().getLocation();
+				IPath projectLocation = ((Entry<IPath, Exception>)element).getKey();
+				return projectLocation.makeRelativeTo(rootLocation).toString();
+			}
+		});
+		TableViewerColumn errorColumn = new TableViewerColumn(errorsTable, SWT.LEFT);
+		errorColumn.getColumn().setText(Messages.EasymportWizardPage_error);
+		errorColumn.getColumn().setWidth(500);
+		errorColumn.setLabelProvider(new ColumnLabelProvider() {
+			@Override
+			public String getText(Object element) {
+				return ((Entry<IPath, Exception>)element).getValue().getMessage();
+			}
+		});
+		errorsTable.setInput(this.job.getErrors());
+
+
+
 		RecursiveImportListener tableReportFiller = new RecursiveImportListener() {
 			@Override
 			public void projectCreated(IProject project) {
 				nestedProjectsTable.getControl().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
-						getShell().layout(true);
-						label.setText(NLS.bind(Messages.EasymportWizardPage_importedProjects, nestedProjectsTable.getTable().getItemCount()));
+						nestedProjectsTable.refresh();
+						nestedProjectsTable.getTable().update();
+						nestedProjectsTable.getTable().redraw();
+						nestedProjectsLabel.setText(NLS.bind(Messages.EasymportWizardPage_importedProjects, job.getConfiguredProjects().size()));
 					}
 				});
 			}
@@ -215,6 +286,24 @@ public class EasymportJobReportDialog extends Dialog {
 						nestedProjectsTable.refresh();
 						nestedProjectsTable.getTable().update();
 						nestedProjectsTable.getTable().redraw();
+					}
+				});
+			}
+
+			@Override
+			public void errorHappened(IPath location, Exception error) {
+				errorsTable.getControl().getDisplay().asyncExec(new Runnable() {
+					@Override
+					public void run() {
+						GridData gridData = (GridData)errorsTable.getControl().getLayoutData();
+						if (gridData.exclude) {
+							gridData.exclude = false;
+							((GridData)errorsLabel.getLayoutData()).exclude = false;
+						}
+						errorsTable.refresh();
+						errorsTable.getTable().update();
+						errorsLabel.setText(NLS.bind(Messages.EasymportWizardPage_importErrors, job.getErrors().size()));
+						res.layout(true);
 					}
 				});
 			}
