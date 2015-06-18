@@ -20,7 +20,7 @@
 
   <groupId>org.eclipse.e4</groupId>
   <artifactId>org.eclipse.e4.ui.importer.pde</artifactId>
-  <version>0.1.0.qualifier</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>eclipse-plugin</packaging>
 
 </project>
