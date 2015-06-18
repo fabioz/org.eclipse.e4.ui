@@ -36,7 +36,9 @@ public class Messages extends NLS {
 	public static String EasymportWizardPage_nestedProjects;
 	public static String EasymportWizardPage_detectNestedProjects;
 	public static String EasymportWizardPage_importRawProject;
-	public static String EasymportWizardPage_availableDetectors;
+	public static String EasymportWizardPage_showAvailableDetectors;
+	public static String EasymportWizardPage_availableDetectors_title;
+	public static String EasymportWizardPage_availableDetectors_description;
 	public static String EasymportWizardPage_importedProjects;
 	public static String EasymportWizardPage_progressBarTooltip;
 	public static String EasymportWizardPage_relativePath;

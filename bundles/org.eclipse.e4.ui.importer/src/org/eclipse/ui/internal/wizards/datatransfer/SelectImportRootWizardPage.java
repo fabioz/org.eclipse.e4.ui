@@ -12,7 +12,10 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -133,17 +136,23 @@ public class SelectImportRootWizardPage extends WizardPage {
 			}
 		});
 		Link showDetectorsLink = new Link(res, SWT.NONE);
-		showDetectorsLink.setText("<A>Show available detectors that will be used to detect and configure nested projects.</A>");
+		showDetectorsLink.setText("<A>" + Messages.EasymportWizardPage_showAvailableDetectors + "</A>");
 		showDetectorsLink.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
 		showDetectorsLink.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				StringBuilder message = new StringBuilder();
-				for (String extensionLabel : ProjectConfiguratorExtensionManager.getAllExtensionLabels()) {
+				message.append(Messages.EasymportWizardPage_availableDetectors_description);
+				message.append('\n');
+				message.append('\n');
+				List<String> extensionsLabels = new ArrayList<String>(ProjectConfiguratorExtensionManager.getAllExtensionLabels());
+				Collections.sort(extensionsLabels);
+				for (String extensionLabel : extensionsLabels) {
+					message.append("* ");
 					message.append(extensionLabel);
 					message.append('\n');
 				}
-				MessageDialog.openInformation(getShell(), "Available detectors and configurators", message.toString());
+				MessageDialog.openInformation(getShell(), Messages.EasymportWizardPage_availableDetectors_title, message.toString());
 			}
 		});
 
