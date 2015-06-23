@@ -12,6 +12,7 @@ package org.eclipse.pde.internal.ui.wizards;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.jar.Manifest;
@@ -20,6 +21,7 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -32,11 +34,11 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.ui.wizards.JavaProjectNature;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.pde.core.build.IBuildEntry;
+import org.eclipse.pde.core.build.IBuildModel;
 import org.eclipse.pde.core.plugin.IPluginModelBase;
 import org.eclipse.pde.core.plugin.PluginRegistry;
 import org.eclipse.pde.internal.core.ClasspathComputer;
 import org.eclipse.pde.internal.core.PDECore;
-import org.eclipse.pde.internal.core.build.WorkspaceBuildModel;
 import org.eclipse.pde.internal.core.natures.PDE;
 import org.eclipse.pde.internal.core.natures.PluginProject;
 import org.eclipse.pde.internal.core.project.PDEProject;
@@ -48,8 +50,8 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 
 	@Override
 	public boolean canConfigure(IProject project, Set<IPath> ignoredDirectories, IProgressMonitor monitor) {
-		IFile manifestFile = project.getFile(new Path("META-INF/MANIFEST.MF"));
-		if (manifestFile.exists()) {
+		IFile manifestFile = PDEProject.getManifest(project);;
+		if (manifestFile != null && manifestFile.exists()) {
 			for (IPath ignoredDirectory : ignoredDirectories) {
 				if (ignoredDirectory.isPrefixOf(manifestFile.getLocation())) {
 					return false;
@@ -146,17 +148,30 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 		res.addAll(new JavaProjectNature().getDirectoriesToIgnore(project, monitor));
 		try {
 			IFile buildProperties = PDEProject.getBuildProperties(project);
-			PluginProject pdeProject = (PluginProject) project.getNature(PDE.PLUGIN_NATURE);
 			IPluginModelBase model = PDECore.getDefault().getModelManager().findModel(project);
-			for (IBuildEntry entry : PluginRegistry.createBuildModel(model).getBuild().getBuildEntries()) {
-				if (entry.getName().startsWith("src.") || entry.getName().startsWith("bin.")) {
+			if (model == null) {
+				Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), "Could not resolve PDE build model for " + project.getLocation()));
+				// in such case, exclude everything
+				for (IResource child : project.members()) {
+					if (child.getType() == IResource.FOLDER) {
+						res.add((IFolder)child);
+					}
+				}
+				return res;
+			}
+			IBuildModel buildModel = PluginRegistry.createBuildModel(model);
+			for (IBuildEntry entry : buildModel.getBuild().getBuildEntries()) {
+				if (entry.getName().startsWith("src.") || entry.getName().startsWith("source.") ||
+					entry.getName().startsWith("bin.") || entry.getName().startsWith("output.")) {
 					for (String token : entry.getTokens()) {
 						if (token.endsWith("/")) {
 							token = token.substring(0, token.length() - 1);
 						}
-						IFolder folder = project.getFolder(token);
-						if (folder.exists()) {
-							res.add(folder);
+						if (token != null && token.length() > 0 && !token.equals(".")) {
+							IFolder folder = project.getFolder(token);
+							if (folder.exists()) {
+								res.add(folder);
+							}
 						}
 					}
 				}

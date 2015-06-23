@@ -50,7 +50,7 @@ public class ConfigureProjectHandler extends AbstractHandler {
 			}
 		}
 		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		EasymportJob job = new EasymportJob(project.getLocation().toFile(), workingSets, true);
+		EasymportJob job = new EasymportJob(project.getLocation().toFile(), workingSets, true, true);
 		EasymportJobReportDialog dialog = new EasymportJobReportDialog(shell, job);
 		job.schedule();
 		return dialog.open();

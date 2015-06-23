@@ -12,21 +12,13 @@
 package org.eclipse.ui.internal.wizards.datatransfer;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.IWorkspaceDescription;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IAdaptable;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
 import org.eclipse.jface.dialogs.IDialogSettings;
-import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
@@ -50,15 +42,15 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 			setDialogSettings(dialogSettings);
 		}
 	}
-	
+
 	public void setInitialDirectory(File directory) {
 		this.initialSelection = directory;
 	}
-	
+
 	public void setInitialWorkingSets(Set<IWorkingSet> workingSets) {
 		this.initialWorkingSets = workingSets;
 	}
-	
+
 	@Override
 	public void init(IWorkbench workbench, IStructuredSelection selection) {
 		if (selection != null) {
@@ -75,14 +67,14 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 			}
 		}
 	}
-	
+
 	public static File toFile(Object o) {
 		if (o instanceof File) {
 			return (File)o;
 		} else if (o instanceof IResource) {
 			return ((IResource)o).getLocation().toFile();
 		} else if (o instanceof IAdaptable) {
-			IResource resource = (IResource) ((IAdaptable)o).getAdapter(IResource.class);
+			IResource resource = ((IAdaptable)o).getAdapter(IResource.class);
 			if (resource != null) {
 				return resource.getLocation().toFile();
 			}
@@ -94,7 +86,7 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 		if (o instanceof IWorkingSet) {
 			return (IWorkingSet)o;
 		} else if (o instanceof IAdaptable) {
-			return (IWorkingSet) ((IAdaptable)o).getAdapter(IWorkingSet.class);
+			return ((IAdaptable)o).getAdapter(IWorkingSet.class);
 		}
 		return null;
 	}
@@ -108,13 +100,13 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	@Override
 	public boolean performFinish() {
 		getDialogSettings().put(SelectImportRootWizardPage.ROOT_DIRECTORY, projectRootPage.getSelectedRootDirectory().getAbsolutePath());
-		EasymportJob job = new EasymportJob(projectRootPage.getSelectedRootDirectory(), projectRootPage.getSelectedWorkingSets(), projectRootPage.isConfigureAndDetectNestedProject());
+		EasymportJob job = new EasymportJob(projectRootPage.getSelectedRootDirectory(), projectRootPage.getSelectedWorkingSets(), projectRootPage.isConfigureProjects(), projectRootPage.isDetectNestedProject());
 		EasymportJobReportDialog dialog = new EasymportJobReportDialog(getShell(), job);
 		job.schedule();
-		if (projectRootPage.isConfigureAndDetectNestedProject()) {
+		if (projectRootPage.isDetectNestedProject() || projectRootPage.isConfigureProjects()) {
 			dialog.open();
 		}
 		return true;
 	}
-	
+
 }

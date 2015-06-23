@@ -216,6 +216,9 @@ public class JavaProjectNature implements ProjectConfigurator {
 		Set<IFolder> res = new HashSet<IFolder>();
 		try {
 			IJavaProject javaProject = (IJavaProject)project.getNature(JavaCore.NATURE_ID);
+			if (javaProject == null) {
+				return res;
+			}
 			IResource resource = project.getWorkspace().getRoot().findMember(javaProject.getOutputLocation());
 			if (resource != null && resource.exists() && resource.getType() == IResource.FOLDER) {
 				res.add((IFolder)resource);

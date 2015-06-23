@@ -45,9 +45,19 @@ import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
 public class EasymportJob extends Job {
 
+	/*
+	 * Input parameters
+	 */
 	private File rootDirectory;
+	private boolean discardRootProject;
+	private boolean deepChildrenDetection;
+	private boolean configureProjects;
+	private boolean reconfigureEclipseProjects;
 	private IWorkingSet[] workingSets;
-	private boolean recursiveConfigure;
+
+	/*
+	 * working fields
+	 */
 	private IProject rootProject;
 	private IWorkspaceRoot workspaceRoot;
 	private ProjectConfiguratorExtensionManager configurationManager;
@@ -55,12 +65,11 @@ public class EasymportJob extends Job {
 
 	private Map<IProject, List<ProjectConfigurator>> report;
 	private boolean isRootANewProject;
-	private boolean discardRootProject;
 	private Map<IPath, Exception> errors;
 
 	private JobGroup crawlerJobGroup;
 
-	public EasymportJob(File rootDirectory, Set<IWorkingSet> workingSets, boolean recuriveConfigure) {
+	public EasymportJob(File rootDirectory, Set<IWorkingSet> workingSets, boolean configureProjects, boolean recuriveChildrenDetection) {
 		super(rootDirectory.getAbsolutePath());
 		this.workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
 		this.rootDirectory = rootDirectory;
@@ -69,10 +78,16 @@ public class EasymportJob extends Job {
 		} else {
 			this.workingSets = new IWorkingSet[0];
 		}
-		this.recursiveConfigure = recuriveConfigure;
+		this.configureProjects = configureProjects;
+		this.deepChildrenDetection = recuriveChildrenDetection;
 		this.report = new HashMap<>();
 		this.crawlerJobGroup = new JobGroup("Detecting and configurating nested projects", 0, 1);
 		this.errors = new HashMap<>();
+	}
+
+	@Deprecated
+	public EasymportJob(File rootDirectory, Set<IWorkingSet> workingSets, boolean configureAndDetectNestedProject) {
+		this(rootDirectory, workingSets, configureAndDetectNestedProject, configureAndDetectNestedProject);
 	}
 
 	public void setListener(RecursiveImportListener listener) {
@@ -82,13 +97,14 @@ public class EasymportJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		try {
-			this.isRootANewProject = projectAlreadyExistsInWorkspace(this.rootDirectory) == null;
+			this.isRootANewProject = !new File(this.rootDirectory, ".project").isFile();
 			this.rootProject = toExistingOrNewProject(
 					this.rootDirectory,
 					monitor,
 					IResource.NONE); // complete load of the root project
 
-			if (this.recursiveConfigure) {
+
+			if (this.configureProjects) {
 		        IWorkspace workspace = ResourcesPlugin.getWorkspace();
 		        IWorkspaceDescription description = workspace.getDescription();
 		        boolean isAutoBuilding = workspace.isAutoBuilding();
@@ -97,7 +113,7 @@ public class EasymportJob extends Job {
 		        	workspace.setDescription(description);
 		        }
 
-				importProjectAndChildrenRecursively(this.rootProject, true, monitor);
+				importProjectAndChildrenRecursively(this.rootProject, this.deepChildrenDetection, true, monitor);
 
 				if (isAutoBuilding) {
 					description.setAutoBuilding(true);
@@ -126,7 +142,7 @@ public class EasymportJob extends Job {
 	}
 
 	protected boolean rootProjectWorthBeingRemoved() {
-		if (!this.isRootANewProject) {
+		if (this.isRootANewProject) {
 			return false;
 		}
 		if (this.report.size() == 1) {
@@ -158,7 +174,7 @@ public class EasymportJob extends Job {
 		@Override
 		public IStatus run(IProgressMonitor progressMonitor) {
 			try {
-				Set<IProject> projectFromCurrentContainer = importProjectAndChildrenRecursively(childFolder, false, progressMonitor);
+				Set<IProject> projectFromCurrentContainer = importProjectAndChildrenRecursively(childFolder, true, false, progressMonitor);
 				res.addAll(projectFromCurrentContainer);
 				return Status.OK_STATUS;
 			} catch (Exception ex) {
@@ -204,29 +220,27 @@ public class EasymportJob extends Job {
 		return res;
 	}
 
-	/**
-	 * @param folder
-	 * @param workingSets
-	 * @param progressMonitor
-	 * @param listener
-	 * @return
-	 * @throws Exception
-	 */
-	private Set<IProject> importProjectAndChildrenRecursively(IContainer container, boolean isRootProject, IProgressMonitor progressMonitor) throws Exception {
+	private Set<IProject> importProjectAndChildrenRecursively(IContainer container, boolean deepDetectChildren, boolean isRootProject, IProgressMonitor progressMonitor) throws Exception {
 		if (progressMonitor.isCanceled()) {
 			return null;
 		}
-		container.refreshLocal(IResource.DEPTH_INFINITE, progressMonitor); // Make sure we have folder content
+		progressMonitor.setTaskName("Inspecting " + container.getLocation().toFile().getAbsolutePath());
+		Set<IProject> projectFromCurrentContainer = new HashSet<IProject>();
+		EclipseProjectConfigurator eclipseProjectConfigurator = new EclipseProjectConfigurator();
+		boolean isAlreadyAnEclipseProject = false;
+		Set<ProjectConfigurator> mainProjectConfigurators = new HashSet<ProjectConfigurator>();
+		Set<IPath> excludedPaths = new HashSet<IPath>();
+		IProject project = null;
+		container.refreshLocal(IResource.DEPTH_INFINITE, progressMonitor);
+		if (eclipseProjectConfigurator.shouldBeAnEclipseProject(container, progressMonitor) && !(container == this.rootProject && this.isRootANewProject)) {
+			isAlreadyAnEclipseProject = true;
+		}
+
 		if (this.configurationManager == null) {
 			this.configurationManager = new ProjectConfiguratorExtensionManager();
 		}
-		progressMonitor.setTaskName("Inspecting " + container.getLocation().toFile().getAbsolutePath());
 		Collection<ProjectConfigurator> activeConfigurators = this.configurationManager.getAllActiveProjectConfigurators(container);
-		Set<IProject> projectFromCurrentContainer = new HashSet<IProject>();
-		Set<ProjectConfigurator> mainProjectConfigurators = new HashSet<ProjectConfigurator>();
 		Set<ProjectConfigurator> potentialSecondaryConfigurators = new HashSet<ProjectConfigurator>();
-		Set<IPath> excludedPaths = new HashSet<IPath>();
-		IProject project = null;
 		for (ProjectConfigurator configurator : activeConfigurators) {
 			if (progressMonitor.isCanceled()) {
 				return null;
@@ -256,21 +270,27 @@ public class EasymportJob extends Job {
 		}
 
 		if (!mainProjectConfigurators.isEmpty()) {
-			for (ProjectConfigurator configurator : mainProjectConfigurators) {
+			project.refreshLocal(IResource.DEPTH_INFINITE, progressMonitor);
+		}
+		for (ProjectConfigurator configurator : mainProjectConfigurators) {
+			if (configurator instanceof EclipseProjectConfigurator || !isAlreadyAnEclipseProject || this.reconfigureEclipseProjects) {
 				configurator.configure(project, excludedPaths, progressMonitor);
 				this.report.get(project).add(configurator);
 				if (this.listener != null) {
 					listener.projectConfigured(project, configurator);
 				}
-				excludedPaths.addAll(toPathSet(configurator.getDirectoriesToIgnore(project, progressMonitor)));
 			}
+			excludedPaths.addAll(toPathSet(configurator.getDirectoriesToIgnore(project, progressMonitor)));
 		}
 
-		Set<IProject> allNestedProjects = searchAndImportChildrenProjectsRecursively(container, excludedPaths, progressMonitor);
-		excludedPaths.addAll(toPathSet(allNestedProjects));
+		Set<IProject> allNestedProjects = new HashSet<>();
+		if (deepChildrenDetection) {
+			allNestedProjects.addAll( searchAndImportChildrenProjectsRecursively(container, excludedPaths, progressMonitor) );
+			excludedPaths.addAll(toPathSet(allNestedProjects));
+		}
 
 		if (allNestedProjects.isEmpty() && isRootProject) {
-			// No sub-project found, so apply available configurators anyway
+			// Root without sub-project found, create project anyway
 			progressMonitor.beginTask("Configuring 'leaf' of project at " + container.getLocation().toFile().getAbsolutePath(), activeConfigurators.size());
 			try {
 				project = toExistingOrNewProject(container.getLocation().toFile(), progressMonitor, IResource.BACKGROUND_REFRESH);
@@ -293,10 +313,12 @@ public class EasymportJob extends Job {
 			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), potentialSecondaryConfigurators.size());
 			for (ProjectConfigurator additionalConfigurator : potentialSecondaryConfigurators) {
 				if (additionalConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
-					additionalConfigurator.configure(project, excludedPaths, progressMonitor);
-					this.report.get(project).add(additionalConfigurator);
-					if (this.listener != null) {
-						listener.projectConfigured(project, additionalConfigurator);
+					if (!isAlreadyAnEclipseProject || this.reconfigureEclipseProjects) {
+						additionalConfigurator.configure(project, excludedPaths, progressMonitor);
+						this.report.get(project).add(additionalConfigurator);
+						if (this.listener != null) {
+							listener.projectConfigured(project, additionalConfigurator);
+						}
 					}
 					excludedPaths.addAll(toPathSet(additionalConfigurator.getDirectoriesToIgnore(project, progressMonitor)));
 				}

@@ -50,6 +50,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 
 	private File selection;
 	private boolean detectNestedProjects = true;
+	private boolean configureProjects = true;
 	private Set<IWorkingSet> workingSets;
 	private ControlDecoration rootDirectoryTextDecorator;
 	private WorkingSetConfigurationBlock workingSetsBlock;
@@ -119,7 +120,25 @@ public class SelectImportRootWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean selection = importRawProjectRadio.getSelection();
-				SelectImportRootWizardPage.this.detectNestedProjects = !selection;
+				if (selection) {
+					SelectImportRootWizardPage.this.detectNestedProjects = false;
+					SelectImportRootWizardPage.this.configureProjects = false;
+				}
+				setPageComplete(isPageComplete());
+			}
+		});
+		final Button importAndConfigureProjectRadio = new Button(res, SWT.RADIO);
+		importAndConfigureProjectRadio.setText(Messages.EasymportWizardPage_importAndConfigureProject);
+		importAndConfigureProjectRadio.setLayoutData(new GridData(SWT.LEFT, SWT.CENTER, false, false, 3, 1));
+		importAndConfigureProjectRadio.setSelection(!this.detectNestedProjects);
+		importAndConfigureProjectRadio.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				boolean selection = importAndConfigureProjectRadio.getSelection();
+				if (selection) {
+					SelectImportRootWizardPage.this.detectNestedProjects = false;
+					SelectImportRootWizardPage.this.configureProjects = true;
+				}
 				setPageComplete(isPageComplete());
 			}
 		});
@@ -131,7 +150,10 @@ public class SelectImportRootWizardPage extends WizardPage {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean selection = detectNestedProjectCheckbox.getSelection();
-				SelectImportRootWizardPage.this.detectNestedProjects = selection;
+				if (selection) {
+					SelectImportRootWizardPage.this.detectNestedProjects = true;
+					SelectImportRootWizardPage.this.configureProjects = true;
+				}
 				setPageComplete(isPageComplete());
 			}
 		});
@@ -225,8 +247,23 @@ public class SelectImportRootWizardPage extends WizardPage {
 		return this.workingSets;
 	}
 
-	public boolean isConfigureAndDetectNestedProject() {
+	public boolean isDetectNestedProject() {
 		return this.detectNestedProjects;
 	}
 
+	public boolean isConfigureProjects() {
+		return this.configureProjects;
+	}
+
+	/**
+	 *
+	 * @return
+	 * @deprecated Use {@link #isConfigureProjects()} and {@link #isDetectNestedProject()} instead
+	 */
+	@Deprecated
+	public boolean isConfigureAndDetectNestedProject() {
+		return isConfigureProjects();
+	}
+
 }
+
