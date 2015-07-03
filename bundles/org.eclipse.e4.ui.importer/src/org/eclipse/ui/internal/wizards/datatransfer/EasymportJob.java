@@ -287,6 +287,7 @@ public class EasymportJob extends Job {
 		if (deepChildrenDetection) {
 			allNestedProjects.addAll( searchAndImportChildrenProjectsRecursively(container, excludedPaths, progressMonitor) );
 			excludedPaths.addAll(toPathSet(allNestedProjects));
+			projectFromCurrentContainer.addAll(allNestedProjects);
 		}
 
 		if (allNestedProjects.isEmpty() && isRootProject) {
@@ -307,24 +308,21 @@ public class EasymportJob extends Job {
 			projectFromCurrentContainer.add(project);
 		}
 
-		if (project != null && !potentialSecondaryConfigurators.isEmpty()) {
+		if (project != null && (!isAlreadyAnEclipseProject || this.reconfigureEclipseProjects) && !potentialSecondaryConfigurators.isEmpty()) {
 			// Apply secondary configurators
 			project.refreshLocal(IResource.DEPTH_ONE, progressMonitor); // At least one, maybe INFINITE is necessary
 			progressMonitor.beginTask("Continue configuration of project at " + container.getLocation().toFile().getAbsolutePath(), potentialSecondaryConfigurators.size());
 			for (ProjectConfigurator additionalConfigurator : potentialSecondaryConfigurators) {
 				if (additionalConfigurator.canConfigure(project, excludedPaths, progressMonitor)) {
-					if (!isAlreadyAnEclipseProject || this.reconfigureEclipseProjects) {
-						additionalConfigurator.configure(project, excludedPaths, progressMonitor);
-						this.report.get(project).add(additionalConfigurator);
-						if (this.listener != null) {
-							listener.projectConfigured(project, additionalConfigurator);
-						}
+					additionalConfigurator.configure(project, excludedPaths, progressMonitor);
+					this.report.get(project).add(additionalConfigurator);
+					if (this.listener != null) {
+						listener.projectConfigured(project, additionalConfigurator);
 					}
 					excludedPaths.addAll(toPathSet(additionalConfigurator.getDirectoriesToIgnore(project, progressMonitor)));
 				}
 				progressMonitor.worked(1);
 			}
-			projectFromCurrentContainer.addAll(allNestedProjects);
 		}
 		return projectFromCurrentContainer;
 	}

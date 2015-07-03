@@ -11,9 +11,9 @@
 package org.eclipse.pde.internal.ui.wizards;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.Set;
 import java.util.jar.Manifest;
 
@@ -21,8 +21,6 @@ import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -31,16 +29,11 @@ import org.eclipse.core.runtime.Status;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.launching.JavaRuntime;
 import org.eclipse.jdt.ui.wizards.JavaProjectNature;
 import org.eclipse.jface.wizard.IWizard;
-import org.eclipse.pde.core.build.IBuildEntry;
-import org.eclipse.pde.core.build.IBuildModel;
-import org.eclipse.pde.core.plugin.IPluginModelBase;
-import org.eclipse.pde.core.plugin.PluginRegistry;
 import org.eclipse.pde.internal.core.ClasspathComputer;
-import org.eclipse.pde.internal.core.PDECore;
 import org.eclipse.pde.internal.core.natures.PDE;
-import org.eclipse.pde.internal.core.natures.PluginProject;
 import org.eclipse.pde.internal.core.project.PDEProject;
 import org.eclipse.pde.internal.core.util.CoreUtility;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
@@ -73,41 +66,53 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 			return;
 		}
 		try {
-			IJavaProject javaProject = null;
-			if (!project.hasNature(JavaCore.NATURE_ID)) {
-				CoreUtility.addNatureToProject(project, JavaCore.NATURE_ID, monitor);
-				javaProject = JavaCore.create(project);
-			} else {
-				javaProject = (IJavaProject) project.getNature(JavaCore.NATURE_ID);
-			}
 			CoreUtility.addNatureToProject(project, PDE.PLUGIN_NATURE, monitor);
-			IFile buildProperties = PDEProject.getBuildProperties(project);
-			PluginProject pdeProject = (PluginProject) project.getNature(PDE.PLUGIN_NATURE);
-			IPluginModelBase model = PDECore.getDefault().getModelManager().findModel(project);
-			Set<IContainer> sources = new HashSet<IContainer>();
-			for (IBuildEntry entry : PluginRegistry.createBuildModel(model).getBuild().getBuildEntries()) {
-				if (entry.getName().startsWith("src.")) {
-					for (String token : entry.getTokens()) {
-						IFolder folder = project.getFolder(token);
-						if (folder.exists()) {
-							sources.add(folder);
+			if (project.hasNature(JavaCore.NATURE_ID)) {
+				return;
+			}
+			// configure Java & Classpaht
+			IFile buildPropertiesFile = PDEProject.getBuildProperties(project);
+			Properties buildProperties = new Properties();
+			if (buildPropertiesFile.exists()) {
+				InputStream stream = buildPropertiesFile.getContents();
+				buildProperties.load(stream);
+				stream.close();
+			}
+			boolean hasSourceFolder = false;
+			for (String entry : buildProperties.stringPropertyNames()) {
+				hasSourceFolder |= (entry.startsWith("src.") || entry.startsWith("source."));
+			}
+			if (!hasSourceFolder) {
+				// Nothing for Java
+				return;
+			}
+			
+			CoreUtility.addNatureToProject(project, JavaCore.NATURE_ID, monitor);
+			IJavaProject javaProject = JavaCore.create(project);
+			Set<IClasspathEntry> classpath = new HashSet<>();
+			for (Entry<?, ?> entry : buildProperties.entrySet()) {
+				String entryKey = (String)entry.getKey();
+				if (entryKey.startsWith("src.") || entryKey.startsWith("source.")) {
+					for (String token : ((String)entry.getValue()).split(",")) {
+						token = token.trim();
+						if (token.endsWith("/")) {
+							token = token.substring(0, token.length() - 1);
+						}
+						if (token != null && token.length() > 0 && !token.equals(".")) {
+							IFolder folder = project.getFolder(token);
+							if (folder.exists()) {
+								classpath.add(JavaCore.newSourceEntry(folder.getFullPath()));
+							}
 						}
 					}
+				} else if (entryKey.equals("output..")) {
+					javaProject.setOutputLocation(project.getFolder(((String)entry.getValue()).trim()).getFullPath(), monitor);
 				}
 			}
-			Set<IClasspathEntry> cpEntries = new HashSet<IClasspathEntry>(Arrays.asList(javaProject.getRawClasspath()));
-			if (!sources.isEmpty()) {
-				for (IClasspathEntry entry : javaProject.getRawClasspath()) {
-					if (entry.getEntryKind() != IClasspathEntry.CPE_SOURCE) {
-						cpEntries.remove(entry);
-					}
-				}
-				for (IContainer sourceFolder : sources) {
-					cpEntries.add(JavaCore.newSourceEntry(sourceFolder.getFullPath()));
-				}
-			}
-			cpEntries.add(ClasspathComputer.createContainerEntry());
-			javaProject.setRawClasspath(cpEntries.toArray(new IClasspathEntry[cpEntries.size()]), monitor);
+			// TODO select container according to BREE
+			classpath.add(JavaRuntime.getDefaultJREContainerEntry());
+			classpath.add(ClasspathComputer.createContainerEntry());
+			javaProject.setRawClasspath(classpath.toArray(new IClasspathEntry[classpath.size()]), monitor);
 		} catch (Exception ex) {
 			Activator.getDefault().getLog().log(new Status(
 					IStatus.ERROR,
@@ -147,23 +152,19 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 		Set<IFolder> res = new HashSet<IFolder>();
 		res.addAll(new JavaProjectNature().getDirectoriesToIgnore(project, monitor));
 		try {
-			IFile buildProperties = PDEProject.getBuildProperties(project);
-			IPluginModelBase model = PDECore.getDefault().getModelManager().findModel(project);
-			if (model == null) {
-				Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), "Could not resolve PDE build model for " + project.getLocation()));
-				// in such case, exclude everything
-				for (IResource child : project.members()) {
-					if (child.getType() == IResource.FOLDER) {
-						res.add((IFolder)child);
-					}
-				}
-				return res;
+			IFile buildPropertiesFile = PDEProject.getBuildProperties(project);
+			Properties buildProperties = new Properties();
+			if (buildPropertiesFile.exists()) {
+				InputStream stream = buildPropertiesFile.getContents();
+				buildProperties.load(stream);
+				stream.close();
 			}
-			IBuildModel buildModel = PluginRegistry.createBuildModel(model);
-			for (IBuildEntry entry : buildModel.getBuild().getBuildEntries()) {
-				if (entry.getName().startsWith("src.") || entry.getName().startsWith("source.") ||
-					entry.getName().startsWith("bin.") || entry.getName().startsWith("output.")) {
-					for (String token : entry.getTokens()) {
+			for (Entry<?, ?> entry : buildProperties.entrySet()) {
+				String entryKey = (String)entry.getKey();
+				if (entryKey.startsWith("src.") || entryKey.startsWith("source.") ||
+					entryKey.startsWith("bin.") || entryKey.startsWith("output.")) {
+					for (String token : ((String)entry.getValue()).split(",")) {
+						token = token.trim();
 						if (token.endsWith("/")) {
 							token = token.substring(0, token.length() - 1);
 						}
@@ -176,7 +177,7 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 					}
 				}
 			}
-		} catch (CoreException ex) {
+		} catch (Exception ex) {
 			Activator.getDefault().getLog().log(new Status(
 					IStatus.ERROR,
 					Activator.PLUGIN_ID,
