@@ -142,7 +142,7 @@ public class EasymportJob extends Job {
 	}
 
 	protected boolean rootProjectWorthBeingRemoved() {
-		if (this.isRootANewProject) {
+		if (!this.isRootANewProject) {
 			return false;
 		}
 		if (this.report.size() == 1) {

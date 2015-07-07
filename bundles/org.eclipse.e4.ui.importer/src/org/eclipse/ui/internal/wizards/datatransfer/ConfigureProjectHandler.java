@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
+import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -18,8 +19,10 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.WizardDialog;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkingSet;
 import org.eclipse.ui.PlatformUI;
@@ -41,6 +44,10 @@ public class ConfigureProjectHandler extends AbstractHandler {
 		if (project == null) {
 			return null;
 		}
+		
+		EasymportWizard wizard = new EasymportWizard();
+		wizard.setInitialDirectory(project.getLocation().toFile());
+		// inherit workingSets
 		Set<IWorkingSet> workingSets = new HashSet<>();
 		for (IWorkingSet workingSet : PlatformUI.getWorkbench().getWorkingSetManager().getWorkingSets()) {
 			for (IAdaptable element : workingSet.getElements()) {
@@ -49,11 +56,8 @@ public class ConfigureProjectHandler extends AbstractHandler {
 				}
 			}
 		}
-		Shell shell = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell();
-		EasymportJob job = new EasymportJob(project.getLocation().toFile(), workingSets, true, true);
-		EasymportJobReportDialog dialog = new EasymportJobReportDialog(shell, job);
-		job.schedule();
-		return dialog.open();
+		wizard.setInitialWorkingSets(workingSets);
+		return new WizardDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell(), wizard).open();
 	}
 
 }
