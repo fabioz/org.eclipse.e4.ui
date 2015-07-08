@@ -245,6 +245,10 @@ public class EasymportJob extends Job {
 			if (progressMonitor.isCanceled()) {
 				return null;
 			}
+			// exclude Eclipse project configurator for root project if is new
+			if (container == this.rootProject && configurator instanceof EclipseProjectConfigurator && this.isRootANewProject) {
+				continue;
+			}
 			if (configurator.shouldBeAnEclipseProject(container, progressMonitor)) {
 				mainProjectConfigurators.add(configurator);
 				if (project == null) {
