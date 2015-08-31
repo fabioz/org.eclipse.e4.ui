@@ -97,7 +97,8 @@ public class EasymportJob extends Job {
 	@Override
 	protected IStatus run(IProgressMonitor monitor) {
 		try {
-			this.isRootANewProject = !new File(this.rootDirectory, ".project").isFile();
+			File rootProjectFile = new File(this.rootDirectory, IProjectDescription.DESCRIPTION_FILE_NAME);
+			this.isRootANewProject = !rootProjectFile.isFile();
 			this.rootProject = toExistingOrNewProject(
 					this.rootDirectory,
 					monitor,
@@ -131,6 +132,9 @@ public class EasymportJob extends Job {
 					});
 					if (this.discardRootProject) {
 						this.rootProject.delete(false, true, monitor);
+						if (this.isRootANewProject) {
+							rootProjectFile.delete();
+						}
 						this.report.remove(this.rootProject);
 					}
 				}
