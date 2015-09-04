@@ -10,6 +10,11 @@
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer.expressions;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.util.Arrays;
+import java.util.LinkedList;
+
 import org.eclipse.core.expressions.EvaluationResult;
 import org.eclipse.core.expressions.Expression;
 import org.eclipse.core.expressions.IEvaluationContext;
@@ -46,6 +51,22 @@ public class HasFileRecursivelyExpression extends Expression {
 			RecursiveFileFinder finder = new RecursiveFileFinder(this.filename, null);
 			container.accept(finder);
 			return EvaluationResult.valueOf(!finder.getFiles().isEmpty());
+		} else if (root instanceof File && ((File)root).isDirectory()) {
+			LinkedList<File> directoriesToVisit = new LinkedList<>();
+			directoriesToVisit.add((File)root);
+			while (!directoriesToVisit.isEmpty()) {
+				File currentDirectory = directoriesToVisit.pop();
+				if (new File(currentDirectory, this.filename).exists()) {
+					return EvaluationResult.TRUE;
+				} else {
+					directoriesToVisit.addAll(Arrays.asList(currentDirectory.listFiles(new FileFilter() {
+						@Override
+						public boolean accept(File child) {
+							return child.isDirectory();
+						}
+					})));
+				}
+			}
 		}
 		return EvaluationResult.FALSE;
 	}

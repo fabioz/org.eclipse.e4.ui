@@ -11,6 +11,7 @@
 package org.eclipse.jdt.ui.wizards;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -233,6 +234,12 @@ public class JavaProjectNature implements ProjectConfigurator {
 			Activator.log(IStatus.ERROR, ex.getMessage());
 		}
 		return res;
+	}
+
+	@Override
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
+		// No way to immediately deduce project directories from Java file
+		return null;
 	}
 
 }

@@ -15,22 +15,23 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.dialogs.IDialogSettings;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.IWizardPage;
 import org.eclipse.jface.wizard.Wizard;
 import org.eclipse.ui.IImportWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkingSet;
+import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 
 public class EasymportWizard extends Wizard implements IImportWizard {
 
 	private File initialSelection;
 	private Set<IWorkingSet> initialWorkingSets = new HashSet<IWorkingSet>();
 	private SelectImportRootWizardPage projectRootPage;
-	private IProject newProject;
+	private EasymportJob easymportJob;
 
 	public EasymportWizard() {
 		super();
@@ -41,6 +42,7 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 			dialogSettings = Activator.getDefault().getDialogSettings();
 			setDialogSettings(dialogSettings);
 		}
+		setDefaultPageImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/newprj_wiz.png")); //$NON-NLS-1$
 	}
 
 	public void setInitialDirectory(File directory) {
@@ -95,18 +97,45 @@ public class EasymportWizard extends Wizard implements IImportWizard {
 	public void addPages() {
 		this.projectRootPage = new SelectImportRootWizardPage(this, this.initialSelection, this.initialWorkingSets);
 		addPage(this.projectRootPage);
+		addPage(new ImportProposalsWizardPage(this));
 	}
 
 	@Override
 	public boolean performFinish() {
 		getDialogSettings().put(SelectImportRootWizardPage.ROOT_DIRECTORY, projectRootPage.getSelectedRootDirectory().getAbsolutePath());
-		EasymportJob job = new EasymportJob(projectRootPage.getSelectedRootDirectory(), projectRootPage.getSelectedWorkingSets(), projectRootPage.isConfigureProjects(), projectRootPage.isDetectNestedProject());
+		EasymportJob job = getImportJob();
 		EasymportJobReportDialog dialog = new EasymportJobReportDialog(getShell(), job);
 		job.schedule();
 		if (projectRootPage.isDetectNestedProject() || projectRootPage.isConfigureProjects()) {
 			dialog.open();
 		}
 		return true;
+	}
+	
+	public EasymportJob getImportJob() {
+		if (this.projectRootPage.getSelectedRootDirectory() == null) {
+			this.easymportJob = null;
+		} else if (this.easymportJob == null || !this.easymportJob.getRoot().equals(this.projectRootPage.getSelectedRootDirectory())) {
+			this.easymportJob = new EasymportJob(projectRootPage.getSelectedRootDirectory(), projectRootPage.getSelectedWorkingSets(), projectRootPage.isConfigureProjects(), projectRootPage.isDetectNestedProject());
+		}
+		return this.easymportJob;
+	}
+
+	@Override
+	public boolean canFinish() {
+		if (getContainer().getCurrentPage() == this.projectRootPage) {
+			return this.projectRootPage.isPageComplete() && !this.projectRootPage.isDetectNestedProject();
+		} else {
+			return super.canFinish();
+		}
+	}
+	
+	@Override
+	public IWizardPage getNextPage(IWizardPage page) {
+		if (page == this.projectRootPage && !this.projectRootPage.isDetectNestedProject()) {
+			return null;
+		}
+		return super.getNextPage(page);
 	}
 
 }

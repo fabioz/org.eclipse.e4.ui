@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.ui.wizards.datatransfer;
 
+import java.io.File;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -33,6 +34,15 @@ import org.eclipse.jface.wizard.IWizard;
  *
  */
 public interface ProjectConfigurator {
+
+	/**
+	 * From a given {@link File}, detect which directories can/should be imported as projects
+	 * in workspace and configured by this configurator
+	 * @param root
+	 * @param monitor
+	 * @return the (recursive) children that this configurator 
+	 */
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor);
 
 	/**
 	 * This method MUST BE stateless (ideally static)

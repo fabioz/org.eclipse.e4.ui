@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.pde.internal.ui.wizards;
 
+import java.io.File;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -67,6 +68,14 @@ public class FeatureProjectConfigurator implements ProjectConfigurator {
 
 	@Override
 	public Set<IFolder> getDirectoriesToIgnore(IProject project, IProgressMonitor monitor) {
+		return null;
+	}
+	
+	@Override
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
+		// Mot really easy to spot PDE projects from a given directory
+		// Moreover PDE projects are often expected to have a .project, which is supported
+		// by EclipseProjectConfigurator
 		return null;
 	}
 

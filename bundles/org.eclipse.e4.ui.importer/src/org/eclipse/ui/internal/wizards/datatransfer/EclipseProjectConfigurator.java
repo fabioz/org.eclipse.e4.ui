@@ -10,6 +10,9 @@
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
+import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.eclipse.core.resources.IContainer;
@@ -27,6 +30,26 @@ import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
 public class EclipseProjectConfigurator implements ProjectConfigurator {
+
+	@Override
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
+		HashSet<File> res = new HashSet<>();
+		collectProjectDirectories(res, root, monitor);
+		return res;
+	}
+
+	private void collectProjectDirectories(HashSet<File> res, File root, IProgressMonitor monitor) {
+		if (new File(root, IProjectDescription.DESCRIPTION_FILE_NAME).isFile()) {
+			res.add(root);
+		}
+		if (!monitor.isCanceled()) {
+			for (File child : root.listFiles()) {
+				if (child.isDirectory()) {
+					collectProjectDirectories(res, child, monitor);
+				}
+			}
+		}
+	}
 
 	@Override
 	public boolean shouldBeAnEclipseProject(IContainer container, IProgressMonitor monitor) {

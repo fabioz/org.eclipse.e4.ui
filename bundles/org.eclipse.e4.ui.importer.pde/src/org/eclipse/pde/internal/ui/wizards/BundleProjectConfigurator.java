@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.pde.internal.ui.wizards;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -185,6 +186,14 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 					ex));
 		}
 		return res;
+	}
+
+	@Override
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
+		// Mot really easy to spot PDE projects from a given directory
+		// Moreover PDE projects are often expected to have a .project, which is supported
+		// by EclipseProjectConfigurator
+		return null;
 	}
 
 }

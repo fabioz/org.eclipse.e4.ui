@@ -10,6 +10,8 @@
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
+import java.io.File;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -28,6 +30,11 @@ import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
  *
  */
 public class EclipseWorkspaceConfigurator implements ProjectConfigurator {
+
+	@Override
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
+		return Collections.EMPTY_SET;
+	}
 
 	@Override
 	public boolean shouldBeAnEclipseProject(IContainer container, IProgressMonitor monitor) {

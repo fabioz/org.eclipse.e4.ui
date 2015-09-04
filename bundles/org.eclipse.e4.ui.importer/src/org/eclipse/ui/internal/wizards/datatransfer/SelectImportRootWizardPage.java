@@ -71,7 +71,6 @@ public class SelectImportRootWizardPage extends WizardPage {
 	public void createControl(Composite parent) {
 		setTitle(Messages.EasymportWizardPage_importProjectsInFolderTitle);
 		setDescription(Messages.EasymportWizardPage_importProjectsInFolderDescription);
-		setImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/newprj_wiz.png")); //$NON-NLS-1$
 		Composite res = new Composite(parent, SWT.NONE);
 		res.setLayout(new GridLayout(3, false));
 		Label rootDirectoryLabel = new Label(res, SWT.NONE);
@@ -220,7 +219,7 @@ public class SelectImportRootWizardPage extends WizardPage {
 
 
 	public File getSelectedRootDirectory() {
-		return this.selection.getAbsoluteFile();
+		return this.selection;
 	}
 
 	public void setInitialSelectedDirectory(File directory) {

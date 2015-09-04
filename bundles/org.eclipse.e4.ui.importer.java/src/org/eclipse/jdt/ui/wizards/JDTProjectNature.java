@@ -10,6 +10,7 @@
  ******************************************************************************/
 package org.eclipse.jdt.ui.wizards;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -91,6 +92,12 @@ public class JDTProjectNature implements ProjectConfigurator {
 			Activator.log(IStatus.ERROR, ex.getMessage());
 		}
 		return res;
+	}
+
+	@Override
+	public Set<File> findConfigurableLocations(File root, IProgressMonitor monitor) {
+		// TODO Might be relevant to search .classpath files
+		return null;
 	}
 
 }

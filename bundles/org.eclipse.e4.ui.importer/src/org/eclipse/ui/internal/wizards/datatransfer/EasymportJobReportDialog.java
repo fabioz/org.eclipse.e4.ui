@@ -146,7 +146,7 @@ public class EasymportJobReportDialog extends Dialog {
 			@Override
 			public boolean select(Viewer viewer, Object parentElement, Object element) {
 				Entry<IProject, List<ProjectConfigurator>> entry = (Entry<IProject, List<ProjectConfigurator>>) element;
-				return job.getRootProject().getLocation().isPrefixOf(entry.getKey().getLocation());
+				return entry.getKey().getLocation().toFile().getAbsolutePath().startsWith(job.getRoot().getAbsolutePath());
 			}
 		} });
 		nestedProjectsTable.getTable().setHeaderVisible(true);
@@ -189,9 +189,8 @@ public class EasymportJobReportDialog extends Dialog {
 			@Override
 			public String getText(Object element) {
 				IProject project = ((Entry<IProject, List<ProjectConfigurator>>)element).getKey();
-				IPath rootLocation = job.getRootProject().getLocation();
 				IPath projectLocation = project.getLocation();
-				return projectLocation.makeRelativeTo(rootLocation).toString();
+				return projectLocation.toFile().getAbsolutePath().substring(job.getRoot().getAbsolutePath().length());
 			}
 		});
 		nestedProjectsTable.setInput(this.job.getConfiguredProjects());
@@ -262,12 +261,13 @@ public class EasymportJobReportDialog extends Dialog {
 		});
 		errorsTable.setInput(this.job.getErrors());
 
-
-
 		RecursiveImportListener tableReportFiller = new RecursiveImportListener() {
 			@Override
 			public void projectCreated(IProject project) {
-				nestedProjectsTable.getControl().getDisplay().asyncExec(new Runnable() {
+				if (getShell().getDisplay() == null) {
+					return;
+				}
+				getShell().getDisplay().asyncExec(new Runnable() {
 					@Override
 					public void run() {
 						nestedProjectsTable.refresh();

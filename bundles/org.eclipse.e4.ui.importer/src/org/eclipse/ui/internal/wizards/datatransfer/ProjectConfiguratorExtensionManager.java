@@ -10,13 +10,11 @@
  ******************************************************************************/
 package org.eclipse.ui.internal.wizards.datatransfer;
 
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.eclipse.core.expressions.ElementHandler;
 import org.eclipse.core.expressions.EvaluationContext;
@@ -25,6 +23,7 @@ import org.eclipse.core.expressions.Expression;
 import org.eclipse.core.expressions.ExpressionConverter;
 import org.eclipse.core.expressions.IEvaluationContext;
 import org.eclipse.core.resources.IContainer;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IStatus;
@@ -32,6 +31,7 @@ import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.internal.wizards.datatransfer.expressions.FileExpressionHandler;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
+import org.osgi.framework.Bundle;
 
 public class ProjectConfiguratorExtensionManager {
 
@@ -64,36 +64,78 @@ public class ProjectConfiguratorExtensionManager {
 		});
 	}
 
-	public Collection<ProjectConfigurator> getAllActiveProjectConfigurators(IContainer container) {
-		Set<ProjectConfigurator> res = new HashSet<ProjectConfigurator>();
+	/**
+	 * 
+	 * @param container
+	 * @return The active connectors for given container, order is important: top-priority are 1st
+	 */
+	private List<ProjectConfigurator> getAllActiveProjectConfiguratorsUntyped(Object container) {
+		List<ProjectConfigurator> res = new ArrayList<ProjectConfigurator>();
 		for (IConfigurationElement extension : this.extensions) {
-			IConfigurationElement[] activeWhenElements = extension.getChildren("activeWhen");
-			if (activeWhenElements.length == 0) {
-				// by default, if no activeWhen, enable extension
-				res.add(getConfigurator(extension));
-			} else if (activeWhenElements.length == 1) {
-				IConfigurationElement activeWhen = activeWhenElements[0];
-				IConfigurationElement[] activeWhenChildren = activeWhen.getChildren();
-				if (activeWhenChildren.length == 1) {
-					try {
-						Expression expression = this.expressionConverter.perform(activeWhen.getChildren()[0]);
-						IEvaluationContext context = new EvaluationContext(null, container);
-						if (expression.evaluate(context).equals(EvaluationResult.TRUE)) {
-							res.add(getConfigurator(extension));
+			boolean addIt = false;
+			if (extension.getContributor() instanceof Bundle) {
+				Bundle contributor = (Bundle)extension.getContributor();
+				// If contributing  bundle is already active, skip activeWhen
+				if (contributor.getState() == Bundle.ACTIVE || contributor.getState() == Bundle.STARTING) {
+					addIt = true;
+				}
+			}
+			if (!addIt) {
+				// Else, only load class and activate bundle if necessary (checked by activeWhen)
+				IConfigurationElement[] activeWhenElements = extension.getChildren("activeWhen");
+				if (activeWhenElements.length == 0) {
+					// by default, if no activeWhen, enable extension
+					addIt = true;
+				} else if (activeWhenElements.length == 1) {
+					IConfigurationElement activeWhen = activeWhenElements[0];
+					IConfigurationElement[] activeWhenChildren = activeWhen.getChildren();
+					if (activeWhenChildren.length == 1) {
+						try {
+							Expression expression = this.expressionConverter.perform(activeWhen.getChildren()[0]);
+							IEvaluationContext context = new EvaluationContext(null, container);
+							addIt = expression.evaluate(context).equals(EvaluationResult.TRUE);
+						} catch (CoreException ex) {
+							Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Could not evaluate expression for " + extension.getContributor().getName(), ex));
 						}
-					} catch (CoreException ex) {
-						Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID, "Could not evaluate expression for " + extension.getContributor().getName(), ex));
+					} else {
+						Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
+								"Could not evaluate xpression for " + extension.getContributor().getName() + ": there must be exactly one child of 'activeWhen'"));
 					}
 				} else {
-					Activator.getDefault().getLog().log(new Status(IStatus.ERROR, Activator.PLUGIN_ID,
-							"Could not evaluate xpression for " + extension.getContributor().getName() + ": there must be exactly one child of 'activeWhen'"));
+					throw new IllegalArgumentException("Only one 'activeWhen' is authorized on extension point " + EXTENSION_POINT_ID + ", for extension contributed by " +
+							extension.getContributor().getName());
 				}
-			} else {
-				throw new IllegalArgumentException("Only one 'activeWhen' is authorized on extension point " + EXTENSION_POINT_ID + ", for extension contributed by " +
-						extension.getContributor().getName());
+			}
+			if (addIt) {
+				ProjectConfigurator configurator = getConfigurator(extension);
+				if (configurator instanceof EclipseProjectConfigurator) {
+					// give priority
+					res.add(0, configurator);
+				} else {
+					res.add(configurator);
+				}
 			}
 		}
 		return res;
+	}
+
+	/**
+	 * 
+	 * @param container
+	 * @return The active connectors for given container, order is important: top-priority are 1st
+	 */
+	public List<ProjectConfigurator> getAllActiveProjectConfigurators(IContainer container) {
+		return this.getAllActiveProjectConfiguratorsUntyped(container);
+	}
+
+	/**
+	 * 
+	 * @param folder
+	 * @return The active connectors for given folder, order is important: top-priority are 1st
+	 */
+	public List<ProjectConfigurator> getAllActiveProjectConfigurators(File folder) {
+		Assert.isTrue(folder.isDirectory());
+		return this.getAllActiveProjectConfiguratorsUntyped(folder);
 	}
 
 	private ProjectConfigurator getConfigurator(IConfigurationElement extension) {
