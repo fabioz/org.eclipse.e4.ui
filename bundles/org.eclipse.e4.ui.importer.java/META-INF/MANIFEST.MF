@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Easymport :: Java/JDT support
 Bundle-SymbolicName: org.eclipse.e4.ui.importer.java;singleton:=true
-Bundle-Version: 0.1.0.qualifier
+Bundle-Version: 0.2.0.qualifier
 Bundle-Vendor: Eclipse.org
 Require-Bundle: org.eclipse.e4.ui.importer,
  org.eclipse.ui,
