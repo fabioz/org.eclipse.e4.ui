@@ -20,4 +20,9 @@ public class CouldNotImportProjectException extends Exception {
 		super("Could not import project located at " + location.getAbsolutePath(), cause);
 		this.location = location;
 	}
+
+	public CouldNotImportProjectException(File location, String message) {
+		super(message);
+		this.location = location;
+	}
 }

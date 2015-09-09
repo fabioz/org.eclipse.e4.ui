@@ -85,9 +85,9 @@ public class EasymportJob extends Job {
 		}
 		this.configureProjects = configureProjects;
 		this.deepChildrenDetection = recuriveChildrenDetection;
-		this.report = new HashMap<>();
+		this.report = Collections.synchronizedMap(new HashMap<IProject, List<ProjectConfigurator>>());
+		this.errors = Collections.synchronizedMap(new HashMap<IPath, Exception>());
 		this.crawlerJobGroup = new JobGroup("Detecting and configurating nested projects", 0, 1);
-		this.errors = new HashMap<>();
 	}
 
 	@Deprecated
@@ -148,15 +148,29 @@ public class EasymportJob extends Job {
 					}
 				});
 				bottomUpDirectoriesToImport.addAll(this.directoriesToImport);
-				for (File directoryToImport : bottomUpDirectoriesToImport) {
-					// TODO can be parallelized:
+				JobGroup multiDirectoriesJobGroup = new JobGroup("Importing selected directories", 20, 1);
+				for (final File directoryToImport : bottomUpDirectoriesToImport) {
+					final boolean alreadyAnEclipseProject = new File(directoryToImport, IProjectDescription.DESCRIPTION_FILE_NAME).isFile();
+					Job directoryJob = new Job("Processing " + directoryToImport.getName()) {
+						protected IStatus run(IProgressMonitor monitor) {
+							try {
+								IProject newProject = toExistingOrNewProject(directoryToImport, monitor, IResource.BACKGROUND_REFRESH);
+								if (configureProjects) {
+									importProjectAndChildrenRecursively(newProject, deepChildrenDetection, !alreadyAnEclipseProject, monitor);
+								}
+								return Status.OK_STATUS;
+							} catch (Exception ex) {
+								return new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);
+							}
+						}
+					};
 					// Job1 on path1 and Job2 on path2 can be run in parallel IFF path1 isn't a prefix of path2 and vice-versa
-					boolean alreadyAnEclipseProject = new File(directoryToImport, IProjectDescription.DESCRIPTION_FILE_NAME).isFile();
-					IProject newProject = toExistingOrNewProject(directoryToImport, monitor, IResource.BACKGROUND_REFRESH);
-					if (this.configureProjects) {
-						importProjectAndChildrenRecursively(newProject, this.deepChildrenDetection, !alreadyAnEclipseProject, monitor);
-					}
+					directoryJob.setRule(new SubdirectoryOrSameNameSchedulingRule(directoryToImport));
+					directoryJob.setUser(true);
+					directoryJob.setJobGroup(multiDirectoriesJobGroup);
+					directoryJob.schedule();
 				}
+				multiDirectoriesJobGroup.join(0, monitor);
 			} else { // no specific projects included, consider only root
 				File rootProjectFile = new File(this.rootDirectory, IProjectDescription.DESCRIPTION_FILE_NAME);
 				boolean isRootANewProject = !rootProjectFile.isFile();
@@ -467,7 +481,10 @@ public class EasymportJob extends Job {
 			IProject projectWithSameName = this.workspaceRoot.getProject(expectedName);
 			if (projectWithSameName.exists()) {
 				if (projectWithSameName.getLocation().toFile().equals(directory)) {
-					throw new Exception(NLS.bind(Messages.anotherProjectWithSameNameExists_description, expectedName));
+					// project seems already there
+					return projectWithSameName;
+				} else {
+					throw new CouldNotImportProjectException(directory, NLS.bind(Messages.anotherProjectWithSameNameExists_description, expectedName));
 				}
 			}
 		} else {
