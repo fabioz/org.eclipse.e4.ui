@@ -158,8 +158,8 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 				getWizard().getImportJob().setDetectNestedProjects(recurseInSelectedProjectsCheckbox.getSelection());
 			}
 		});
-		setControl(res);
 		setPageComplete(true);
+		setControl(res);
 	}
 
 	@Override
@@ -194,9 +194,9 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 					}
 					tree.setInput(potentialProjects);
 					tree.setCheckedElements(potentialProjects.keySet().toArray());
-					selectionChanged();
 				}
 			});
+			selectionChanged();
 		} catch (InterruptedException ex) {
 			tree.setInput(Collections.EMPTY_MAP);
 			getWizard().getImportJob().resetProposals();
