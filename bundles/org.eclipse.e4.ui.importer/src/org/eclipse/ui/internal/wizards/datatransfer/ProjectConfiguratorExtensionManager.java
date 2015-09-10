@@ -73,14 +73,11 @@ public class ProjectConfiguratorExtensionManager {
 		List<ProjectConfigurator> res = new ArrayList<ProjectConfigurator>();
 		for (IConfigurationElement extension : this.extensions) {
 			boolean addIt = false;
-			if (extension.getContributor() instanceof Bundle) {
-				Bundle contributor = (Bundle)extension.getContributor();
-				// If contributing  bundle is already active, skip activeWhen
-				if (contributor.getState() == Bundle.ACTIVE || contributor.getState() == Bundle.STARTING) {
-					addIt = true;
-				}
-			}
-			if (!addIt) {
+			String bundleOrFragmentId = extension.getContributor().getName();
+			Bundle contributingBundle = Platform.getBundle(bundleOrFragmentId);
+			if (contributingBundle.getState() == Bundle.ACTIVE) {
+				addIt = true;
+			} else {
 				// Else, only load class and activate bundle if necessary (checked by activeWhen)
 				IConfigurationElement[] activeWhenElements = extension.getChildren("activeWhen");
 				if (activeWhenElements.length == 0) {

@@ -187,10 +187,12 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
 					final Map<File, List<ProjectConfigurator>> potentialProjects = getWizard().getImportJob().getImportProposals(monitor);
 					if (potentialProjects.size() == 0) {
-						potentialProjects.put(getWizard().getImportJob().getRoot(), Collections.EMPTY_LIST);
 						MessageDialog.openInformation(getShell(),
 								Messages.didntFindImportProposals_title,
 								NLS.bind(Messages.didntFindImportProposals_message, recurseInSelectedProjectsCheckbox.getText()));
+					}
+					if (!potentialProjects.containsKey(getWizard().getImportJob().getRoot())) {
+						potentialProjects.put(getWizard().getImportJob().getRoot(), Collections.EMPTY_LIST);
 					}
 					tree.setInput(potentialProjects);
 					tree.setCheckedElements(potentialProjects.keySet().toArray());

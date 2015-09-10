@@ -86,11 +86,6 @@
       <projectConfigurator
             class="org.eclipse.ui.internal.wizards.datatransfer.EclipseProjectConfigurator"
             label="Eclipse project">
-         <activeWhen>
-            <hasFile
-                  path=".project">
-            </hasFile>
-         </activeWhen>
       </projectConfigurator>
    </extension>
 
