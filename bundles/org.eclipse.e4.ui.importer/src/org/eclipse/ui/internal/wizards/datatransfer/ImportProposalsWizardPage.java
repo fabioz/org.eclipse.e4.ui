@@ -233,8 +233,8 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 
 	private void selectionChanged() {
 		Object[] selected = tree.getCheckedElements();
-		EasymportJob importJob = getWizard().getImportJob(); 
-		Set<File> excludedDirectories = new HashSet<>(importJob.getImportProposals(null).keySet());
+		EasymportJob importJob = getWizard().getImportJob();
+		Set<File> excludedDirectories = new HashSet(((Map<File, ?>)this.tree.getInput()).keySet());
 		Set<File> selectedProjects = new HashSet<File>();
 		for (Object item : selected) {
 			File directory = (File)item;

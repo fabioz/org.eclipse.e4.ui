@@ -31,7 +31,11 @@ public class SubdirectoryOrSameNameSchedulingRule implements ISchedulingRule {
 	public SubdirectoryOrSameNameSchedulingRule(File directory) {
 		this.directory = directory;
 	}
-	
+
+	public SubdirectoryOrSameNameSchedulingRule(IResource resource) {
+		this(resource.getLocation().toFile());
+	}
+
 	@Override
 	public boolean contains(ISchedulingRule rule) {
 		return rule == this || rule instanceof IResource;

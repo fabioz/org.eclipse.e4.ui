@@ -20,7 +20,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.eclipse.core.resources.IContainer;
@@ -136,41 +138,51 @@ public class EasymportJob extends Job {
 	        }
 
 			if (directoriesToImport != null) {
-				SortedSet<File> bottomUpDirectoriesToImport = new TreeSet<>(new Comparator<File>() {
-					@Override
+				Comparator<File> rootToLeafComparator = new Comparator<File>() {
 					public int compare(File arg0, File arg1) {
-						int lengthDiff = arg1.getAbsolutePath().length() - arg0.getAbsolutePath().length();
+						int lengthDiff = arg0.getAbsolutePath().length() - arg1.getAbsolutePath().length();
 						if (lengthDiff != 0) {
 							return lengthDiff;
 						} else {
 							return arg0.compareTo(arg1);
 						}
 					}
-				});
-				bottomUpDirectoriesToImport.addAll(this.directoriesToImport);
-				JobGroup multiDirectoriesJobGroup = new JobGroup("Importing selected directories", 20, 1);
-				for (final File directoryToImport : bottomUpDirectoriesToImport) {
+				};
+				SortedSet<File> directories = new TreeSet<>(rootToLeafComparator);
+				directories.addAll(this.directoriesToImport);
+				SortedMap<File, IProject> leafToRootProjects = new TreeMap<>(Collections.reverseOrder(rootToLeafComparator));
+				final Set<IProject> alreadyConfiguredProjects = new HashSet<>();
+				for (final File directoryToImport : directories) {
 					final boolean alreadyAnEclipseProject = new File(directoryToImport, IProjectDescription.DESCRIPTION_FILE_NAME).isFile();
-					Job directoryJob = new Job("Processing " + directoryToImport.getName()) {
-						protected IStatus run(IProgressMonitor monitor) {
-							try {
-								IProject newProject = toExistingOrNewProject(directoryToImport, monitor, IResource.BACKGROUND_REFRESH);
-								if (configureProjects) {
-									importProjectAndChildrenRecursively(newProject, deepChildrenDetection, !alreadyAnEclipseProject, monitor);
-								}
-								return Status.OK_STATUS;
-							} catch (Exception ex) {
-								return new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);
-							}
-						}
-					};
-					// Job1 on path1 and Job2 on path2 can be run in parallel IFF path1 isn't a prefix of path2 and vice-versa
-					directoryJob.setRule(new SubdirectoryOrSameNameSchedulingRule(directoryToImport));
-					directoryJob.setUser(true);
-					directoryJob.setJobGroup(multiDirectoriesJobGroup);
-					directoryJob.schedule();
+					IProject newProject = toExistingOrNewProject(directoryToImport, monitor, IResource.BACKGROUND_REFRESH);
+					if (alreadyAnEclipseProject) {
+						alreadyConfiguredProjects.add(newProject);
+					}
+					leafToRootProjects.put(directoryToImport, newProject);
 				}
-				multiDirectoriesJobGroup.join(0, monitor);
+				if (configureProjects) {
+					JobGroup multiDirectoriesJobGroup = new JobGroup("Configuring selected directories", 20, 1);
+					for (final IProject newProject : leafToRootProjects.values()) {
+						Job directoryJob = new Job("Configuring " + newProject.getName()) {
+							protected IStatus run(IProgressMonitor monitor) {
+								try {
+									importProjectAndChildrenRecursively(newProject, EasymportJob.this.deepChildrenDetection, !alreadyConfiguredProjects.contains(newProject), monitor);
+									return Status.OK_STATUS;
+								} catch (Exception ex) {
+									return new Status(IStatus.ERROR, Activator.getDefault().getBundle().getSymbolicName(), ex.getMessage(), ex);
+								}
+							}
+						};
+						// Job1 on path1 and Job2 on path2 can be run in parallel IFF path1 isn't a prefix of path2 and vice-versa
+						directoryJob.setRule(new SubdirectoryOrSameNameSchedulingRule(newProject));
+						directoryJob.setUser(true);
+						directoryJob.setJobGroup(multiDirectoriesJobGroup);
+						directoryJob.schedule();
+					}
+					multiDirectoriesJobGroup.join(0, monitor);
+				}
+				
+
 			} else { // no specific projects included, consider only root
 				File rootProjectFile = new File(this.rootDirectory, IProjectDescription.DESCRIPTION_FILE_NAME);
 				boolean isRootANewProject = !rootProjectFile.isFile();
@@ -253,7 +265,7 @@ public class EasymportJob extends Job {
 	}
 
 	private Set<IProject> searchAndImportChildrenProjectsRecursively(IContainer parentContainer, Set<IPath> directoriesToExclude, final IProgressMonitor progressMonitor) throws Exception {
-		for (IProject processedProjects : this.report.keySet()) {
+		for (IProject processedProjects : Collections.synchronizedSet(this.report.keySet())) {
 			if (processedProjects.getLocation().equals(parentContainer.getLocation())) {
 				return Collections.EMPTY_SET;
 			}
