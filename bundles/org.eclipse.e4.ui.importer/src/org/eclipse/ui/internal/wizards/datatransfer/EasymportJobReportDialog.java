@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.jobs.IJobChangeEvent;
 import org.eclipse.core.runtime.jobs.IJobChangeListener;
 import org.eclipse.core.runtime.jobs.Job;
@@ -226,13 +227,6 @@ public class EasymportJobReportDialog extends Dialog {
 				return location1.toString().compareTo(location2.toString());
 			}
 		});
-		errorsTable.setFilters(new ViewerFilter[] { new ViewerFilter() {
-			@Override
-			public boolean select(Viewer viewer, Object parentElement, Object element) {
-				Entry<IPath, Exception> entry = (Entry<IPath, Exception>) element;
-				return job.getRootProject().getLocation().isPrefixOf(entry.getKey());
-			}
-		} });
 		errorsTable.getTable().setHeaderVisible(true);
 		GridData errorTableLayoutData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
 		errorTableLayoutData.heightHint = 100;
@@ -245,7 +239,7 @@ public class EasymportJobReportDialog extends Dialog {
 		errorRelativePathColumn.setLabelProvider(new ColumnLabelProvider() {
 			@Override
 			public String getText(Object element) {
-				IPath rootLocation = job.getRootProject().getLocation();
+				IPath rootLocation = new Path(job.getRoot().getAbsolutePath());
 				IPath projectLocation = ((Entry<IPath, Exception>)element).getKey();
 				return projectLocation.makeRelativeTo(rootLocation).toString();
 			}

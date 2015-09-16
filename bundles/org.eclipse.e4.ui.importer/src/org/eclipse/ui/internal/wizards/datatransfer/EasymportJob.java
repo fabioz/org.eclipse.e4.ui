@@ -154,11 +154,19 @@ public class EasymportJob extends Job {
 				final Set<IProject> alreadyConfiguredProjects = new HashSet<>();
 				for (final File directoryToImport : directories) {
 					final boolean alreadyAnEclipseProject = new File(directoryToImport, IProjectDescription.DESCRIPTION_FILE_NAME).isFile();
-					IProject newProject = toExistingOrNewProject(directoryToImport, monitor, IResource.BACKGROUND_REFRESH);
-					if (alreadyAnEclipseProject) {
-						alreadyConfiguredProjects.add(newProject);
+					try {
+						IProject newProject = toExistingOrNewProject(directoryToImport, monitor, IResource.BACKGROUND_REFRESH);
+						if (alreadyAnEclipseProject) {
+							alreadyConfiguredProjects.add(newProject);
+						}
+						leafToRootProjects.put(directoryToImport, newProject);
+					} catch (CouldNotImportProjectException ex) {
+						Path path = new Path(directoryToImport.getAbsolutePath());
+						if (listener != null) {
+							listener.errorHappened(path, ex);
+						}
+						this.errors.put(path, ex);
 					}
-					leafToRootProjects.put(directoryToImport, newProject);
 				}
 				if (configureProjects) {
 					JobGroup multiDirectoriesJobGroup = new JobGroup("Configuring selected directories", 20, 1);
