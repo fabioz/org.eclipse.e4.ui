@@ -14,6 +14,7 @@ import java.io.File;
 
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.jobs.ISchedulingRule;
+import org.eclipse.core.runtime.jobs.MultiRule;
 
 /**
  * This scheduling rule checks that no job with another instance of
@@ -38,7 +39,16 @@ public class SubdirectoryOrSameNameSchedulingRule implements ISchedulingRule {
 
 	@Override
 	public boolean contains(ISchedulingRule rule) {
-		return rule == this || rule instanceof IResource;
+		if (rule == this || rule instanceof IResource) {
+			return true;
+		} else if (rule instanceof MultiRule) {
+			for (ISchedulingRule child : ((MultiRule)rule).getChildren()) {
+				if (this.contains(child)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@Override
@@ -50,6 +60,12 @@ public class SubdirectoryOrSameNameSchedulingRule implements ISchedulingRule {
 				otherRule.directory.getName().equals(this.directory.getName());
 		} else if (rule instanceof IResource) {
 			return true;
+		}  else if (rule instanceof MultiRule) {
+			for (ISchedulingRule child : ((MultiRule)rule).getChildren()) {
+				if (this.isConflicting(child)) {
+					return true;
+				}
+			}
 		}
 		return false;
 				
