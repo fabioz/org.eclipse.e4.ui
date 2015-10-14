@@ -575,4 +575,9 @@ public class EasymportJob extends Job {
 	public Set<File> getDirectoriesToImport() {
 		return this.directoriesToImport;
 	}
+
+	@Override
+	public boolean belongsTo(Object family) {
+		return family == EasymportJob.class;
+	}
 }
