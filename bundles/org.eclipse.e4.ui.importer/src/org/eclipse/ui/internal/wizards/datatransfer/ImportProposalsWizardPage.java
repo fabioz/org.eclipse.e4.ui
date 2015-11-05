@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -30,6 +32,7 @@ import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
+import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -40,20 +43,47 @@ import org.eclipse.osgi.util.NLS;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
 public class ImportProposalsWizardPage extends WizardPage implements IPageChangedListener {
 
 	private CheckboxTreeViewer tree;
+	private Set<File> alreadyExistingProjects;
+	private Set<File> notAlreadyExistingProjects;
 	private Button recurseInSelectedProjectsCheckbox;
 	private EasymportJob currentJob;
 	private Label selectionSummary;
 
+	private class FolderForProjectsLabelProvider extends LabelProvider implements IColorProvider {
+		@Override
+		public String getText(Object o) {
+			if (alreadyExistingProjects.contains(o)) {
+				return super.getText(o)+ " (" + Messages.alreadyImportedAsProject_title + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			return super.getText(o);
+		}
+
+		@Override
+		public Color getBackground(Object o) {
+			return null;
+		}
+
+		@Override
+		public Color getForeground(Object o) {
+			if (alreadyExistingProjects.contains(o)) {
+				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+			}
+			return null;
+		}
+	}
+	
 	public ImportProposalsWizardPage(EasymportWizard wizard) {
 		super(ImportProposalsWizardPage.class.getName());
 		setWizard(wizard);
@@ -121,9 +151,14 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 		tree.addCheckStateListener(new ICheckStateListener() {
 			@Override
 			public void checkStateChanged(CheckStateChangedEvent event) {
-				selectionChanged();
+				if (ImportProposalsWizardPage.this.alreadyExistingProjects.contains(event.getElement())) {
+					tree.setChecked(event.getElement(), false);
+				} else {
+					selectionChanged();
+				}
 			}
 		});
+		tree.setLabelProvider(new FolderForProjectsLabelProvider());
 		
 		Composite selectionButtonsGroup = new Composite(res, SWT.NONE);
 		selectionButtonsGroup.setLayout(new GridLayout(1, false));
@@ -134,7 +169,7 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 		selectAllButton.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				tree.setCheckedElements(getWizard().getImportJob().getImportProposals(null).keySet().toArray());
+				tree.setCheckedElements(ImportProposalsWizardPage.this.notAlreadyExistingProjects.toArray());
 				selectionChanged();
 			}
 		});
@@ -190,12 +225,26 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 						MessageDialog.openInformation(getShell(),
 								Messages.didntFindImportProposals_title,
 								NLS.bind(Messages.didntFindImportProposals_message, recurseInSelectedProjectsCheckbox.getText()));
+					} else {
+						// if some projects were detected thanks to metadata, assume projects has necessary metadata for good import
+						// and skip additional nested project detection.
+						getWizard().getImportJob().setDetectNestedProjects(false);
 					}
+					recurseInSelectedProjectsCheckbox.setSelection(getWizard().getImportJob().isDetectNestedProjects());
 					if (!potentialProjects.containsKey(getWizard().getImportJob().getRoot())) {
 						potentialProjects.put(getWizard().getImportJob().getRoot(), Collections.EMPTY_LIST);
+						// force nested detection when the import didn't manage to do something 
+						getWizard().getImportJob().setDetectNestedProjects(true);
+					}
+					
+					ImportProposalsWizardPage.this.notAlreadyExistingProjects = new HashSet<File>(potentialProjects.keySet());
+					ImportProposalsWizardPage.this.alreadyExistingProjects = new HashSet<File>();
+					for (IProject project : ResourcesPlugin.getWorkspace().getRoot().getProjects()) {
+						ImportProposalsWizardPage.this.notAlreadyExistingProjects.remove(project.getLocation().toFile());
+						ImportProposalsWizardPage.this.alreadyExistingProjects.add(project.getLocation().toFile());
 					}
 					tree.setInput(potentialProjects);
-					tree.setCheckedElements(potentialProjects.keySet().toArray());
+					tree.setCheckedElements(ImportProposalsWizardPage.this.notAlreadyExistingProjects.toArray());
 				}
 			});
 			selectionChanged();

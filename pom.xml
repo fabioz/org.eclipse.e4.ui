@@ -43,6 +43,7 @@
     <module>bundles/org.eclipse.e4.ui.importer</module>
     <module>bundles/org.eclipse.e4.ui.importer.java</module>
     <module>bundles/org.eclipse.e4.ui.importer.pde</module>
+    <module>tests/org.eclipse.e4.ui.importer.tests</module>
 
     <module>build/org.eclipse.e4.ui.update</module>
 
