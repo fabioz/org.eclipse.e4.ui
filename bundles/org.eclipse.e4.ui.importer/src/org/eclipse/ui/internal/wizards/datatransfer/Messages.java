@@ -56,6 +56,7 @@ public class Messages extends NLS {
 	public static String didntFindImportProposals_title;
 	public static String didntFindImportProposals_message;
 	public static String selectionSummary;
-
+	public static String folder;
+	public static String importAs;
 
 }

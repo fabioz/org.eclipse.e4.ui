@@ -29,13 +29,16 @@ import org.eclipse.jface.dialogs.IPageChangedListener;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.PageChangedEvent;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.viewers.CellLabelProvider;
 import org.eclipse.jface.viewers.CheckStateChangedEvent;
 import org.eclipse.jface.viewers.CheckboxTreeViewer;
 import org.eclipse.jface.viewers.ICheckStateListener;
 import org.eclipse.jface.viewers.IColorProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeViewerColumn;
 import org.eclipse.jface.viewers.Viewer;
+import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.jface.viewers.ViewerColumn;
 import org.eclipse.jface.viewers.ViewerComparator;
 import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.jface.wizard.WizardPage;
@@ -61,13 +64,14 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 	private EasymportJob currentJob;
 	private Label selectionSummary;
 
-	private class FolderForProjectsLabelProvider extends LabelProvider implements IColorProvider {
-		@Override
+	private class FolderForProjectsLabelProvider extends CellLabelProvider implements IColorProvider {
 		public String getText(Object o) {
-			if (alreadyExistingProjects.contains(o)) {
-				return super.getText(o)+ " (" + Messages.alreadyImportedAsProject_title + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+			File file = (File)o;
+			String label = file.getAbsolutePath();
+			if (label.startsWith(currentJob.getRoot().getAbsolutePath())) {
+				label = label.substring(currentJob.getRoot().getParentFile().getAbsolutePath().length() + 1); 
 			}
-			return super.getText(o);
+			return label;
 		}
 
 		@Override
@@ -81,6 +85,48 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
 			}
 			return null;
+		}
+
+		@Override
+		public void update(ViewerCell cell) {
+			cell.setText(getText(cell.getElement()));
+			Color color = getForeground(cell.getElement());
+			if (color != null) {
+				cell.setForeground(color);
+			}
+		}
+	}
+	
+	private class ProjectConfiguratorLabelProvider extends CellLabelProvider implements IColorProvider {
+		public String getText(Object o) {
+			File file = (File)o;
+			String label = file.getAbsolutePath();
+			if (alreadyExistingProjects.contains(o)) {
+				return Messages.alreadyImportedAsProject_title;
+			}
+			return "todo";
+		}
+
+		@Override
+		public Color getBackground(Object o) {
+			return null;
+		}
+
+		@Override
+		public Color getForeground(Object o) {
+			if (alreadyExistingProjects.contains(o)) {
+				return Display.getDefault().getSystemColor(SWT.COLOR_GRAY);
+			}
+			return null;
+		}
+
+		@Override
+		public void update(ViewerCell cell) {
+			cell.setText(getText(cell.getElement()));
+			Color color = getForeground(cell.getElement());
+			if (color != null) {
+				cell.setForeground(color);
+			}
 		}
 	}
 	
@@ -136,12 +182,6 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 			}
 			
 		});
-		tree.setLabelProvider(new LabelProvider() {
-			@Override
-			public String getText(Object o) {
-				return ((File)o).getAbsolutePath();
-			}
-		});
 		tree.setComparator(new ViewerComparator() {
 			@Override
 			public int compare(Viewer v, Object o1, Object o2) {
@@ -158,7 +198,16 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 				}
 			}
 		});
-		tree.setLabelProvider(new FolderForProjectsLabelProvider());
+		
+		tree.getTree().setHeaderVisible(true);
+		ViewerColumn pathColumn = new TreeViewerColumn(tree, SWT.NONE);
+		pathColumn.setLabelProvider(new FolderForProjectsLabelProvider());
+		tree.getTree().getColumn(0).setText(Messages.folder);
+		tree.getTree().getColumn(0).setWidth(400);
+		ViewerColumn projectTypeColumn = new TreeViewerColumn(tree, SWT.NONE);
+		projectTypeColumn.setLabelProvider(new ProjectConfiguratorLabelProvider());
+		tree.getTree().getColumn(1).setText(Messages.importAs);
+		tree.getTree().getColumn(1).setWidth(250);
 		
 		Composite selectionButtonsGroup = new Composite(res, SWT.NONE);
 		selectionButtonsGroup.setLayout(new GridLayout(1, false));
