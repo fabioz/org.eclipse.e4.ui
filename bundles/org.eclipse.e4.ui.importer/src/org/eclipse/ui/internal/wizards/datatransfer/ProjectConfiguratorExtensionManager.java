@@ -159,7 +159,7 @@ public class ProjectConfiguratorExtensionManager {
 		return res;
 	}
 
-	public static Object getLabel(ProjectConfigurator configurator) {
+	public static String getLabel(ProjectConfigurator configurator) {
 		IConfigurationElement[] extensions = Platform.getExtensionRegistry().getConfigurationElementsFor(EXTENSION_POINT_ID);
 		for (IConfigurationElement extension : extensions) {
 			if (configurator.getClass().getName().equals(extension.getAttribute("class"))) {

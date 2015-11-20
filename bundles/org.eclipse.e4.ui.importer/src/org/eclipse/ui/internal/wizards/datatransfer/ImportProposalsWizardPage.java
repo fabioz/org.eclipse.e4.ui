@@ -63,6 +63,7 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 	private Button recurseInSelectedProjectsCheckbox;
 	private EasymportJob currentJob;
 	private Label selectionSummary;
+	protected Map<File, List<ProjectConfigurator>> potentialProjects;
 
 	private class FolderForProjectsLabelProvider extends CellLabelProvider implements IColorProvider {
 		public String getText(Object o) {
@@ -100,11 +101,11 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 	private class ProjectConfiguratorLabelProvider extends CellLabelProvider implements IColorProvider {
 		public String getText(Object o) {
 			File file = (File)o;
-			String label = file.getAbsolutePath();
-			if (alreadyExistingProjects.contains(o)) {
+			if (alreadyExistingProjects.contains(file)) {
 				return Messages.alreadyImportedAsProject_title;
 			}
-			return "todo";
+			return ProjectConfiguratorExtensionManager.getLabel(
+					ImportProposalsWizardPage.this.potentialProjects.get(file).get(0));
 		}
 
 		@Override
@@ -269,7 +270,7 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 			getContainer().run(false, false, new IRunnableWithProgress() {
 				@Override
 				public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-					final Map<File, List<ProjectConfigurator>> potentialProjects = getWizard().getImportJob().getImportProposals(monitor);
+					ImportProposalsWizardPage.this.potentialProjects = getWizard().getImportJob().getImportProposals(monitor);
 					if (potentialProjects.size() == 0) {
 						MessageDialog.openInformation(getShell(),
 								Messages.didntFindImportProposals_title,
