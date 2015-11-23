@@ -104,8 +104,11 @@ public class ImportProposalsWizardPage extends WizardPage implements IPageChange
 			if (alreadyExistingProjects.contains(file)) {
 				return Messages.alreadyImportedAsProject_title;
 			}
-			return ProjectConfiguratorExtensionManager.getLabel(
-					ImportProposalsWizardPage.this.potentialProjects.get(file).get(0));
+			List<ProjectConfigurator> configurators = ImportProposalsWizardPage.this.potentialProjects.get(file);
+			if (configurators.isEmpty()) {
+				return ""; //$NON-NLS-1$
+			}
+			return ProjectConfiguratorExtensionManager.getLabel(configurators.get(0));
 		}
 
 		@Override
