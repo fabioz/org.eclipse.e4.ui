@@ -49,5 +49,9 @@
 
     <module>bundles/org.eclipse.e4.ui.macros</module>
     <module>bundles/org.eclipse.e4.ui.macros.jdt</module>
+
+    <module>bundles/org.eclipse.e4.jdt.scope</module>
+    <module>tests/org.eclipse.e4.jdt.scope.tests</module>
   </modules>
 </project>
+
