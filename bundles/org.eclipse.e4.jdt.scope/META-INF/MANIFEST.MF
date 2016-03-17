@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Scope
+Bundle-Name: Classpath scopes support for JDT-based projects
 Bundle-SymbolicName: org.eclipse.e4.jdt.scope;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8

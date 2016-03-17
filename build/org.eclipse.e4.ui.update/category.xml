@@ -36,5 +36,9 @@
    <bundle id="org.eclipse.e4.ui.macros.jdt" version="0.1.0.qualifier">
       <category name="Macros"/>
    </bundle>
-
+   
+   <category-def name="JDT" label="JDT/PDE Extensions"/>
+   <bundle id="org.eclipse.e4.jdt.scope" version="0.0.1.qualifier">
+      <category name="JDT"/>
+   </bundle>
 </site>
