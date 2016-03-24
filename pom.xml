@@ -45,6 +45,8 @@
     <module>bundles/org.eclipse.e4.ui.importer.pde</module>
     <module>tests/org.eclipse.e4.ui.importer.tests</module>
 
+    <module>bundles/org.eclipse.e4.ui.naturist</module>
+
     <module>build/org.eclipse.e4.ui.update</module>
 
     <module>bundles/org.eclipse.e4.ui.macros</module>
