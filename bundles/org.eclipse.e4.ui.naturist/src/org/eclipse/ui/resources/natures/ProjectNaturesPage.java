@@ -74,6 +74,7 @@ public class ProjectNaturesPage extends PropertyPage {
 
 	private static final String PLUGIN_ID = "org.eclipse.e4.ui.naturist"; //$NON-NLS-1$
 	public static final String HELP_CONTEXT_ID = PLUGIN_ID + ".project_natures_property_page_context"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.ui.propertypages.project.natures"; //$NON-NLS-1$
 
 	private IProject project;
 	private List<String> naturesIdsWorkingCopy;
@@ -128,7 +129,7 @@ public class ProjectNaturesPage extends PropertyPage {
 		this.activeNaturesList.setLabelProvider(new NatureLabelProvider(this.project.getWorkspace()));
 		this.activeNaturesList.setContentProvider(new ArrayContentProvider());
 		try {
-			this.naturesIdsWorkingCopy = new ArrayList<String>();
+			this.naturesIdsWorkingCopy = new ArrayList<>();
 			this.naturesIdsWorkingCopy.addAll(Arrays.asList(project.getDescription().getNatureIds()));
 		} catch (CoreException ex) {
 			logger.log(IStatus.WARNING, "Error while loading project description for " + this.project.getName(), //$NON-NLS-1$
@@ -157,7 +158,7 @@ public class ProjectNaturesPage extends PropertyPage {
 						new NatureLabelProvider(project.getWorkspace()));
 				naturesSelectionDialog.setMessage(Messages.ProjectNaturesPage_selectNatureToAddMessage);
 				naturesSelectionDialog.setTitle(Messages.ProjectNaturesPage_selectNatureToAddTitle);
-				List<IProjectNatureDescriptor> natures = new ArrayList<IProjectNatureDescriptor>();
+				List<IProjectNatureDescriptor> natures = new ArrayList<>();
 				for (IProjectNatureDescriptor nature : project.getWorkspace().getNatureDescriptors()) {
 					if (!naturesIdsWorkingCopy.contains(nature.getNatureId())) {
 						natures.add(nature);
@@ -214,7 +215,7 @@ public class ProjectNaturesPage extends PropertyPage {
 
 		public NatureLabelProvider(IWorkspace workspace) {
 			this.workspace = workspace;
-			this.natureImages = new HashMap<String, Image>(workspace.getNatureDescriptors().length);
+			this.natureImages = new HashMap<>(workspace.getNatureDescriptors().length);
 		}
 
 		@Override
@@ -323,7 +324,7 @@ public class ProjectNaturesPage extends PropertyPage {
 		} catch (CoreException ex) {
 			logger.log(IStatus.WARNING, "Error while loading project description for " + this.project.getName(), //$NON-NLS-1$
 					ex);
-			originalNatureIds = new ArrayList<String>();
+			originalNatureIds = new ArrayList<>();
 		}
 		if (this.naturesIdsWorkingCopy.size() == originalNatureIds.size()
 				&& this.naturesIdsWorkingCopy.containsAll(originalNatureIds)) {
