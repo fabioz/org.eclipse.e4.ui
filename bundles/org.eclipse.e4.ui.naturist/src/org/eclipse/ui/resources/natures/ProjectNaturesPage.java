@@ -27,8 +27,8 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.equinox.log.Logger;
 import org.eclipse.jface.dialogs.ErrorDialog;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.operation.IRunnableWithProgress;
@@ -62,7 +62,6 @@ import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
 import org.eclipse.ui.internal.progress.ProgressMonitorJobsDialog;
 import org.osgi.framework.Bundle;
-import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
 
 /**
@@ -83,16 +82,14 @@ public class ProjectNaturesPage extends PropertyPage {
 	private TableViewer activeNaturesList;
 
 	private boolean warningAlreadyShown = false;
-	private Logger logger;
+	private Bundle bundle;
 
 	/**
 	 * @see PreferencePage#createContents
 	 */
 	@Override
 	protected Control createContents(final Composite parent) {
-		Bundle bundle = FrameworkUtil.getBundle(this.getClass());
-		BundleContext bundleContext = bundle.getBundleContext();
-		logger = bundleContext.getService(bundleContext.getServiceReference(Logger.class));
+		bundle = FrameworkUtil.getBundle(this.getClass());
 
 		PlatformUI.getWorkbench().getHelpSystem().setHelp(getControl(), HELP_CONTEXT_ID);
 		Font font = parent.getFont();
@@ -132,8 +129,10 @@ public class ProjectNaturesPage extends PropertyPage {
 			this.naturesIdsWorkingCopy = new ArrayList<>();
 			this.naturesIdsWorkingCopy.addAll(Arrays.asList(project.getDescription().getNatureIds()));
 		} catch (CoreException ex) {
-			logger.log(IStatus.WARNING, "Error while loading project description for " + this.project.getName(), //$NON-NLS-1$
-					ex);
+			Platform.getLog(bundle)
+					.log(new Status(IStatus.WARNING, bundle.getSymbolicName(),
+							"Error while loading project description for " + this.project.getName(), //$NON-NLS-1$
+							ex));
 		}
 		this.activeNaturesList.setInput(this.naturesIdsWorkingCopy);
 
@@ -322,8 +321,10 @@ public class ProjectNaturesPage extends PropertyPage {
 		try {
 			originalNatureIds = Arrays.asList(this.project.getDescription().getNatureIds());
 		} catch (CoreException ex) {
-			logger.log(IStatus.WARNING, "Error while loading project description for " + this.project.getName(), //$NON-NLS-1$
-					ex);
+			Platform.getLog(bundle)
+					.log(new Status(IStatus.WARNING, bundle.getSymbolicName(),
+							"Error while loading project description for " + this.project.getName(), //$NON-NLS-1$
+							ex));
 			originalNatureIds = new ArrayList<>();
 		}
 		if (this.naturesIdsWorkingCopy.size() == originalNatureIds.size()
