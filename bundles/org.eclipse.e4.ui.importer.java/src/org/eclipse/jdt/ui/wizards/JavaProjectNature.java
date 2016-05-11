@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014-2015 Red Hat Inc., and others
+ * Copyright (c) 2014-2016 Red Hat Inc., and others
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,7 +38,6 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.wizards.Activator;
 import org.eclipse.jdt.launching.JavaRuntime;
-import org.eclipse.jface.wizard.IWizard;
 import org.eclipse.ui.wizards.datatransfer.ProjectConfigurator;
 
 public class JavaProjectNature implements ProjectConfigurator {
@@ -160,12 +159,6 @@ public class JavaProjectNature implements ProjectConfigurator {
 	}
 
 	@Override
-	public IWizard getConfigurationWizard() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void configure(IProject project, Set<IPath> ignoredDirectories, IProgressMonitor monitor) {
 		try {
 			IProjectDescription description = project.getDescription();
@@ -213,7 +206,7 @@ public class JavaProjectNature implements ProjectConfigurator {
 	}
 
 	@Override
-	public Set<IFolder> getDirectoriesToIgnore(IProject project, IProgressMonitor monitor) {
+	public Set<IFolder> getFoldersToIgnore(IProject project, IProgressMonitor monitor) {
 		Set<IFolder> res = new HashSet<IFolder>();
 		try {
 			IJavaProject javaProject = (IJavaProject)project.getNature(JavaCore.NATURE_ID);

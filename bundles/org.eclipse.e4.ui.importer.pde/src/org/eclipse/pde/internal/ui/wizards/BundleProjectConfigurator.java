@@ -56,11 +56,6 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 	}
 
 	@Override
-	public IWizard getConfigurationWizard() {
-		return null;
-	}
-
-	@Override
 	public void configure(IProject project, Set<IPath> ignoredDirectories, IProgressMonitor monitor) {
 		if (PDE.hasPluginNature(project)) {
 			// already configured, nothing else to do
@@ -149,9 +144,9 @@ public class BundleProjectConfigurator implements ProjectConfigurator {
 	}
 
 	@Override
-	public Set<IFolder> getDirectoriesToIgnore(IProject project, IProgressMonitor monitor) {
+	public Set<IFolder> getFoldersToIgnore(IProject project, IProgressMonitor monitor) {
 		Set<IFolder> res = new HashSet<IFolder>();
-		res.addAll(new JavaProjectNature().getDirectoriesToIgnore(project, monitor));
+		res.addAll(new JavaProjectNature().getFoldersToIgnore(project, monitor));
 		try {
 			IFile buildPropertiesFile = PDEProject.getBuildProperties(project);
 			Properties buildProperties = new Properties();
