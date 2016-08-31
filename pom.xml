@@ -46,7 +46,8 @@
     <module>tests/org.eclipse.e4.ui.importer.tests</module>
 
     <module>bundles/org.eclipse.e4.ui.naturist</module>
-    <module>tests/org.eclipse.e4.naturist.tests</module>
+		<module>tests/org.eclipse.e4.naturist.tests</module>
+    <module>features/org.eclipse.e4.ui.naturist.feature</module>
 
     <module>build/org.eclipse.e4.ui.update</module>
 
