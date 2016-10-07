@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.e4.ui.naturist.feature"
       label="%featureName"
-      version="0.0.1.qualifier"
+      version="0.0.2.qualifier"
       provider-name="%providerName"
       image="eclipse_update_120.jpg">
 
@@ -24,5 +24,12 @@
          install-size="0"
          version="0.0.0"
          unpack="false"/>
+
+   <plugin
+      id="org.eclipse.ui.genericeditor.examples"
+      download-size="0"
+      install-size="0"
+      version="0.0.0"
+      unpack="false"/>
 
 </feature>

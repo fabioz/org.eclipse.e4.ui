@@ -43,7 +43,7 @@
    </bundle>
 
    <category-def name="Misc" label="Misc"/>
-   <feature id="org.eclipse.e4.ui.naturist.feature" version="0.0.1.qualifier">
+   <feature id="org.eclipse.e4.ui.naturist.feature" version="0.0.0">
       <category name="Misc"/>
    </feature>
 </site>
