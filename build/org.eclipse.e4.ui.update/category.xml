@@ -8,26 +8,6 @@
       <category name="org.eclipse.e4.ui.keys"/>
    </feature>
 
-   <category-def name="Importer" label="Import framework"/>   
-   <bundle id="org.eclipse.e4.ui.importer" version="0.2.0.qualifier">
-      <category name="Importer"/>
-   </bundle>
-   <bundle id="org.eclipse.e4.ui.importer.java" version="0.2.0.qualifier">
-      <category name="Importer"/>
-   </bundle>
-   <bundle id="org.eclipse.e4.ui.importer.pde" version="0.2.0.qualifier">
-      <category name="Importer"/>
-   </bundle>
-   <!-- Sources -->
-   <bundle id="org.eclipse.e4.ui.importer.source" version="0.2.0.qualifier">
-      <category name="Importer"/>
-   </bundle>
-   <bundle id="org.eclipse.e4.ui.importer.java.source" version="0.2.0.qualifier">
-      <category name="Importer"/>
-   </bundle>
-   <bundle id="org.eclipse.e4.ui.importer.pde.source" version="0.2.0.qualifier">
-      <category name="Importer"/>
-   </bundle>
 
    <category-def name="Macros" label="Keyboard macros"/>
    <bundle id="org.eclipse.e4.ui.macros" version="0.1.0.qualifier">
