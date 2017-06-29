@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<scr:component xmlns:scr="http://www.osgi.org/xmlns/scr/v1.1.0" immediate="false" name="org.eclipse.e4.demo.simpleide.navigator.projectCreatorComponent">
-   <implementation class="org.eclipse.e4.demo.simpleide.navigator.internal.ServiceRegistryComponent"/>
-   <service>
-      <provide interface="org.eclipse.e4.demo.simpleide.navigator.internal.ServiceRegistryComponent"/>
-   </service>
-   <reference bind="addProjectService" cardinality="0..n" interface="org.eclipse.e4.demo.simpleide.services.IProjectService" name="IProjectService" policy="dynamic" unbind="removeProjectService"/>
-   <reference bind="addImportService" cardinality="0..n" interface="org.eclipse.e4.demo.simpleide.services.IImportResourceService" name="IImportResourceService" policy="dynamic" unbind="removeImportService"/>
-</scr:component>
