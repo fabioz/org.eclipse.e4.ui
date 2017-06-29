@@ -21,6 +21,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.e4.jdt.scope.ScopeValidator;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -39,6 +40,7 @@ public class RestrictedScopeTest {
 	public String fileToCheck;
 
 	@Test
+	@Ignore("See Bug 518990")
 	public void test() throws Exception {
 		IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(AllScopeTests.TEST_PROJECT_NAME);
 		IFile file = project.getFolder("restrict/testScope").getFile(this.fileToCheck); //$NON-NLS-1$
