@@ -38,19 +38,14 @@
   </repositories>
   <modules>
     <module>bundles/org.eclipse.e4.ui.keys.common</module>
-    <module>features/org.eclipse.e4.ui.keys.feature</module>
-
     <module>bundles/org.eclipse.e4.ui.naturist</module>
-    <module>tests/org.eclipse.e4.naturist.tests</module>
-    <module>features/org.eclipse.e4.ui.naturist.feature</module>
-
-    <module>build/org.eclipse.e4.ui.update</module>
-
-    <module>bundles/org.eclipse.e4.ui.macros</module>
-    <module>bundles/org.eclipse.e4.ui.macros.jdt</module>
-
     <module>bundles/org.eclipse.e4.jdt.scope</module>
+    <module>bundles/org.eclipse.e4.ui.macros.jdt</module>
+    <module>bundles/org.eclipse.e4.ui.macros</module>
+    <module>tests/org.eclipse.e4.naturist.tests</module>
     <module>tests/org.eclipse.e4.jdt.scope.tests</module>
+    <module>build/org.eclipse.e4.ui.update</module>
+    <module>features</module>
   </modules>
 </project>
 
