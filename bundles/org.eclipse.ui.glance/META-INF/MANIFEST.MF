@@ -1,6 +1,6 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Eclipse Glance
+Bundle-Name: Eclipse Glance - Incremental text search
 Bundle-SymbolicName: org.eclipse.ui.glance;singleton:=true
 Bundle-Version: 0.0.1.qualifier
 Bundle-Activator: org.eclipse.ui.glance.internal.GlancePlugin
