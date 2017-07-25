@@ -25,6 +25,7 @@ apache.org/xsd/maven-4.0.0.xsd">
   <modules>
     <module>org.eclipse.e4.ui.keys.feature</module>
     <module>org.eclipse.e4.ui.naturist.feature</module>
+    <module>org.eclipse.ui.glance.feature</module>
   </modules>
 </project>
 
