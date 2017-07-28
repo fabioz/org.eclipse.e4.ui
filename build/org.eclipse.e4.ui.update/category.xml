@@ -1,32 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
-   <category-def name="org.eclipse.e4.ui.keys" label="Eclipse e4 Key Schemes"/>
    <feature url="features/org.eclipse.e4.ui.keys.feature_0.15.0.qualifier.jar" id="org.eclipse.e4.ui.keys.feature" version="0.15.0.qualifier">
       <category name="org.eclipse.e4.ui.keys"/>
    </feature>
    <feature url="features/org.eclipse.e4.ui.keys.feature.source_0.15.0.qualifier.jar" id="org.eclipse.e4.ui.keys.feature.source" version="0.15.0.qualifier">
       <category name="org.eclipse.e4.ui.keys"/>
    </feature>
-
-
-   <category-def name="Macros" label="Keyboard macros"/>
+   <feature id="org.eclipse.e4.ui.naturist.feature" version="0.0.0">
+      <category name="Misc"/>
+   </feature>
+   <feature id="org.eclipse.ui.glance.feature" version="0.0.1.qualifier">
+      <category name="Incrementation Text Search with Elipse Glance"/>
+   </feature>
    <bundle id="org.eclipse.e4.ui.macros" version="0.1.0.qualifier">
       <category name="Macros"/>
    </bundle>
    <bundle id="org.eclipse.e4.ui.macros.jdt" version="0.1.0.qualifier">
       <category name="Macros"/>
    </bundle>
-   
-   <category-def name="JDT" label="JDT/PDE Extensions"/>
    <bundle id="org.eclipse.e4.jdt.scope" version="0.0.1.qualifier">
       <category name="JDT"/>
    </bundle>
-
+   <category-def name="org.eclipse.e4.ui.keys" label="Eclipse e4 Key Schemes"/>
+   <category-def name="Macros" label="Keyboard macros"/>
+   <category-def name="JDT" label="JDT/PDE Extensions"/>
    <category-def name="Misc" label="Misc"/>
-   <feature id="org.eclipse.e4.ui.naturist.feature" version="0.0.0">
-      <category name="Misc"/>
-   </feature>
-   <feature id="org.eclipse.ui.glance.feature" version="0.0.1.qualifier">
-      <category name="Misc"/>
-   </feature>
+   <category-def name="Incrementation Text Search with Elipse Glance" label="New Category 4">
+      <description>
+         Incremental text search and highlighting in rich texts, tables and trees.
+      </description>
+   </category-def>
 </site>
