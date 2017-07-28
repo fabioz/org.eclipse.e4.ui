@@ -10,7 +10,7 @@
       <category name="Misc"/>
    </feature>
    <feature id="org.eclipse.ui.glance.feature" version="0.0.1.qualifier">
-      <category name="Incrementation Text Search with Elipse Glance"/>
+      <category name="Incrementation Text Search with Eclipse Glance"/>
    </feature>
    <bundle id="org.eclipse.e4.ui.macros" version="0.1.0.qualifier">
       <category name="Macros"/>
@@ -25,7 +25,7 @@
    <category-def name="Macros" label="Keyboard macros"/>
    <category-def name="JDT" label="JDT/PDE Extensions"/>
    <category-def name="Misc" label="Misc"/>
-   <category-def name="Incrementation Text Search with Elipse Glance" label="Incrementation Text Search with Elipse Glance">
+   <category-def name="Incrementation Text Search with Eclipse Glance" label="Incrementation Text Search with Eclipse Glance">
       <description>
          Incremental text search and highlighting in rich texts, tables and trees.
       </description>
