@@ -25,7 +25,7 @@
    <category-def name="Macros" label="Keyboard macros"/>
    <category-def name="JDT" label="JDT/PDE Extensions"/>
    <category-def name="Misc" label="Misc"/>
-   <category-def name="Incrementation Text Search with Elipse Glance" label="New Category 4">
+   <category-def name="Incrementation Text Search with Elipse Glance" label="Incrementation Text Search with Elipse Glance">
       <description>
          Incremental text search and highlighting in rich texts, tables and trees.
       </description>
