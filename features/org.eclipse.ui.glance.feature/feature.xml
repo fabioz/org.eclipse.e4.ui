@@ -12,15 +12,17 @@
 
 <feature
       id="org.eclipse.ui.glance.feature"
-      label="Eclipse Glance - Incremental text search"
+      label="%featureName"
       version="0.0.1.qualifier"
-      provider-name="Exyte">
+      provider-name="%providerName"
+      license-feature="org.eclipse.license"
+      license-feature-version="0.0.0">
 
    <description>
-      Incremental text search and highlighting in rich texts, tables and trees.
+      %description
    </description>
 
-   <copyright url="%copyrightURL">
+   <copyright>
       %copyright
    </copyright>
 
