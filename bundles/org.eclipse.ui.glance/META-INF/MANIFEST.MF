@@ -12,14 +12,14 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.ui.ide
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
-Export-Package: org.eclipse.ui.glance.panels,
- org.eclipse.ui.glance.sources,
- org.eclipse.ui.glance.utils,
- org.eclipse.ui.glance.controls.decor,
- org.eclipse.ui.glance.controls.descriptors,
- org.eclipse.ui.glance.controls.items,
- org.eclipse.ui.glance.controls.table,
- org.eclipse.ui.glance.controls.text.styled,
- org.eclipse.ui.glance.controls.tree,
- org.eclipse.ui.glance.viewers.descriptors
+Export-Package: org.eclipse.ui.glance.panels;x-internal:=true,
+ org.eclipse.ui.glance.sources;x-internal:=true,
+ org.eclipse.ui.glance.utils;x-internal:=true,
+ org.eclipse.ui.glance.controls.decor;x-internal:=true,
+ org.eclipse.ui.glance.controls.descriptors;x-internal:=true,
+ org.eclipse.ui.glance.controls.items;x-internal:=true,
+ org.eclipse.ui.glance.controls.table;x-internal:=true,
+ org.eclipse.ui.glance.controls.text.styled;x-internal:=true,
+ org.eclipse.ui.glance.controls.tree;x-internal:=true,
+ org.eclipse.ui.glance.viewers.descriptors;x-internal:=true
  
