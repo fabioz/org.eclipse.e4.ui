@@ -43,12 +43,8 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         updateSelection();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.glance.sources.ITextSource#getSelection()
-     */
-    public SourceSelection getSelection() {
+    @Override
+	public SourceSelection getSelection() {
         return selection;
     }
     
@@ -56,11 +52,13 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         return control;
     }
 
-    public boolean isIndexRequired() {
+    @Override
+	public boolean isIndexRequired() {
         return source.isIndexRequired();
     }
 
-    public void dispose() {
+    @Override
+	public void dispose() {
         synchronized (blocks) {
             for (final UITextBlock block : blocks) {
                 block.dispose();
@@ -70,39 +68,27 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         source.dispose();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.glance.sources.ITextSource#isDisposed()
-     */
-    public boolean isDisposed() {
+    @Override
+	public boolean isDisposed() {
         return source.isDisposed();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.eclipse.ui.glance.sources.ITextSource#getBlocks()
-     */
-    public ITextBlock[] getBlocks() {
+    @Override
+	public ITextBlock[] getBlocks() {
         return blocks.toArray(new ITextBlock[blocks.size()]);
     }
 
-    public void index(final IProgressMonitor monitor) {
+    @Override
+	public void index(final IProgressMonitor monitor) {
         source.index(monitor);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.glance.sources.ITextSource#select(org.eclipse.ui.glance.sources
-     * .Match)
-     */
-    public void select(final Match match) {
+    @Override
+	public void select(final Match match) {
         UIUtils.asyncExec(control, new Runnable() {
 
-            public void run() {
+            @Override
+			public void run() {
                 if (!source.isDisposed()) {
                     if (match == null)
                         source.select(null);
@@ -115,17 +101,12 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.glance.sources.ITextSource#show(org.eclipse.ui.glance.sources
-     * .Match[])
-     */
-    public void show(final Match[] matches) {
+    @Override
+	public void show(final Match[] matches) {
         UIUtils.asyncExec(control, new Runnable() {
 
-            public void run() {
+            @Override
+			public void run() {
                 if (!source.isDisposed()) {
                     final Match[] newMatches = new Match[matches.length];
                     for (int i = 0; i < matches.length; i++) {
@@ -139,37 +120,18 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         });
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.glance.sources.ITextSource#addTextSourceListener(org.eclipse.ui
-     * .glance.sources.ITextSourceListener)
-     */
-    public void addTextSourceListener(final ITextSourceListener listener) {
+    @Override
+	public void addTextSourceListener(final ITextSourceListener listener) {
         listeners.add(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.glance.sources.ITextSource#removeTextSourceListener(org.
-     * eclipse.ui.glance.sources.ITextSourceListener)
-     */
-    public void removeTextSourceListener(final ITextSourceListener listener) {
+    @Override
+	public void removeTextSourceListener(final ITextSourceListener listener) {
         listeners.remove(listener);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.glance.sources.ITextSourceListener#blocksChanged(org.eclipse.ui
-     * .glance.sources.ITextBlock[],
-     * org.eclipse.ui.glance.sources.ITextBlock[])
-     */
-    public void blocksChanged(final ITextBlock[] removed, final ITextBlock[] added) {
+    @Override
+	public void blocksChanged(final ITextBlock[] removed, final ITextBlock[] added) {
         final ITextBlock[] uiRemoved = removeBlocks(removed);
         final ITextBlock[] uiAdded = addBlocks(added);
         final Object[] objects = listeners.getListeners();
@@ -179,7 +141,8 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         }
     }
 
-    public void blocksReplaced(final ITextBlock[] newBlocks) {
+    @Override
+	public void blocksReplaced(final ITextBlock[] newBlocks) {
         synchronized (this.blocks) {
             for (final UITextBlock uiBlock : blockToBlock.values()) {
                 uiBlock.dispose();
@@ -196,14 +159,8 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         selection = source.getSelection();
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.eclipse.ui.glance.sources.ITextSourceListener#selectionChanged(org.
-     * eclipse.ui.glance.sources.SourceSelection)
-     */
-    public void selectionChanged(final SourceSelection selection) {
+    @Override
+	public void selectionChanged(final SourceSelection selection) {
         final SourceSelection newSelection = updateSelection();
         final Object[] objects = listeners.getListeners();
         for (final Object object : objects) {
@@ -253,7 +210,8 @@ public class UITextSource implements ITextSource, ITextSourceListener {
         return selection;
     }
 
-    public void init() {
+    @Override
+	public void init() {
         if (source != null) {
             source.init();
         }

@@ -53,26 +53,12 @@ public class GlancePlugin extends AbstractUIPlugin {
 	public GlancePlugin() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#start(org.osgi.framework.BundleContext
-	 * )
-	 */
 	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.plugin.AbstractUIPlugin#stop(org.osgi.framework.BundleContext
-	 * )
-	 */
 	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
@@ -136,7 +122,7 @@ public class GlancePlugin extends AbstractUIPlugin {
 	}
 
 	public static IStatus createStatus(String message, Throwable t) {
-		return new Status(Status.ERROR, PLUGIN_ID, message, t);
+		return new Status(IStatus.ERROR, PLUGIN_ID, message, t);
 	}
 
 	private static URL makeImageURL(String path) {

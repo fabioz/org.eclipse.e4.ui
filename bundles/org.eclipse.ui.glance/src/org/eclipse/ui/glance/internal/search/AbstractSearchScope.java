@@ -41,15 +41,19 @@ public abstract class AbstractSearchScope implements IMatchListener,
 		source.removeTextSourceListener(this);
 	}
 
+	@Override
 	public abstract void added(SearchScopeEntry entry, Match match);
 
+	@Override
 	public abstract void cleared(SearchScopeEntry entry);
 
+	@Override
 	public void blocksReplaced(ITextBlock[] newBlocks) {
 		entries = new ArrayList<SearchScopeEntry>(newBlocks.length);
 		newBlocks(newBlocks);
 	}
 
+	@Override
 	public void blocksChanged(ITextBlock[] removed, ITextBlock[] added) {
 		for (int i = 0; i < entries.size(); i++) {
 			SearchScopeEntry entry = entries.get(i);
@@ -164,6 +168,7 @@ public abstract class AbstractSearchScope implements IMatchListener,
 		return null;
 	}
 
+	@Override
 	public void selectionChanged(SourceSelection selection) {
 		updateSelection(selection);
 	}

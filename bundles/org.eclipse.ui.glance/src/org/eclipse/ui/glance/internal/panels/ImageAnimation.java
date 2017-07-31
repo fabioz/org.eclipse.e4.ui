@@ -100,6 +100,7 @@ public abstract class ImageAnimation extends Thread {
 				final Image newImage = image;
 
 				UIUtils.syncExec(display, new Runnable() {
+					@Override
 					public void run() {
 						updateImage(newImage);
 					}

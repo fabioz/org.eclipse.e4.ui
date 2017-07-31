@@ -44,6 +44,7 @@ public class GlancePreferencePage extends FieldEditorPreferencePage implements I
 		super(GRID);
 	}
 
+	@Override
 	public void init(final IWorkbench workbench) {
 	}
 

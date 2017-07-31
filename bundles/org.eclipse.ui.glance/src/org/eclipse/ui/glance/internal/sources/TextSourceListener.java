@@ -45,6 +45,7 @@ public class TextSourceListener implements Listener {
 		}
 	}
 
+	@Override
 	public void handleEvent(Event event) {
 		TextSourceMaker creator = getCreator(getDisplay().getFocusControl());
 		if (!creator.equals(selection)) {

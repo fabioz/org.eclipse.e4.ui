@@ -110,6 +110,7 @@ public class SearchDialog extends PopupDialog {
 	protected void configureShell(final Shell shell) {
 		super.configureShell(shell);
 		shell.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				handleClose();
 			}

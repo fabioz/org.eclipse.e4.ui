@@ -43,120 +43,58 @@ public class TableItemProvider implements ItemProvider {
 		return (TableItem) item;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getBackground(org.eclipse
-	 * .swt.widgets.Item, int)
-	 */
+	@Override
 	public Color getBackground(Item item, int index) {
 		return getItem(item).getBackground(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getColumnCount(org.eclipse
-	 * .swt.widgets.Item)
-	 */
+	@Override
 	public int getColumnCount(Item item) {
 		return getItem(item).getParent().getColumnCount();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getForeground(org.eclipse
-	 * .swt.widgets.Item, int)
-	 */
+	@Override
 	public Color getForeground(Item item, int index) {
 		return getItem(item).getForeground(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getText(org.eclipse.swt.
-	 * widgets.Item, int)
-	 */
+	@Override
 	public String getText(Item item, int index) {
 		return getItem(item).getText(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getImage(org.eclipse.swt
-	 * .widgets.Item, int)
-	 */
+	@Override
 	public Image getImage(Item item, int index) {
 		return getItem(item).getImage(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getImageBounds(org.eclipse
-	 * .swt.widgets.Item, int)
-	 */
+	@Override
 	public Rectangle getImageBounds(Item item, int index) {
 		return getItem(item).getImageBounds(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getTextBounds(org.eclipse
-	 * .swt.widgets.Item, int)
-	 */
+	@Override
 	public Rectangle getTextBounds(Item item, int index) {
 		return getItem(item).getTextBounds(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getBounds(org.eclipse.swt
-	 * .widgets.Item, int)
-	 */
+	@Override
 	public Rectangle getBounds(Item item, int index) {
 		return getItem(item).getBounds(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#getFont(org.eclipse.swt.
-	 * widgets.Item, int)
-	 */
+	@Override
 	public Font getFont(Item item, int index) {
 		return getItem(item).getFont(index);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#showItem(org.eclipse.swt
-	 * .widgets.Item)
-	 */
+	@Override
 	public void show(Item item) {
 		TableItem tItem = getItem(item);
 		tItem.getParent().showItem(tItem);
 	}
 	
-	/* (non-Javadoc)
-	 * @see org.eclipse.ui.glance.controls.items.ItemProvider#compare(org.eclipse.swt.widgets.Item, org.eclipse.swt.widgets.Item)
-	 */
+	@Override
 	public int compare(Item item1, Item item2) {
 		if (item1.equals(item2))
 			return 0;
@@ -171,13 +109,7 @@ public class TableItemProvider implements ItemProvider {
 		return 0;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.internal.items.ItemProvider#select(org.eclipse.swt.widgets
-	 * .Item)
-	 */
+	@Override
 	public void select(Item item) {
 		TableItem tItem = getItem(item);
 		tItem.getParent().setSelection(tItem);

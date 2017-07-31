@@ -48,15 +48,18 @@ public class SearchStatusLine extends SearchPanel {
 	protected Control createText(Composite parent, int style) {
 		Control textControl = super.createText(parent, style);
 		textControl.addFocusListener(new FocusListener() {
+			@Override
 			public void focusLost(FocusEvent e) {
 				setKeyFilter(true);
 			}
 
+			@Override
 			public void focusGained(FocusEvent e) {
 				setKeyFilter(false);
 			}
 		});
 		textControl.addDisposeListener(new DisposeListener() {
+			@Override
 			public void widgetDisposed(DisposeEvent e) {
 				setKeyFilter(true);
 			}
@@ -87,6 +90,7 @@ public class SearchStatusLine extends SearchPanel {
 		return null;
 	}
 
+	@Override
 	public boolean isApplicable(Control control) {
 		return window.equals(getWindow(control));
 	}
@@ -116,12 +120,14 @@ public class SearchStatusLine extends SearchPanel {
 		matchText = buffer.toString();
 		UIUtils.asyncExec(matchLabel, new Runnable() {
 
+			@Override
 			public void run() {
 				matchLabel.setText(matchText);
 			}
 		});
 	}
 
+	@Override
 	public void closePanel() {
 		if (item != null) {
 			fireClose();
@@ -163,7 +169,7 @@ public class SearchStatusLine extends SearchPanel {
 	}
 
 	protected void setKeyFilter(boolean enabled) {
-		IBindingService service = (IBindingService) PlatformUI.getWorkbench()
+		IBindingService service = PlatformUI.getWorkbench()
 				.getService(IBindingService.class);
 		if (service != null) {
 			service.setKeyFilterEnabled(enabled);
@@ -173,20 +179,25 @@ public class SearchStatusLine extends SearchPanel {
 	private class SearchItem extends ContributionItem implements IStatusField,
 			IStatusFieldExtension {
 
+		@Override
 		public void setImage(Image image) {
 		}
 
+		@Override
 		public void setText(String text) {
 		}
 
+		@Override
 		public void setErrorImage(Image image) {
 			setImage(image);
 		}
 
+		@Override
 		public void setErrorText(String text) {
 			setText(text);
 		}
 
+		@Override
 		public void setToolTipText(String string) {
 			setText(string);
 		}

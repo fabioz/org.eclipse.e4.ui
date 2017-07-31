@@ -27,6 +27,7 @@ public class UIUtils {
 	public static void asyncExec(final Control control, final Runnable runnable) {
 		if (control != null && !control.isDisposed()) {
 			control.getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (!control.isDisposed())
 						runnable.run();
@@ -38,6 +39,7 @@ public class UIUtils {
 	public static void asyncExec(final Display display, final Runnable runnable) {
 		if (display != null && !display.isDisposed()) {
 			display.asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (!display.isDisposed())
 						runnable.run();
@@ -49,6 +51,7 @@ public class UIUtils {
 	public static void syncExec(final Display display, final Runnable runnable) {
 		if (display != null && !display.isDisposed()) {
 			display.syncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (!display.isDisposed())
 						runnable.run();

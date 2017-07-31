@@ -61,7 +61,8 @@ public class ListeningStyledTextSource extends AbstractStyledTextSource
 		};
 	}
 
-    public void show(final Match[] matches) {
+    @Override
+	public void show(final Match[] matches) {
 		this.matches = matches;
 		refresh();
 	}
@@ -72,7 +73,8 @@ public class ListeningStyledTextSource extends AbstractStyledTextSource
 	    refresh();
 	}
 
-    public void lineGetStyle(final LineStyleEvent event) {
+    @Override
+	public void lineGetStyle(final LineStyleEvent event) {
 		if (matches.length > 0) {
 			final int offset = event.lineOffset;
 			final int length = event.lineText.length();

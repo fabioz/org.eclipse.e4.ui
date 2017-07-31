@@ -62,6 +62,7 @@ public class StructDecorator implements Listener {
 		return textLayout;
 	}
 
+	@Override
 	public void handleEvent(Event event) {
 		switch (event.type) {
 		case SWT.PaintItem:

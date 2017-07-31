@@ -45,6 +45,7 @@ public class Match implements Comparable<Match> {
 		return length;
 	}
 
+	@Override
 	public int compareTo(Match match) {
 		if (block != null && match.block != null) {
 			int diff = block.compareTo(match.block);

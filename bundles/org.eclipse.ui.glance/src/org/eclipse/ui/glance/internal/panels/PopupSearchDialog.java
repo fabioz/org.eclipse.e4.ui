@@ -44,6 +44,7 @@ public class PopupSearchDialog extends SearchPanel {
 		return popup.open();
 	}
 
+	@Override
 	public boolean isApplicable(Control control) {
 		return true;
 	}
@@ -60,6 +61,7 @@ public class PopupSearchDialog extends SearchPanel {
 	protected void updateInfo() {
 		UIUtils.asyncExec(popup.getShell(), new Runnable() {
 
+			@Override
 			public void run() {
 				StringBuilder buffer = new StringBuilder();
 				if (matchCount == 0) {
@@ -80,7 +82,7 @@ public class PopupSearchDialog extends SearchPanel {
 	@Override
 	protected void textEmpty() {
 		super.textEmpty();
-		popup.setInfoText(SearchPopup.HELP_TEXT);
+		popup.setInfoText(SearchDialog.HELP_TEXT);
 	}
 
 	@Override
@@ -120,6 +122,7 @@ public class PopupSearchDialog extends SearchPanel {
 	public void finished() {
 	}
 
+	@Override
 	public void closePanel() {
 		popup.close();
 	}

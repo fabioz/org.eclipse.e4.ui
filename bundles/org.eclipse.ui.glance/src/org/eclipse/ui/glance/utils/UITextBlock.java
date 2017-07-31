@@ -39,44 +39,22 @@ public class UITextBlock implements ITextBlock, ITextBlockListener {
 		return block;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.ui.glance.sources.ITextBlock#getText()
-	 */
+	@Override
 	public String getText() {
 		return text;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.sources.ITextBlock#addTextBlockListener(org.eclipse.ui
-	 * .glance.sources.ITextBlockListener)
-	 */
+	@Override
 	public void addTextBlockListener(ITextBlockListener listener) {
 		listeners.add(listener);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.sources.ITextBlock#removeTextBlockListener(org.eclipse.ui
-	 * .glance.sources.ITextBlockListener)
-	 */
+	@Override
 	public void removeTextBlockListener(ITextBlockListener listener) {
 		listeners.remove(listener);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.eclipse.ui.glance.sources.ITextBlockListener#textChanged(org.eclipse.ui.
-	 * glance.sources.TextChangedEvent)
-	 */
+	@Override
 	public void textChanged(TextChangedEvent event) {
 		text = block.getText();
 		Object[] objects = listeners.getListeners();
@@ -86,11 +64,7 @@ public class UITextBlock implements ITextBlock, ITextBlockListener {
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
+	@Override
 	public int compareTo(ITextBlock block) {
 		return this.block.compareTo(((UITextBlock) block).block);
 	}

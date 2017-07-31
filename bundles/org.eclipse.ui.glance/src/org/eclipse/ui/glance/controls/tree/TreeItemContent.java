@@ -34,6 +34,7 @@ public class TreeItemContent implements ITextBlock {
 		return node;
 	}
 
+	@Override
 	public String getText() {
 		return text;
 	}
@@ -50,14 +51,17 @@ public class TreeItemContent implements ITextBlock {
 		}
 	}
 
+	@Override
 	public void addTextBlockListener(ITextBlockListener listener) {
 		listeners.add(listener);
 	}
 
+	@Override
 	public void removeTextBlockListener(ITextBlockListener listener) {
 		listeners.remove(listener);
 	}
 
+	@Override
 	public int compareTo(ITextBlock that) {
 		TreeItemContent item = (TreeItemContent) that;
 		int diff = this.node.compareTo(item.node);

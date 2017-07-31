@@ -14,14 +14,17 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 public abstract class BaseTextSource implements ITextSource {
 
+	@Override
 	public void index(IProgressMonitor monitor) {
 		monitor.done();
 	}
 
+	@Override
 	public boolean isIndexRequired() {
 		return false;
 	}
 	
+	@Override
 	public void init() {
 	}
 }

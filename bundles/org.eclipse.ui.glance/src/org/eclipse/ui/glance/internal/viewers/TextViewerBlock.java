@@ -72,7 +72,8 @@ public class TextViewerBlock implements ITextBlock, ITextListener {
         viewer.removeTextListener(this);
     }
 
-    public void textChanged(TextEvent event) {
+    @Override
+	public void textChanged(TextEvent event) {
         if (event.getDocumentEvent() != null) {
             TextChangedEvent changedEvent = new TextChangedEvent(event.getOffset(), event.getLength(),
                 event.getReplacedText());
@@ -88,19 +89,23 @@ public class TextViewerBlock implements ITextBlock, ITextListener {
         }
     }
 
-    public void addTextBlockListener(ITextBlockListener listener) {
+    @Override
+	public void addTextBlockListener(ITextBlockListener listener) {
         listeners.add(listener);
     }
 
-    public String getText() {
+    @Override
+	public String getText() {
         return viewer.getDocument().get();
     }
 
-    public void removeTextBlockListener(ITextBlockListener listener) {
+    @Override
+	public void removeTextBlockListener(ITextBlockListener listener) {
         listeners.remove(listener);
     }
 
-    public int compareTo(ITextBlock o) {
+    @Override
+	public int compareTo(ITextBlock o) {
         return 0;
     }
 

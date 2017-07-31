@@ -48,7 +48,8 @@ public abstract class StructSource implements ITextSource, IStructProvider,
 		decorator = new StructDecorator(composite, this);
 	}
 
-    public StructCell getCell(final Item item, final int column) {
+    @Override
+	public StructCell getCell(final Item item, final int column) {
 		final StructCell cell = createCell(item, column);
 		StyleRange[] styles = cellToStyles.get(cell);
 		if (styles == null) {
@@ -59,7 +60,8 @@ public abstract class StructSource implements ITextSource, IStructProvider,
 		return cell;
 	}
 
-    public boolean isIndexRequired() {
+    @Override
+	public boolean isIndexRequired() {
         return true;
 	}
 
@@ -95,28 +97,34 @@ public abstract class StructSource implements ITextSource, IStructProvider,
 		return composite;
 	}
 
-    public ITextBlock[] getBlocks() {
+    @Override
+	public ITextBlock[] getBlocks() {
 		return content.getBlocks();
 	}
 
-    public void dispose() {
+    @Override
+	public void dispose() {
 		content.dispose();
 		decorator.dispose();
 	}
 
-    public boolean isDisposed() {
+    @Override
+	public boolean isDisposed() {
 		return decorator.isDisposed();
 	}
 
-    public void index(final IProgressMonitor monitor) {
+    @Override
+	public void index(final IProgressMonitor monitor) {
 		content.index(monitor);
 	}
 
-    public void widgetDefaultSelected(final SelectionEvent e) {
+    @Override
+	public void widgetDefaultSelected(final SelectionEvent e) {
 		fireSelectionChanged();
 	}
 
-    public void widgetSelected(final SelectionEvent e) {
+    @Override
+	public void widgetSelected(final SelectionEvent e) {
 		fireSelectionChanged();
 	}
 
@@ -129,7 +137,8 @@ public abstract class StructSource implements ITextSource, IStructProvider,
 		}
 	}
 
-    public void select(final Match match) {
+    @Override
+	public void select(final Match match) {
 		if (match != null) {
 			discardSelection();
 			path = content.getPath(match.getBlock());
@@ -138,15 +147,18 @@ public abstract class StructSource implements ITextSource, IStructProvider,
 		setMatch(match);
 	}
 
-    public void show(final Match[] matches) {
+    @Override
+	public void show(final Match[] matches) {
 		setMatches(matches);
 	}
 
-    public void addTextSourceListener(final ITextSourceListener listener) {
+    @Override
+	public void addTextSourceListener(final ITextSourceListener listener) {
 		content.addListener(listener);
 	}
 
-    public void removeTextSourceListener(final ITextSourceListener listener) {
+    @Override
+	public void removeTextSourceListener(final ITextSourceListener listener) {
 		content.removeListener(listener);
 	}
 
@@ -234,10 +246,12 @@ public abstract class StructSource implements ITextSource, IStructProvider,
 				bgColor);
 	}
 
+	@Override
 	public SourceSelection getSelection() {
 	    return null;
 	}
 	   
+	@Override
 	public void init() {
 		blockToMatches = new HashMap<ITextBlock, List<Match>>();
 		blockToCell = new HashMap<ITextBlock, StructCell>();

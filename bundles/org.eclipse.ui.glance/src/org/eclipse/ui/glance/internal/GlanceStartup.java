@@ -19,10 +19,12 @@ import org.eclipse.ui.glance.internal.search.SearchManager;
 
 public class GlanceStartup implements IStartup, IPreferenceConstants {
 
+	@Override
 	public void earlyStartup() {
 		IPreferenceStore store = GlancePlugin.getDefault().getPreferenceStore();
 		if (store.getBoolean(PANEL_STARTUP)) {
 			PlatformUI.getWorkbench().getDisplay().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					SearchManager.getIntance().startup();
 				}

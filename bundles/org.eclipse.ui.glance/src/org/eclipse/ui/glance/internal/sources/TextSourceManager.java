@@ -95,7 +95,8 @@ public class TextSourceManager {
 
             Collections.sort(list, new Comparator<ITextSourceDescriptor>() {
 
-                public int compare(ITextSourceDescriptor o1, ITextSourceDescriptor o2) {
+                @Override
+				public int compare(ITextSourceDescriptor o1, ITextSourceDescriptor o2) {
                     return prior.get(o2) - prior.get(o1);
                 }
 

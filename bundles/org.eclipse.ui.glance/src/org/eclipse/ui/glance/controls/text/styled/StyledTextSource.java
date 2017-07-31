@@ -79,6 +79,7 @@ public class StyledTextSource extends AbstractStyledTextSource {
         }
 	}
 	
+	@Override
 	public void show(final Match[] matches) {
         clearAll();
         previous = new RangeGroup[matches.length];

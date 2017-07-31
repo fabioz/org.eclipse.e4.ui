@@ -74,6 +74,7 @@ public class ColorManager implements IPropertyChangeListener, IPreferenceConstan
 		return useNative;
 	}
 
+	@Override
 	public void propertyChange(final PropertyChangeEvent event) {
 		if (COLOR_HIGHLIGHT.equals(event.getProperty()) || COLOR_SELECTION.equals(event.getProperty())) {
 			updateColors();
