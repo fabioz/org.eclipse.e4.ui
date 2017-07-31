@@ -187,7 +187,7 @@ public abstract class SearchPanel implements ISearchPanel,
 			bIndexing.setSelection(false);
 			bIndexing.setEnabled(false);
 		} else {
-			final StringBuffer buffer = new StringBuffer();
+			final StringBuilder buffer = new StringBuilder();
 			bIndexing.setSelection(true);
 			bIndexing.setImage(image);
 			if (taskName != null && taskName.length() > 0) {
@@ -601,7 +601,7 @@ public abstract class SearchPanel implements ISearchPanel,
 	}
 
 	private void saveHistory() {
-		final StringBuffer buffer = new StringBuffer();
+		final StringBuilder buffer = new StringBuilder();
 		for (int i = 0; i < findHistory.size() && i < 8; i++) {
 			final String item = findHistory.get(i);
 			if (i > 0) {

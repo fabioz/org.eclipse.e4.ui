@@ -61,7 +61,7 @@ public class PopupSearchDialog extends SearchPanel {
 		UIUtils.asyncExec(popup.getShell(), new Runnable() {
 
 			public void run() {
-				StringBuffer buffer = new StringBuffer();
+				StringBuilder buffer = new StringBuilder();
 				if (matchCount == 0) {
 					buffer.append("No matches");
 				} else if (matchCount == 1) {

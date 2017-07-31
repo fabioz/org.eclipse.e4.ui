@@ -105,7 +105,7 @@ public class SearchStatusLine extends SearchPanel {
 	}
 
 	private void updateInfo() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 
 		if (matchCount == 0) {
 			buffer.append(DEFAULT_MATCH_LABEL);
