@@ -23,30 +23,30 @@ public class BracketMatchingKeyAdapter extends KeyAdapter {
 	public void keyPressed(KeyEvent e) {
 		StyledText txt_RegExp = (StyledText) e.widget;
 		txt_RegExp.setStyleRange(null);
-		
-		if (matchableBracket(e.character)) { 
-			
+
+		if (matchableBracket(e.character)) {
+
 			markMatchingBracket(txt_RegExp, e.character);
 
 		} else {
-				
+
 			final int KEY_LEFT_ARROW = 16777219;
 			final int KEY_RIGHT_ARROW = 16777220;
-	
+
 			if (e.keyCode == KEY_LEFT_ARROW || e.keyCode == KEY_RIGHT_ARROW) {
-			
+
 				int caretOffset = txt_RegExp.getCaretOffset();
 				String lastText = " ";
 				if (caretOffset - 1 >= 0) {
 					lastText = txt_RegExp.getText(caretOffset - 1, caretOffset - 1);
 				}
-		
+
 				if (matchableBracket(lastText.charAt(0))) {
 					markMatchingBracket(txt_RegExp, lastText.charAt(0));
 				}
-			
+
 			}
-		
+
 		}
 
 	}
@@ -55,7 +55,7 @@ public class BracketMatchingKeyAdapter extends KeyAdapter {
 		int caretOffset = txt_RegExp.getCaretOffset();
 		int brakePos = -1;
 		int ignoreInnerBracket = 0;
-		
+
 		if (isClosingBracket(bracket)) {
 			String text = txt_RegExp.getText(0, caretOffset - 1);
 			for (int i = text.length() - 2; i >= 0; i--) {
@@ -72,7 +72,7 @@ public class BracketMatchingKeyAdapter extends KeyAdapter {
 				}
 			}
 		}
-			
+
 		if (isOpeningBracket(bracket)) {
 			if (caretOffset != txt_RegExp.getText().length()) {
 				String text = txt_RegExp.getText(caretOffset, txt_RegExp.getText().length() - 1);
@@ -90,56 +90,65 @@ public class BracketMatchingKeyAdapter extends KeyAdapter {
 					}
 				}
 			}
-		}		
-		
+		}
+
 		if (brakePos != -1) {
-			StyleRange styleRange1 = new StyleRange(brakePos, 1, Display
-					.getCurrent().getSystemColor(SWT.COLOR_RED), Display
-					.getCurrent().getSystemColor(SWT.COLOR_WHITE), SWT.BOLD);
-			StyleRange styleRange2 = new StyleRange(caretOffset - 1, 1, Display
-					.getCurrent().getSystemColor(SWT.COLOR_RED), Display
-					.getCurrent().getSystemColor(SWT.COLOR_WHITE), SWT.BOLD);
-			
+			StyleRange styleRange1 = new StyleRange(brakePos, 1, Display.getCurrent().getSystemColor(SWT.COLOR_RED),
+					Display.getCurrent().getSystemColor(SWT.COLOR_WHITE), SWT.BOLD);
+			StyleRange styleRange2 = new StyleRange(caretOffset - 1, 1,
+					Display.getCurrent().getSystemColor(SWT.COLOR_RED),
+					Display.getCurrent().getSystemColor(SWT.COLOR_WHITE), SWT.BOLD);
+
 			if (isOpeningBracket(bracket)) {
-				txt_RegExp
-					.setStyleRanges(new StyleRange[]{styleRange2, styleRange1});
+				txt_RegExp.setStyleRanges(new StyleRange[] { styleRange2, styleRange1 });
 			}
 			if (isClosingBracket(bracket)) {
-				txt_RegExp
-					.setStyleRanges(new StyleRange[]{styleRange1, styleRange2});
+				txt_RegExp.setStyleRanges(new StyleRange[] { styleRange1, styleRange2 });
 			}
 		}
 	}
-	
+
 	protected boolean matchableBracket(char bracket) {
 		if (bracket == ')' || bracket == ']' || bracket == '(' || bracket == '[' || bracket == '}' || bracket == '{') {
 			return true;
-		} else  {
+		} else {
 			return false;
 		}
 	}
-	
+
 	protected char getMatchingBracket(char bracket) {
-		if (bracket == ')') return '(';
-		if (bracket == '(') return ')';
-		if (bracket == ']') return '[';
-		if (bracket == '[') return ']';
-		if (bracket == '}') return '{';
-		if (bracket == '{') return '}';
+		if (bracket == ')')
+			return '(';
+		if (bracket == '(')
+			return ')';
+		if (bracket == ']')
+			return '[';
+		if (bracket == '[')
+			return ']';
+		if (bracket == '}')
+			return '{';
+		if (bracket == '{')
+			return '}';
 		return ' ';
 	}
-	
+
 	protected boolean isOpeningBracket(char bracket) {
-		if (bracket == '(') return true;
-		if (bracket == '[') return true;
-		if (bracket == '{') return true;
-		return false;	
+		if (bracket == '(')
+			return true;
+		if (bracket == '[')
+			return true;
+		if (bracket == '{')
+			return true;
+		return false;
 	}
-	
+
 	protected boolean isClosingBracket(char bracket) {
-		if (bracket == ')') return true;
-		if (bracket == ']') return true;
-		if (bracket == '}') return true;
-		return false;	
+		if (bracket == ')')
+			return true;
+		if (bracket == ']')
+			return true;
+		if (bracket == '}')
+			return true;
+		return false;
 	}
 }

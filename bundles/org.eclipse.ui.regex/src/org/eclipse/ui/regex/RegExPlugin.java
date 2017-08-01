@@ -20,14 +20,13 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
-
 public class RegExPlugin extends AbstractUIPlugin {
 
 	private static RegExPlugin plugin;
-	
-	//Resource bundle.
+
+	// Resource bundle.
 	private ResourceBundle resourceBundle;
-	
+
 	/**
 	 * The constructor.
 	 */
@@ -64,8 +63,7 @@ public class RegExPlugin extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Returns the string from the plugin's resource bundle,
-	 * or 'key' if not found.
+	 * Returns the string from the plugin's resource bundle, or 'key' if not found.
 	 */
 	public static String getResourceString(String key) {
 		ResourceBundle bundle = RegExPlugin.getDefault().getResourceBundle();
@@ -82,24 +80,22 @@ public class RegExPlugin extends AbstractUIPlugin {
 	public ResourceBundle getResourceBundle() {
 		return resourceBundle;
 	}
-	
 
-	
 	protected void initializeDefaultPluginPreferences() {
-		getPreferenceStore().setDefault("Pattern.CANON_EQ",false);
-		getPreferenceStore().setDefault("Pattern.CASE_INSENSITIVE",false);
-		getPreferenceStore().setDefault("Pattern.COMMENTS",false);
-		getPreferenceStore().setDefault("Pattern.DOTALL",false);
-		getPreferenceStore().setDefault("Pattern.MULTILINE",false);
-		getPreferenceStore().setDefault("Pattern.UNICODE_CASE",false);
-		getPreferenceStore().setDefault("Pattern.UNIX_LINES",false);
-		getPreferenceStore().setDefault("EvalRegEx",false);
-		getPreferenceStore().setDefault("EvalSearch",false);
-		getPreferenceStore().setDefault("EvalBoth",true);
-		getPreferenceStore().setDefault("EvalSwitch",false);
-		
+		getPreferenceStore().setDefault("Pattern.CANON_EQ", false);
+		getPreferenceStore().setDefault("Pattern.CASE_INSENSITIVE", false);
+		getPreferenceStore().setDefault("Pattern.COMMENTS", false);
+		getPreferenceStore().setDefault("Pattern.DOTALL", false);
+		getPreferenceStore().setDefault("Pattern.MULTILINE", false);
+		getPreferenceStore().setDefault("Pattern.UNICODE_CASE", false);
+		getPreferenceStore().setDefault("Pattern.UNIX_LINES", false);
+		getPreferenceStore().setDefault("EvalRegEx", false);
+		getPreferenceStore().setDefault("EvalSearch", false);
+		getPreferenceStore().setDefault("EvalBoth", true);
+		getPreferenceStore().setDefault("EvalSwitch", false);
+
 		FontData systemFont = Display.getCurrent().getSystemFont().getFontData()[0];
-		
+
 		getPreferenceStore().setDefault("font.regex.name", systemFont.getName());
 		getPreferenceStore().setDefault("font.regex.height", systemFont.getHeight());
 		getPreferenceStore().setDefault("font.regex.style", systemFont.getStyle());
@@ -111,10 +107,8 @@ public class RegExPlugin extends AbstractUIPlugin {
 		getPreferenceStore().setDefault("font.result.style", systemFont.getStyle());
 	}
 
-	
 	public ImageDescriptor getImageDescriptor(String imageName) {
 		return imageDescriptorFromPlugin("org.eclipse.ui.regex", "icons/" + imageName);
 	}
-
 
 }

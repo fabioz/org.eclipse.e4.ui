@@ -11,18 +11,15 @@
  ******************************************************************************/
 package org.eclipse.ui.regex;
 
-
 public class Group {
-	
+
 	private int index;
 	private String text;
-	
+
 	public Group(int index, String text) {
 		this.index = index;
 		this.text = text;
 	}
-	
-	
 
 	/**
 	 * @return Returns the index.
@@ -30,6 +27,7 @@ public class Group {
 	public int getIndex() {
 		return index;
 	}
+
 	/**
 	 * @return Returns the text.
 	 */

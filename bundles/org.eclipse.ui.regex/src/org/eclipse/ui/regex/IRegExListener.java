@@ -13,13 +13,17 @@ package org.eclipse.ui.regex;
 
 import org.eclipse.ui.regex.event.IListener;
 
-
 public interface IRegExListener extends IListener {
-	
+
 	public void foundMatches(Matches matches);
+
 	public void foundNoMatches();
+
 	public void expressionError(String errMsg);
+
 	public void doneWithReplace(ReplaceResult result);
+
 	public void doneWithSplit(String[] result);
-    public void updateRequested();
+
+	public void updateRequested();
 }

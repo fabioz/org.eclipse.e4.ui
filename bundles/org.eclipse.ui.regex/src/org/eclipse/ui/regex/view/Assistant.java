@@ -13,9 +13,7 @@ package org.eclipse.ui.regex.view;
 
 import java.util.ArrayList;
 
-
 public class Assistant {
-
 
 	public static ArrayList getAssistItems(String textLeftOfCursor) {
 		ArrayList proposals = new ArrayList();
@@ -25,8 +23,7 @@ public class Assistant {
 			proposals.add(new Proposal("\\B", "Non-word boundary \\B", 1));
 			proposals.add(new Proposal("\\d", "Digit \\d", 1));
 			proposals.add(new Proposal("\\D", "Non-digit \\D", 1));
-			proposals
-					.add(new Proposal("\\G", "End of previous match \\G", 1));
+			proposals.add(new Proposal("\\G", "End of previous match \\G", 1));
 			proposals.add(new Proposal("\\n", "Newline \\n", 1));
 			proposals.add(new Proposal("\\r", "Carriage-return \\r", 1));
 			proposals.add(new Proposal("\\s", "Whitespace \\s", 1));
@@ -42,10 +39,8 @@ public class Assistant {
 			proposals.add(new Proposal("(?:", "Non-capturing group (?:", 2));
 			proposals.add(new Proposal("(?=", "Positive lookahead (?=", 2));
 			proposals.add(new Proposal("(?!", "Negative lookahead (?!", 2));
-			proposals
-					.add(new Proposal("(?<=", "Positive lookbehind (?<=", 2));
-			proposals
-					.add(new Proposal("(?<!", "Negative lookbehind (?<!", 2));
+			proposals.add(new Proposal("(?<=", "Positive lookbehind (?<=", 2));
+			proposals.add(new Proposal("(?<!", "Negative lookbehind (?<!", 2));
 
 		}
 
@@ -56,8 +51,8 @@ public class Assistant {
 			proposals.add(new Proposal("[a-zA-Z]", "[a-zA-Z]", 1));
 			proposals.add(new Proposal("[a-zA-Z0-9]", "[a-zA-Z0-9]", 1));
 		}
-		
+
 		return proposals;
 	}
-	
+
 }

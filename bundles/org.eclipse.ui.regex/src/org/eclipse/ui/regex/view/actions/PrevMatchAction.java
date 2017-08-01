@@ -18,19 +18,19 @@ import org.eclipse.ui.regex.RegExPlugin;
 import org.eclipse.ui.regex.view.RegExView;
 
 public class PrevMatchAction extends Action {
-	private static ImageDescriptor image  = RegExPlugin.getDefault().getImageDescriptor("backward_nav.gif");
+	private static ImageDescriptor image = RegExPlugin.getDefault().getImageDescriptor("backward_nav.gif");
 	private RegExView view;
-	
-	public PrevMatchAction(RegExView regExView) { 
+
+	public PrevMatchAction(RegExView regExView) {
 		super("PrevMatchAction", image);
 		view = regExView;
 		setEnabled(false);
 		setToolTipText("Show Previous Match");
 	}
-	
+
 	public void run() {
-	    view.selectPreviousMatch();
-	    view.updateFoundStatus();
+		view.selectPreviousMatch();
+		view.updateFoundStatus();
 	}
-	
+
 }

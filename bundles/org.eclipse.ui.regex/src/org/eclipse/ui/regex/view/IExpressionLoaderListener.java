@@ -11,9 +11,8 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view;
 
-
 public interface IExpressionLoaderListener {
-    
-    public void loadExpression(Expression expression);
+
+	public void loadExpression(Expression expression);
 
 }

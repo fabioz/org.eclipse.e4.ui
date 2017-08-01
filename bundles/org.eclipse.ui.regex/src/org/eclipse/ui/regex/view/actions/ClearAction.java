@@ -17,15 +17,14 @@ import org.eclipse.ui.regex.RegExPlugin;
 import org.eclipse.ui.regex.view.RegExView;
 
 public class ClearAction extends Action {
-	public static final int	MODE_REGEX	= 0;
-	public static final int	MODE_SEARCH	= 1;
-	public static final int	MODE_RESULT	= 2;
-	public static final int	MODE_ALL	= 3;
+	public static final int MODE_REGEX = 0;
+	public static final int MODE_SEARCH = 1;
+	public static final int MODE_RESULT = 2;
+	public static final int MODE_ALL = 3;
 
 	private static ImageDescriptor image = RegExPlugin.getDefault().getImageDescriptor("clear_co.gif");
 	private int mode = MODE_ALL;
 	private RegExView view;
-	
 
 	public ClearAction(RegExView regExView) {
 		super("ClearAction", image);
@@ -35,12 +34,12 @@ public class ClearAction extends Action {
 	}
 
 	public void setMode(int aMode) {
-		mode =aMode;
+		mode = aMode;
 	}
-	
+
 	public void run() {
-	    view.clear(mode);
-	    view.updateFoundStatus();
+		view.clear(mode);
+		view.updateFoundStatus();
 	}
 
 }

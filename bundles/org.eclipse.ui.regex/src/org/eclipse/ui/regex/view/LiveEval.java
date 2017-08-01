@@ -20,105 +20,100 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.ui.regex.RegExPlugin;
 
 public class LiveEval {
-	
+
 	private LiveEvalListenerManager liveEvalListenerManager;
 
-    class LiveEvalListener implements ExtendedModifyListener {
+	class LiveEvalListener implements ExtendedModifyListener {
 
-        public void modifyText(ExtendedModifyEvent event) {
-            if (LiveEval.this.isLiveEval()) LiveEval.this.doEval();
-        }
-    }
+		public void modifyText(ExtendedModifyEvent event) {
+			if (LiveEval.this.isLiveEval())
+				LiveEval.this.doEval();
+		}
+	}
 
-   
-    private boolean isLiveEval;
+	private boolean isLiveEval;
 
-    private LiveEvalListener liveEvalListener;
+	private LiveEvalListener liveEvalListener;
 
-    private StyledText regEx, searchText;
+	private StyledText regEx, searchText;
 
-    private IPreferenceStore prefs = RegExPlugin.getDefault()
-            .getPreferenceStore();
+	private IPreferenceStore prefs = RegExPlugin.getDefault().getPreferenceStore();
 
-    
-    public LiveEval(StyledText regEx, StyledText searchText) {
-        liveEvalListener = new LiveEvalListener();
-        this.regEx = regEx;
-        this.searchText = searchText;
-        isLiveEval = prefs.getBoolean("EvalSwitch");
-    
-        prefs.addPropertyChangeListener(new IPropertyChangeListener() {
+	public LiveEval(StyledText regEx, StyledText searchText) {
+		liveEvalListener = new LiveEvalListener();
+		this.regEx = regEx;
+		this.searchText = searchText;
+		isLiveEval = prefs.getBoolean("EvalSwitch");
 
-            public void propertyChange(PropertyChangeEvent event) {
-                if (LiveEval.this.regEx.isDisposed()
-                        || LiveEval.this.searchText.isDisposed()) { return; }
-                String prop = event.getProperty();
+		prefs.addPropertyChangeListener(new IPropertyChangeListener() {
 
-                if (prop.equals("EvalSwitch")) {
-                    boolean newVal = ((Boolean) event.getNewValue())
-                            .booleanValue();
-                    if (newVal)
-                        LiveEval.this.start();
-                    else
-                        LiveEval.this.stop();
-                }
-                if (LiveEval.this.isLiveEval()) updateChangeListeners();
-            }
-        });
-        liveEvalListenerManager = new LiveEvalListenerManager();
-    }
+			public void propertyChange(PropertyChangeEvent event) {
+				if (LiveEval.this.regEx.isDisposed() || LiveEval.this.searchText.isDisposed()) {
+					return;
+				}
+				String prop = event.getProperty();
 
-    public void addLiveEvalListener(ILiveEvalListener listener) {
-    	liveEvalListenerManager.addListener(listener);
-    }
+				if (prop.equals("EvalSwitch")) {
+					boolean newVal = ((Boolean) event.getNewValue()).booleanValue();
+					if (newVal)
+						LiveEval.this.start();
+					else
+						LiveEval.this.stop();
+				}
+				if (LiveEval.this.isLiveEval())
+					updateChangeListeners();
+			}
+		});
+		liveEvalListenerManager = new LiveEvalListenerManager();
+	}
 
-    public void removeLiveEvalListener(ILiveEvalListener listener) {
-    	liveEvalListenerManager.removeListener(listener);
-    }
-    
-    public boolean isLiveEval() {
-        return this.isLiveEval;
-    }
+	public void addLiveEvalListener(ILiveEvalListener listener) {
+		liveEvalListenerManager.addListener(listener);
+	}
 
-    public void start() {
-        this.isLiveEval = true;
-        updateChangeListeners();
-        liveEvalListenerManager.publishEvalActivated();
-    }
+	public void removeLiveEvalListener(ILiveEvalListener listener) {
+		liveEvalListenerManager.removeListener(listener);
+	}
 
-    public void stop() {
-        this.isLiveEval = false;
-        removeChangeListeners();
-        liveEvalListenerManager.publishEvalDeactivated();
-    }
-    
+	public boolean isLiveEval() {
+		return this.isLiveEval;
+	}
 
-  
-    private void doEval() {
-    	liveEvalListenerManager.publishDoEval();
-    	liveEvalListenerManager.publishEvalDone();
-    }
+	public void start() {
+		this.isLiveEval = true;
+		updateChangeListeners();
+		liveEvalListenerManager.publishEvalActivated();
+	}
 
-    private void removeChangeListeners() {
-        regEx.removeExtendedModifyListener(liveEvalListener);
-        searchText.removeExtendedModifyListener(liveEvalListener);
+	public void stop() {
+		this.isLiveEval = false;
+		removeChangeListeners();
+		liveEvalListenerManager.publishEvalDeactivated();
+	}
 
-    }
-    
-    private void updateChangeListeners() {
-        removeChangeListeners();
-        if (prefs.getBoolean("EvalSearch")) {
-            searchText.addExtendedModifyListener(liveEvalListener);
-        }
-        if (prefs.getBoolean("EvalRegEx")) {
-            regEx.addExtendedModifyListener(liveEvalListener);
-        }
-        if (prefs.getBoolean("EvalBoth")) {
-            searchText.addExtendedModifyListener(liveEvalListener);
-            regEx.addExtendedModifyListener(liveEvalListener);
-        }
-    }
+	private void doEval() {
+		liveEvalListenerManager.publishDoEval();
+		liveEvalListenerManager.publishEvalDone();
+	}
 
-    
-    
+	private void removeChangeListeners() {
+		regEx.removeExtendedModifyListener(liveEvalListener);
+		searchText.removeExtendedModifyListener(liveEvalListener);
+
+	}
+
+	private void updateChangeListeners() {
+		removeChangeListeners();
+		if (prefs.getBoolean("EvalSearch")) {
+			searchText.addExtendedModifyListener(liveEvalListener);
+		}
+		if (prefs.getBoolean("EvalRegEx")) {
+			regEx.addExtendedModifyListener(liveEvalListener);
+		}
+		if (prefs.getBoolean("EvalBoth")) {
+			searchText.addExtendedModifyListener(liveEvalListener);
+			regEx.addExtendedModifyListener(liveEvalListener);
+		}
+	}
+
 }

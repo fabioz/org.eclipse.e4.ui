@@ -14,22 +14,22 @@ package org.eclipse.ui.regex;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-
 /**
- * Encapsulates all matches found during a single matching session. 
+ * Encapsulates all matches found during a single matching session.
+ * 
  * @author sbrosinski
  * @version $$Id: Matches.java,v 1.6 2004/09/06 10:35:16 sbrosin Exp $$
  */
 public class Matches {
 
 	/** a list containing all matches. */
-	private ArrayList	matchList_;
-	
-	/** virtual marker, can be set to a certain position within the matches
-	 *  list. Is used to provide previousMatch/nextMatch result scrolling.
-	 * */
-	private int			posMarker_;
+	private ArrayList matchList_;
 
+	/**
+	 * virtual marker, can be set to a certain position within the matches list. Is
+	 * used to provide previousMatch/nextMatch result scrolling.
+	 */
+	private int posMarker_;
 
 	/**
 	 * Constructs a new Matches object.
@@ -41,33 +41,34 @@ public class Matches {
 	}
 
 	public Iterator iterator() {
-	    return matchList_.iterator();
+		return matchList_.iterator();
 	}
-	
-	
+
 	/**
 	 * Gets the number of matches found.
+	 * 
 	 * @return number of matches.
 	 */
 	public int getMatchCount() {
 		return matchList_.size();
 	}
 
-
-	/** 
+	/**
 	 * Gets the postion of the internal list marker.
+	 * 
 	 * @return position, 0 to numberOfMatches-1
 	 */
 	public int getMatchPos() {
 		return posMarker_;
 	}
 
-
 	/**
-	 * Returns the match found for a certain range withing the
-	 * search text.
-	 * @param start the range's start index
-	 * @param end	the range's end index
+	 * Returns the match found for a certain range withing the search text.
+	 * 
+	 * @param start
+	 *            the range's start index
+	 * @param end
+	 *            the range's end index
 	 * @return one Match or null, if no match was found
 	 */
 	public Match getMatchByRange(int start, int end) {
@@ -79,11 +80,9 @@ public class Matches {
 		return null;
 	}
 
-
 	public void addMatch(Match match) {
 		matchList_.add(match);
 	}
-
 
 	public Match nextMatch() {
 		if (matchList_ == null)
@@ -98,7 +97,6 @@ public class Matches {
 		return null;
 	}
 
-
 	public Match prevMatch() {
 		if (matchList_ == null)
 			return null;
@@ -112,16 +110,13 @@ public class Matches {
 		return null;
 	}
 
-
 	public void resetMatchPos() {
 		posMarker_ = -1;
 	}
 
-
 	public void setMatchPos(int pos) {
 		posMarker_ = pos;
 	}
-
 
 	public void reset() {
 		matchList_ = new ArrayList();

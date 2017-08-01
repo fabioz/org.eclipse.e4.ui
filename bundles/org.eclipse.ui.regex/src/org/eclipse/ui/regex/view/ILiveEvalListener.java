@@ -14,12 +14,14 @@ package org.eclipse.ui.regex.view;
 
 import org.eclipse.ui.regex.event.IListener;
 
-
 public interface ILiveEvalListener extends IListener {
-	
+
 	public void evalActivated();
+
 	public void evalDeactivated();
+
 	public void evalDone();
+
 	public void doEval();
-	
+
 }

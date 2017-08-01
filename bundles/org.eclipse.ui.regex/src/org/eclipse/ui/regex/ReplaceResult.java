@@ -11,16 +11,15 @@
  ******************************************************************************/
 package org.eclipse.ui.regex;
 
-
 public class ReplaceResult {
-	
+
 	private Matches matches;
 	private String resultText;
-	
+
 	public ReplaceResult(String resultText, Matches matches) {
 		this.resultText = resultText;
 		this.matches = matches;
-		
+
 	}
 
 	/**

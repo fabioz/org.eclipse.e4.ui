@@ -18,7 +18,6 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.ui.regex.RegExModel;
 
-
 public class CopyDeclarationAdapter extends SelectionAdapter {
 
 	public void widgetSelected(SelectionEvent e) {
@@ -29,10 +28,9 @@ public class CopyDeclarationAdapter extends SelectionAdapter {
 			text += "\"," + RegExModel.getInstance().getPatternFlagsAsString() + ");";
 		Clipboard clipboard = new Clipboard(e.display);
 		TextTransfer textTransfer = TextTransfer.getInstance();
-		clipboard.setContents(new Object[]{text},
-				new Transfer[]{textTransfer});
+		clipboard.setContents(new Object[] { text }, new Transfer[] { textTransfer });
 		clipboard.dispose();
 
 	}
-	
+
 }

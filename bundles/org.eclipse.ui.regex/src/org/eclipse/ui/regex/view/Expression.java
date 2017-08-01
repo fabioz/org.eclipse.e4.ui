@@ -11,91 +11,97 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view;
 
-
 public class Expression {
 
-    private String regex = "";
+	private String regex = "";
 
-    private String searchText = "";
+	private String searchText = "";
 
-    private String name = "";
+	private String name = "";
 
-    private int matchMode = 0;
+	private int matchMode = 0;
 
-    private int patternFlag = 0;
-    
+	private int patternFlag = 0;
 
-    public Expression(String name) {
-        this.name = name;
-    }
+	public Expression(String name) {
+		this.name = name;
+	}
 
-    /**
-     * @param name The name to set.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    public int hashCode() {
-        int hash = 7;
+	/**
+	 * @param name
+	 *            The name to set.
+	 */
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		int hash = 7;
 		hash = 31 * hash + (null == name ? 0 : name.hashCode());
 		return hash;
-    }
-    
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    public boolean equals(Object o) {
-        if (o == this) return true;
-        if (o == null) return false;
-        if (! (o instanceof Expression)) return false;
-        Expression state = (Expression) o;
-        if (name.equals(state.getName())) {
-            	return true;
-        }              
-        return false;
-    }
-    
-    public String toString() {
-        return name;
-    }
+	}
 
-    public String getName() {
-        return name;
-    }
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object o) {
+		if (o == this)
+			return true;
+		if (o == null)
+			return false;
+		if (!(o instanceof Expression))
+			return false;
+		Expression state = (Expression) o;
+		if (name.equals(state.getName())) {
+			return true;
+		}
+		return false;
+	}
 
-    public int getMatchMode() {
-        return matchMode;
-    }
+	public String toString() {
+		return name;
+	}
 
-    public void setMatchMode(int matchMode) {
-        this.matchMode = matchMode;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public int getPatternFlag() {
-        return patternFlag;
-    }
+	public int getMatchMode() {
+		return matchMode;
+	}
 
-    public void setPatternFlag(int patternFlag) {
-        this.patternFlag = patternFlag;
-    }
+	public void setMatchMode(int matchMode) {
+		this.matchMode = matchMode;
+	}
 
-    public String getRegex() {
-        return regex;
-    }
+	public int getPatternFlag() {
+		return patternFlag;
+	}
 
-    public void setRegex(String regex) {
-        this.regex = regex;
-    }
+	public void setPatternFlag(int patternFlag) {
+		this.patternFlag = patternFlag;
+	}
 
-    public String getSearchText() {
-        return searchText;
-    }
+	public String getRegex() {
+		return regex;
+	}
 
-    public void setSearchText(String searchText) {
-        this.searchText = searchText;
-    }
+	public void setRegex(String regex) {
+		this.regex = regex;
+	}
+
+	public String getSearchText() {
+		return searchText;
+	}
+
+	public void setSearchText(String searchText) {
+		this.searchText = searchText;
+	}
 }

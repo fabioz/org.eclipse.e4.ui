@@ -15,43 +15,49 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-
 public class ExpressionLoader {
 
-    private List listener = new ArrayList();
-    
-    private static ExpressionLoader instance;
-    
-    public static ExpressionLoader getInstance() {
-        if (instance == null) {
-            instance = new ExpressionLoader();
-        }
-        return instance;
-    }
-    
-    private ExpressionLoader() {}
-    
-    /* (non-Javadoc)
-     * @see org.eclipse.ui.regex.view.IExpressionLoader#addExpressionLoaderListener(org.eclipse.ui.regex.view.IExpressionLoaderListener)
-     */
-    public void addExpressionLoaderListener(IExpressionLoaderListener loaderListener) {
-        listener.add(loaderListener);        
-    }
+	private List listener = new ArrayList();
 
-    /* (non-Javadoc)
-     * @see org.eclipse.ui.regex.view.IExpressionLoader#removeExpressionLoaderListener(org.eclipse.ui.regex.view.IExpressionLoaderListener)
-     */
-    public void removeExpressionLoaderListener(IExpressionLoaderListener loaderListener) {
-        listener.remove(loaderListener);    
-    }
+	private static ExpressionLoader instance;
 
-    
-    public void fireLoadExpression(Expression expression) {
-        for (Iterator i = listener.iterator(); i.hasNext();) {
-            IExpressionLoaderListener l = (IExpressionLoaderListener) i.next();
-            l.loadExpression(expression);
-        }
-    }
-    
-    
+	public static ExpressionLoader getInstance() {
+		if (instance == null) {
+			instance = new ExpressionLoader();
+		}
+		return instance;
+	}
+
+	private ExpressionLoader() {
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.regex.view.IExpressionLoader#addExpressionLoaderListener(org.
+	 * eclipse.ui.regex.view.IExpressionLoaderListener)
+	 */
+	public void addExpressionLoaderListener(IExpressionLoaderListener loaderListener) {
+		listener.add(loaderListener);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.eclipse.ui.regex.view.IExpressionLoader#removeExpressionLoaderListener(
+	 * org.eclipse.ui.regex.view.IExpressionLoaderListener)
+	 */
+	public void removeExpressionLoaderListener(IExpressionLoaderListener loaderListener) {
+		listener.remove(loaderListener);
+	}
+
+	public void fireLoadExpression(Expression expression) {
+		for (Iterator i = listener.iterator(); i.hasNext();) {
+			IExpressionLoaderListener l = (IExpressionLoaderListener) i.next();
+			l.loadExpression(expression);
+		}
+	}
+
 }
