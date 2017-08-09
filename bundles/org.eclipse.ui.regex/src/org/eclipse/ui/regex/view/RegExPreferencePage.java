@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -42,10 +42,12 @@ public class RegExPreferencePage extends PreferencePage implements IWorkbenchPre
 	public RegExPreferencePage() {
 	}
 
+	@Override
 	public void init(IWorkbench workbench) {
 		this.setPreferenceStore(RegExPlugin.getDefault().getPreferenceStore());
 	}
 
+	@Override
 	protected void performDefaults() {
 		btn_CanonicalEquivalence.setSelection(getPreferenceStore().getDefaultBoolean("Pattern.CANON_EQ"));
 		btn_CaseInsensitive.setSelection(getPreferenceStore().getDefaultBoolean("Pattern.CASE_INSENSITIVE"));
@@ -60,6 +62,7 @@ public class RegExPreferencePage extends PreferencePage implements IWorkbenchPre
 		btn_EvalSwitch.setSelection(getPreferenceStore().getDefaultBoolean("EvalSwitch"));
 	}
 
+	@Override
 	public boolean performOk() {
 		getPreferenceStore().setValue("Pattern.CANON_EQ", btn_CanonicalEquivalence.getSelection());
 		getPreferenceStore().setValue("Pattern.CASE_INSENSITIVE", btn_CaseInsensitive.getSelection());
@@ -76,6 +79,7 @@ public class RegExPreferencePage extends PreferencePage implements IWorkbenchPre
 		return true;
 	}
 
+	@Override
 	protected Control createContents(Composite parent) {
 
 		Group group = new Group(parent, SWT.SHADOW_ETCHED_IN);

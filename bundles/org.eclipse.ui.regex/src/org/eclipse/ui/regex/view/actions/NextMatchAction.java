@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -28,6 +28,7 @@ public class NextMatchAction extends Action {
 		setToolTipText("Show Next Match");
 	}
 
+	@Override
 	public void run() {
 		view.selectNextMatch();
 		view.updateFoundStatus();

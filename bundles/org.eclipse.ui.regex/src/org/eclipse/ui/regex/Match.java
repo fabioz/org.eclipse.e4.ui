@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -16,7 +16,7 @@ import java.util.List;
 
 /**
  * Defines a single match with was found.
- * 
+ *
  * @author sbrosinski
  * @version $$Id: Match.java,v 1.4 2004/06/15 11:49:17 sbrosin Exp $$
  */
@@ -34,7 +34,7 @@ public class Match {
 
 	/**
 	 * Construct a Match.
-	 * 
+	 *
 	 * @param id
 	 *            an id, identifying the match uniquely
 	 * @param start
@@ -65,7 +65,7 @@ public class Match {
 
 	/**
 	 * Gets the end index of found match.
-	 * 
+	 *
 	 * @return end index of found match
 	 */
 	public int getEnd() {
@@ -74,7 +74,7 @@ public class Match {
 
 	/**
 	 * Gets the start index of found match.
-	 * 
+	 *
 	 * @return start index of found match
 	 */
 	public int getStart() {
@@ -83,7 +83,7 @@ public class Match {
 
 	/**
 	 * Gets the match text.
-	 * 
+	 *
 	 * @return the match text
 	 */
 	public String getText() {
@@ -92,7 +92,7 @@ public class Match {
 
 	/**
 	 * Sets the end end index of found match.
-	 * 
+	 *
 	 * @param end
 	 *            end index of found match
 	 */
@@ -102,7 +102,7 @@ public class Match {
 
 	/**
 	 * Sets the start end index of found match.
-	 * 
+	 *
 	 * @param start
 	 *            start index of found match
 	 */
@@ -112,7 +112,7 @@ public class Match {
 
 	/**
 	 * Sets the match text.
-	 * 
+	 *
 	 * @param text
 	 *            the match text
 	 */

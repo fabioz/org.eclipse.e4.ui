@@ -1,10 +1,10 @@
 /*******************************************************************************
  * Copyright (c) 2000, 2003 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
+ * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Common Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/cpl-v10.html
- * 
+ *
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
@@ -12,7 +12,7 @@
 /*
  * This class is based on IBM's TextActionHandler. It has been altered
  * so it works with StyledText widgets instead
- * 
+ *
  */
 
 package org.eclipse.ui.regex.view.actions;
@@ -41,7 +41,7 @@ import org.eclipse.ui.actions.ActionFactory;
  * </p>
  * <p>
  * Example usage:
- * 
+ *
  * <pre>
  * textActionHandler = new TextActionHandler(this.getViewSite().getActionBars());
  * textActionHandler.addText((Text) textCellEditor1.getControl());
@@ -73,17 +73,20 @@ public class StyledTextActionHandler {
 	private StyledText activeTextControl;
 
 	private MouseAdapter mouseAdapter = new MouseAdapter() {
+		@Override
 		public void mouseUp(MouseEvent e) {
 			updateActionsEnableState();
 		}
 	};
 	private KeyAdapter keyAdapter = new KeyAdapter() {
+		@Override
 		public void keyReleased(KeyEvent e) {
 			updateActionsEnableState();
 		}
 	};
 
 	private class TextControlListener implements Listener {
+		@Override
 		public void handleEvent(Event event) {
 			switch (event.type) {
 			case SWT.Activate:
@@ -112,6 +115,7 @@ public class StyledTextActionHandler {
 			this.actionHandler = actionHandler;
 		}
 
+		@Override
 		public void propertyChange(PropertyChangeEvent event) {
 			if (activeTextControl != null)
 				return;
@@ -129,6 +133,7 @@ public class StyledTextActionHandler {
 			setEnabled(false);
 		}
 
+		@Override
 		public void runWithEvent(Event event) {
 			if (activeTextControl != null && !activeTextControl.isDisposed()) {
 				// this method doesn't exits in StyledText ??
@@ -165,6 +170,7 @@ public class StyledTextActionHandler {
 			setEnabled(false);
 		}
 
+		@Override
 		public void runWithEvent(Event event) {
 			if (activeTextControl != null && !activeTextControl.isDisposed()) {
 				activeTextControl.cut();
@@ -196,6 +202,7 @@ public class StyledTextActionHandler {
 			setEnabled(false);
 		}
 
+		@Override
 		public void runWithEvent(Event event) {
 			if (activeTextControl != null && !activeTextControl.isDisposed()) {
 				activeTextControl.copy();
@@ -227,6 +234,7 @@ public class StyledTextActionHandler {
 			setEnabled(false);
 		}
 
+		@Override
 		public void runWithEvent(Event event) {
 			if (activeTextControl != null && !activeTextControl.isDisposed()) {
 				activeTextControl.paste();
@@ -258,6 +266,7 @@ public class StyledTextActionHandler {
 			setEnabled(false);
 		}
 
+		@Override
 		public void runWithEvent(Event event) {
 			if (activeTextControl != null && !activeTextControl.isDisposed()) {
 				activeTextControl.selectAll();

@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -230,13 +230,13 @@ public class RegExModel {
 	public String getRegExAsLiteral() {
 		StringBuffer out = new StringBuffer();
 		char[] chars = getRegExp().toCharArray();
-		for (int i = 0; i < chars.length; i++) {
-			if (chars[i] == '\\') {
+		for (char character : chars) {
+			if (character == '\\') {
 				out.append("\\\\");
-			} else if (chars[i] == '"') {
+			} else if (character == '"') {
 				out.append("\\\"");
 			} else {
-				out.append(chars[i]);
+				out.append(character);
 			}
 		}
 		return out.toString();

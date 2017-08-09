@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -26,6 +26,7 @@ public class ClearActionMenuCreator implements IMenuCreator {
 	ClearSelection clearSelection = new ClearSelection();
 
 	class ClearSelection extends SelectionAdapter {
+		@Override
 		public void widgetSelected(SelectionEvent e) {
 			MenuItem menuItem = (MenuItem) e.widget;
 			boolean selected = menuItem.getSelection();
@@ -41,12 +42,14 @@ public class ClearActionMenuCreator implements IMenuCreator {
 		clearAction = action;
 	}
 
+	@Override
 	public void dispose() {
 		if (menu != null) {
 			menu.dispose();
 		}
 	}
 
+	@Override
 	public Menu getMenu(Control parent) {
 		if (menu != null) {
 			return menu;
@@ -78,6 +81,7 @@ public class ClearActionMenuCreator implements IMenuCreator {
 		return menu;
 	}
 
+	@Override
 	public Menu getMenu(Menu parent) {
 		return null;
 	}

@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -17,7 +17,6 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.Separator;
-import org.eclipse.jface.dialogs.IInputValidator;
 import org.eclipse.jface.dialogs.InputDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.util.IPropertyChangeListener;
@@ -27,7 +26,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.custom.VerifyKeyListener;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
@@ -38,7 +36,6 @@ import org.eclipse.swt.events.MenuListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -126,15 +123,17 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.IWorkbenchPart#dispose()
 	 */
+	@Override
 	public void dispose() {
 		regex.removeRegExListener(this);
 		prefs.removePropertyChangeListener(this);
 		ExpressionLoader.getInstance().removeExpressionLoaderListener(this);
 	}
 
+	@Override
 	public void createPartControl(final Composite parent) {
 
 		makeActions();
@@ -164,10 +163,12 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 			private int caretOffset;
 
+			@Override
 			public void focusGained(FocusEvent e) {
 				((StyledText) e.widget).setCaretOffset(caretOffset);
 			}
 
+			@Override
 			public void focusLost(FocusEvent e) {
 				caretOffset = ((StyledText) e.widget).getCaretOffset();
 			}
@@ -184,10 +185,12 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 		txt_RegExp.getMenu().addMenuListener(new MenuListener() {
 
+			@Override
 			public void menuHidden(MenuEvent e) {
 
 			}
 
+			@Override
 			public void menuShown(MenuEvent e) {
 				if (txt_RegExp.getSelectionCount() > 0) {
 					mit_EvalSelection.setEnabled(true);
@@ -240,6 +243,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		mit_EvalSelection.setText("Eval Selection Only");
 		mit_EvalSelection.addSelectionListener(new SelectionListener() {
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				regex.setRegExp(txt_RegExp.getSelectionText());
 				regex.setSearchText(txt_SearchText.getText());
@@ -247,6 +251,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 			}
 
+			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 				// TODO Auto-generated method stub
 
@@ -261,15 +266,12 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 				prefs.getInt("font.searchtext.height"), prefs.getInt("font.searchtext.style"))));
 		txt_SearchText.setWordWrap(true);
 		txt_SearchText.setLayoutData(new GridData(GridData.FILL_BOTH));
-		txt_SearchText.addVerifyKeyListener(new VerifyKeyListener() {
-
-			public void verifyKey(VerifyEvent event) {
-				if (event.keyCode == SWT.TAB) {
-					txt_RegExp.setCaretOffset(currentCarresPos);
-					currentCarresPos = txt_SearchText.getCaretOffset();
-					txt_RegExp.setFocus();
-					event.doit = false;
-				}
+		txt_SearchText.addVerifyKeyListener(event -> {
+			if (event.keyCode == SWT.TAB) {
+				txt_RegExp.setCaretOffset(currentCarresPos);
+				currentCarresPos = txt_SearchText.getCaretOffset();
+				txt_RegExp.setFocus();
+				event.doit = false;
 			}
 		});
 
@@ -314,6 +316,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 		btn_LiveEval.addSelectionListener(new SelectionAdapter() {
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				Button check = (Button) e.widget;
 				if (check.getSelection()) {
@@ -422,6 +425,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 	private void setPatternFlagMenu(Menu menu) {
 		class FlagStatusAdapter extends SelectionAdapter {
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
 				MenuItem menItem = (MenuItem) e.widget;
 				Integer flag = (Integer) menItem.getData();
@@ -491,12 +495,13 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		mit_Flags_deactivateAll.setText("Deactivate &All");
 		mit_Flags_deactivateAll.addSelectionListener(new SelectionAdapter() {
 
+			@Override
 			public void widgetSelected(SelectionEvent e) {
-				MenuItem menItem = (MenuItem) e.widget;
-				Menu menu = menItem.getParent();
-				MenuItem[] menItems = menu.getItems();
-				for (int i = 0; i < menItems.length; i++) {
-					menItems[i].setSelection(false);
+				MenuItem widget = (MenuItem) e.widget;
+				Menu menu = widget.getParent();
+				MenuItem[] menuItems = menu.getItems();
+				for (MenuItem menuItem : menuItems) {
+					menuItem.setSelection(false);
 				}
 				regex.resetPatternFlag();
 			}
@@ -504,6 +509,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 	}
 
+	@Override
 	public void setFocus() {
 		txt_RegExp.setFocus();
 	}
@@ -530,6 +536,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		mitSelectAll.addSelectionListener(this);
 	}
 
+	@Override
 	public void widgetSelected(SelectionEvent e) {
 		Widget widget = e.widget;
 		Object data = widget.getData();
@@ -583,8 +590,8 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		btn_Find.setText(modeLabels[mode]);
 		MenuItem[] modeItems = men_MatchMode.getItems();
 		if (!modeItems[mode].getSelection()) {
-			for (int i = 0; i < modeItems.length; i++) {
-				modeItems[i].setSelection(false);
+			for (MenuItem modeItem : modeItems) {
+				modeItem.setSelection(false);
 			}
 			modeItems[mode].setSelection(true);
 		}
@@ -600,20 +607,18 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 			StringBuffer out = new StringBuffer();
 			char[] chars = clipboardText.toCharArray();
 			boolean lastWasBackslash = false;
-			for (int i = 0; i < chars.length; i++) {
-				if (chars[i] == '\\') {
+			for (char character : chars) {
+				if (character == '\\') {
 					if (lastWasBackslash) {
-						out.append(chars[i]);
+						out.append(character);
 						lastWasBackslash = false;
 					} else {
 						lastWasBackslash = true;
 					}
 				} else {
-					out.append(chars[i]);
+					out.append(character);
 				}
-
 			}
-
 			txt_RegExp.insert(out.toString());
 		}
 	}
@@ -621,13 +626,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 	private void activateReplaceMode() {
 		InputDialog inputDialog = new InputDialog(getViewSite().getShell(), "Replace Match by ...",
 				"Enter a value which should be used to replace every instance of a found match:", regex.getReplace(),
-				new IInputValidator() {
-
-					public String isValid(String newText) {
-						// TODO Auto-generated method stub
-						return null;
-					}
-				});
+				newText -> null);
 		int retCode = inputDialog.open();
 
 		if (retCode == Window.OK) {
@@ -645,6 +644,7 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		}
 	}
 
+	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 		// do nothing
 	}
@@ -680,13 +680,13 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 	private void setPatternFlags(int patternFlags) {
 		MenuItem[] flagItems = men_PatternFlags.getItems();
-		for (int i = 0; i < flagItems.length; i++) {
-			if (flagItems[i].getData() == null)
+		for (MenuItem flagItem : flagItems) {
+			if (flagItem.getData() == null)
 				continue;
-			if ((patternFlags & ((Integer) flagItems[i].getData()).intValue()) != 0) {
-				flagItems[i].setSelection(true);
+			if ((patternFlags & ((Integer) flagItem.getData()).intValue()) != 0) {
+				flagItem.setSelection(true);
 			} else {
-				flagItems[i].setSelection(false);
+				flagItem.setSelection(false);
 			}
 		}
 
@@ -746,60 +746,71 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		txt_Result.setText(out.toString());
 	}
 
+	@Override
 	public void foundMatches(Matches matches) {
 		displayMatches(matches);
 	}
 
+	@Override
 	public void foundNoMatches() {
 		txt_SearchText.setStyleRange(null);
 		txt_Result.setText("No matches found!");
 	}
 
+	@Override
 	public void expressionError(String errMsg) {
 		txt_Result.setText("A Syntax Error occured: \\n" + errMsg);
 	}
 
+	@Override
 	public void doneWithReplace(ReplaceResult result) {
 		displayReplace(result);
 	}
 
+	@Override
 	public void doneWithSplit(String[] result) {
 		displaySplit(result);
 	}
 
+	@Override
 	public void evalActivated() {
 		btn_LiveEval.setSelection(true);
 		processRegEx();
 		updateFoundStatus();
 	}
 
+	@Override
 	public void evalDeactivated() {
 		btn_LiveEval.setSelection(false);
 	}
 
+	@Override
 	public void evalDone() {
 		updateFoundStatus();
 	}
 
+	@Override
 	public void doEval() {
 		processRegEx();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.regex.IRegExListener#updateRequested()
 	 */
+	@Override
 	public void updateRequested() {
 		updateModel();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.regex.view.IExpressionLoaderListener#loadExpression(org.
 	 * eclipse.ui.regex.view.Expression)
 	 */
+	@Override
 	public void loadExpression(Expression expression) {
 		updateView(expression);
 	}
@@ -810,11 +821,12 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.
 	 * jface.util.PropertyChangeEvent)
 	 */
+	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().startsWith("font.")) {
 			txt_RegExp.setFont(new Font(Display.getCurrent(), new FontData(prefs.getString("font.regex.name"),

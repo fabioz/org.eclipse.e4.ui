@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -20,6 +20,7 @@ import org.eclipse.swt.widgets.Display;
 
 public class BracketMatchingKeyAdapter extends KeyAdapter {
 
+	@Override
 	public void keyPressed(KeyEvent e) {
 		StyledText txt_RegExp = (StyledText) e.widget;
 		txt_RegExp.setStyleRange(null);

@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -16,7 +16,7 @@ import java.util.Iterator;
 
 /**
  * Encapsulates all matches found during a single matching session.
- * 
+ *
  * @author sbrosinski
  * @version $$Id: Matches.java,v 1.6 2004/09/06 10:35:16 sbrosin Exp $$
  */
@@ -46,7 +46,7 @@ public class Matches {
 
 	/**
 	 * Gets the number of matches found.
-	 * 
+	 *
 	 * @return number of matches.
 	 */
 	public int getMatchCount() {
@@ -55,7 +55,7 @@ public class Matches {
 
 	/**
 	 * Gets the postion of the internal list marker.
-	 * 
+	 *
 	 * @return position, 0 to numberOfMatches-1
 	 */
 	public int getMatchPos() {
@@ -64,7 +64,7 @@ public class Matches {
 
 	/**
 	 * Returns the match found for a certain range withing the search text.
-	 * 
+	 *
 	 * @param start
 	 *            the range's start index
 	 * @param end

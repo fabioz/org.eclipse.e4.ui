@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -25,9 +25,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.List;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
 public class AssistPopup {
@@ -48,17 +46,15 @@ public class AssistPopup {
 		list.setBackground(bgColor);
 
 		// close dialog if user selects outside of the shell
-		shell.addListener(SWT.Deactivate, new Listener() {
-			public void handleEvent(Event e) {
-				shell.setVisible(false);
-			}
-		});
+		shell.addListener(SWT.Deactivate, e -> shell.setVisible(false));
 
 		// resize shell when list resizes
 		shell.addControlListener(new ControlListener() {
+			@Override
 			public void controlMoved(ControlEvent e) {
 			}
 
+			@Override
 			public void controlResized(ControlEvent e) {
 				Rectangle shellSize = shell.getClientArea();
 				list.setSize(shellSize.width, shellSize.height);
@@ -67,20 +63,25 @@ public class AssistPopup {
 
 		// return list selection on Mouse Up or Carriage Return
 		list.addMouseListener(new MouseListener() {
+			@Override
 			public void mouseDoubleClick(MouseEvent e) {
 			}
 
+			@Override
 			public void mouseDown(MouseEvent e) {
 			}
 
+			@Override
 			public void mouseUp(MouseEvent e) {
 				shell.setVisible(false);
 			}
 		});
 		list.addKeyListener(new KeyListener() {
+			@Override
 			public void keyReleased(KeyEvent e) {
 			}
 
+			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.character == '\r') {
 					shell.setVisible(false);
@@ -161,9 +162,9 @@ public class AssistPopup {
 		// find the first entry in the list that starts with the
 		// specified string
 		if (string != null) {
-			for (int i = 0; i < items.length; i++) {
-				if (items[i].startsWith(string)) {
-					int index = list.indexOf(items[i]);
+			for (String item : items) {
+				if (item.startsWith(string)) {
+					int index = list.indexOf(item);
 					list.select(index);
 					break;
 				}

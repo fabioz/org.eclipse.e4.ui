@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -36,6 +36,7 @@ public class RegExPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called upon plug-in activation
 	 */
+	@Override
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 		plugin = this;
@@ -49,6 +50,7 @@ public class RegExPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called when the plug-in is stopped
 	 */
+	@Override
 	public void stop(BundleContext context) throws Exception {
 		plugin = null;
 		resourceBundle = null;
@@ -81,6 +83,7 @@ public class RegExPlugin extends AbstractUIPlugin {
 		return resourceBundle;
 	}
 
+	@Override
 	protected void initializeDefaultPluginPreferences() {
 		getPreferenceStore().setDefault("Pattern.CANON_EQ", false);
 		getPreferenceStore().setDefault("Pattern.CASE_INSENSITIVE", false);

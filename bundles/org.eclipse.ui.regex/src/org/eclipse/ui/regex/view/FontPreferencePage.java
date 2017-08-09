@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -44,9 +44,10 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
 	 */
+	@Override
 	protected void performDefaults() {
 		String fontName = getPreferenceStore().getDefaultString("font.regex.name");
 		int fontHeight = getPreferenceStore().getDefaultInt("font.regex.height");
@@ -75,18 +76,20 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.preference.PreferencePage#performApply()
 	 */
+	@Override
 	protected void performApply() {
 		setFontData();
 	}
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.jface.preference.IPreferencePage#performOk()
 	 */
+	@Override
 	public boolean performOk() {
 		setFontData();
 		RegExPlugin.getDefault().savePluginPreferences();
@@ -95,11 +98,12 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse.swt.
 	 * widgets.Composite)
 	 */
+	@Override
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
 
@@ -184,9 +188,10 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
 	 */
+	@Override
 	public void init(IWorkbench workbench) {
 		this.setPreferenceStore(RegExPlugin.getDefault().getPreferenceStore());
 
@@ -194,10 +199,11 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.
 	 * events.SelectionEvent)
 	 */
+	@Override
 	public void widgetSelected(SelectionEvent e) {
 		if (e.widget == regexFontButton || e.widget == searchTextFontButton || e.widget == resultFontButton) {
 			FontDialog fontDialog = new FontDialog(getShell());
@@ -226,11 +232,12 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see
 	 * org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.
 	 * swt.events.SelectionEvent)
 	 */
+	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 		// TODO Auto-generated method stub
 

@@ -1,8 +1,8 @@
 /*******************************************************************************
  * Copyright (c) 2012 Stephan Brosinski
- *  
- * All rights reserved. 
- * This program and the accompanying materials are made available under the 
+ *
+ * All rights reserved.
+ * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  *
@@ -12,8 +12,6 @@
 package org.eclipse.ui.regex.view;
 
 import org.eclipse.jface.preference.IPreferenceStore;
-import org.eclipse.jface.util.IPropertyChangeListener;
-import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.custom.ExtendedModifyEvent;
 import org.eclipse.swt.custom.ExtendedModifyListener;
 import org.eclipse.swt.custom.StyledText;
@@ -25,6 +23,7 @@ public class LiveEval {
 
 	class LiveEvalListener implements ExtendedModifyListener {
 
+		@Override
 		public void modifyText(ExtendedModifyEvent event) {
 			if (LiveEval.this.isLiveEval())
 				LiveEval.this.doEval();
@@ -45,24 +44,21 @@ public class LiveEval {
 		this.searchText = searchText;
 		isLiveEval = prefs.getBoolean("EvalSwitch");
 
-		prefs.addPropertyChangeListener(new IPropertyChangeListener() {
-
-			public void propertyChange(PropertyChangeEvent event) {
-				if (LiveEval.this.regEx.isDisposed() || LiveEval.this.searchText.isDisposed()) {
-					return;
-				}
-				String prop = event.getProperty();
-
-				if (prop.equals("EvalSwitch")) {
-					boolean newVal = ((Boolean) event.getNewValue()).booleanValue();
-					if (newVal)
-						LiveEval.this.start();
-					else
-						LiveEval.this.stop();
-				}
-				if (LiveEval.this.isLiveEval())
-					updateChangeListeners();
+		prefs.addPropertyChangeListener(event -> {
+			if (LiveEval.this.regEx.isDisposed() || LiveEval.this.searchText.isDisposed()) {
+				return;
 			}
+			String prop = event.getProperty();
+
+			if (prop.equals("EvalSwitch")) {
+				boolean newVal = ((Boolean) event.getNewValue()).booleanValue();
+				if (newVal)
+					LiveEval.this.start();
+				else
+					LiveEval.this.stop();
+			}
+			if (LiveEval.this.isLiveEval())
+				updateChangeListeners();
 		});
 		liveEvalListenerManager = new LiveEvalListenerManager();
 	}
