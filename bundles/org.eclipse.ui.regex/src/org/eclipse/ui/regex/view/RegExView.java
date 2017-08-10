@@ -121,11 +121,6 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.ui.IWorkbenchPart#dispose()
-	 */
 	@Override
 	public void dispose() {
 		regex.removeRegExListener(this);
@@ -794,22 +789,11 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		processRegEx();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.ui.regex.IRegExListener#updateRequested()
-	 */
 	@Override
 	public void updateRequested() {
 		updateModel();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.ui.regex.view.IExpressionLoaderListener#loadExpression(org.
-	 * eclipse.ui.regex.view.Expression)
-	 */
 	@Override
 	public void loadExpression(Expression expression) {
 		updateView(expression);
@@ -819,13 +803,6 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		txt_RegExp.setFont(new Font(Display.getCurrent(), fontData));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.jface.util.IPropertyChangeListener#propertyChange(org.eclipse.
-	 * jface.util.PropertyChangeEvent)
-	 */
 	@Override
 	public void propertyChange(PropertyChangeEvent event) {
 		if (event.getProperty().startsWith("font.")) {

@@ -27,11 +27,6 @@ public class AboutAction extends Action {
 		this.view = view;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.jface.action.Action#run()
-	 */
 	@Override
 	public void run() {
 		Dictionary d = RegExPlugin.getDefault().getBundle().getHeaders();

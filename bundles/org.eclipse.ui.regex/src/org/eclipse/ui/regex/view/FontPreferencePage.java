@@ -42,11 +42,6 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 	private FontData searchTextFontData;
 	private FontData resultFontData;
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.jface.preference.PreferencePage#performDefaults()
-	 */
 	@Override
 	protected void performDefaults() {
 		String fontName = getPreferenceStore().getDefaultString("font.regex.name");
@@ -74,21 +69,11 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.jface.preference.PreferencePage#performApply()
-	 */
 	@Override
 	protected void performApply() {
 		setFontData();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.jface.preference.IPreferencePage#performOk()
-	 */
 	@Override
 	public boolean performOk() {
 		setFontData();
@@ -96,13 +81,6 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.jface.preference.PreferencePage#createContents(org.eclipse.swt.
-	 * widgets.Composite)
-	 */
 	@Override
 	protected Control createContents(Composite parent) {
 		Composite composite = new Composite(parent, SWT.NONE);
@@ -186,23 +164,12 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 		return new Font(Display.getCurrent(), fontData(type));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.ui.IWorkbenchPreferencePage#init(org.eclipse.ui.IWorkbench)
-	 */
 	@Override
 	public void init(IWorkbench workbench) {
 		this.setPreferenceStore(RegExPlugin.getDefault().getPreferenceStore());
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see org.eclipse.swt.events.SelectionListener#widgetSelected(org.eclipse.swt.
-	 * events.SelectionEvent)
-	 */
 	@Override
 	public void widgetSelected(SelectionEvent e) {
 		if (e.widget == regexFontButton || e.widget == searchTextFontButton || e.widget == resultFontButton) {
@@ -230,13 +197,6 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.swt.events.SelectionListener#widgetDefaultSelected(org.eclipse.
-	 * swt.events.SelectionEvent)
-	 */
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 		// TODO Auto-generated method stub

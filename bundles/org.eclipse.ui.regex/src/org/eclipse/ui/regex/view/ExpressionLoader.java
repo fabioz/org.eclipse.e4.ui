@@ -31,24 +31,10 @@ public class ExpressionLoader {
 	private ExpressionLoader() {
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.ui.regex.view.IExpressionLoader#addExpressionLoaderListener(org.
-	 * eclipse.ui.regex.view.IExpressionLoaderListener)
-	 */
 	public void addExpressionLoaderListener(IExpressionLoaderListener loaderListener) {
 		listener.add(loaderListener);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see
-	 * org.eclipse.ui.regex.view.IExpressionLoader#removeExpressionLoaderListener(
-	 * org.eclipse.ui.regex.view.IExpressionLoaderListener)
-	 */
 	public void removeExpressionLoaderListener(IExpressionLoaderListener loaderListener) {
 		listener.remove(loaderListener);
 	}
