@@ -30,7 +30,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
-
 import org.eclipse.ui.glance.sources.ColorManager;
 import org.eclipse.ui.glance.sources.ITextSourceListener;
 import org.eclipse.ui.glance.utils.TextUtils;
@@ -53,7 +52,9 @@ public class ItemDecorator implements Listener {
 	protected List<ItemCell> cells;
 	protected HashSet<ItemCell> cellSet;
 
-	private ListenerList listeners = new ListenerList();
+	protected boolean customPaintingUsed;
+
+	private ListenerList<ITextSourceListener> listeners = new ListenerList<>();
 
 	public ItemDecorator(Composite composite, ItemProvider provider) {
 		this(composite, provider, DEFAULT_STYLE);
@@ -202,22 +203,24 @@ public class ItemDecorator implements Listener {
 			gc.setBackground(background);
 		}
 
-		if (!ColorManager.getInstance().isUseNative() && (event.detail & SWT.SELECTED) != 0) {
-			gc.setBackground(ColorManager.getInstance().getTreeSelectionBg());
-			gc.setForeground(ColorManager.getInstance().getTreeSelectionFg());
-			gc.fillRectangle(provider.getBounds(item, event.index));
-		}
+		if (!customPaintingUsed) {
+			if (!ColorManager.getInstance().isUseNative() && (event.detail & SWT.SELECTED) != 0) {
+				gc.setBackground(ColorManager.getInstance().getTreeSelectionBg());
+				gc.setForeground(ColorManager.getInstance().getTreeSelectionFg());
+				gc.fillRectangle(provider.getBounds(item, event.index));
+			}
 
-		Image image = provider.getImage(item, event.index);
-		if (image != null) {
-			Rectangle imageBounds = provider.getImageBounds(item, event.index);
-			if (imageBounds != null) {
-				Rectangle bounds = image.getBounds();
+			Image image = provider.getImage(item, event.index);
+			if (image != null) {
+				Rectangle imageBounds = provider.getImageBounds(item, event.index);
+				if (imageBounds != null) {
+					Rectangle bounds = image.getBounds();
 
-				// center the image in the given space
-				int x = imageBounds.x + Math.max(0, (imageBounds.width - bounds.width) / 2);
-				int y = imageBounds.y + Math.max(0, (imageBounds.height - bounds.height) / 2);
-				gc.drawImage(image, x, y);
+					// center the image in the given space
+					int x = imageBounds.x + Math.max(0, (imageBounds.width - bounds.width) / 2);
+					int y = imageBounds.y + Math.max(0, (imageBounds.height - bounds.height) / 2);
+					gc.drawImage(image, x, y);
+				}
 			}
 		}
 
@@ -242,14 +245,33 @@ public class ItemDecorator implements Listener {
 			int avg = (textBounds.height - layoutBounds.height) / 2;
 			int y = textBounds.y + Math.max(0, avg);
 
-			layout.draw(gc, x, y);
+			if (customPaintingUsed) {
+				if (containsMatches(cell)) {
+					Rectangle bounds = provider.getBounds(item, event.index);
+					Color color = ColorManager.getInstance().getBackgroundColor();
+					if ((event.detail & SWT.SELECTED) != 0)
+						color = ColorManager.getInstance().getSelectedBackgroundColor();
+					int preAlpha = gc.getAlpha();
+					gc.setAlpha(100);
+					gc.setBackground(color);
+					gc.fillRectangle(bounds);
+					gc.setAlpha(preAlpha);
+				}
+			} else
+				layout.draw(gc, x, y);
 		}
 
 		gc.setForeground(oldForeground);
 		gc.setBackground(oldBackground);
 	}
 
+	private boolean containsMatches(ItemCell cell) {
+		return itemToMatches.get(cell) != null;
+	}
+
 	public void erase(Event event) {
+		if (customPaintingUsed)
+			return;
 		int style = SWT.BACKGROUND | SWT.FOREGROUND;
 		if (!ColorManager.getInstance().isUseNative()) {
 			style |= SWT.SELECTED | SWT.HOT;
@@ -260,9 +282,20 @@ public class ItemDecorator implements Listener {
 
 	protected void init() {
 		// FIXME
+		customPaintingUsed = isCustomPaintingUsed(composite);
 		composite.addListener(SWT.EraseItem, this);
 		composite.addListener(SWT.PaintItem, this);
 		redraw();
+	}
+
+	private boolean isCustomPaintingUsed(Composite composite) {
+		Listener[] listeners = composite.getListeners(SWT.PaintItem);
+		if (listeners.length > 0) {
+			Listener listener = listeners[listeners.length - 1];
+			if (!listener.getClass().getName().startsWith("org.eclipse.swt"))
+				return true;
+		}
+		return false;
 	}
 
 	public void dispose() {
