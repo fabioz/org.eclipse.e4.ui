@@ -11,16 +11,15 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view;
 
+import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
+import static org.eclipse.swt.events.MouseListener.mouseUpAdapter;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
@@ -49,10 +48,7 @@ public class AssistPopup {
 		shell.addListener(SWT.Deactivate, e -> shell.setVisible(false));
 
 		// resize shell when list resizes
-		shell.addControlListener(new ControlListener() {
-			@Override
-			public void controlMoved(ControlEvent e) {
-			}
+		shell.addControlListener(new ControlAdapter() {
 
 			@Override
 			public void controlResized(ControlEvent e) {
@@ -62,33 +58,12 @@ public class AssistPopup {
 		});
 
 		// return list selection on Mouse Up or Carriage Return
-		list.addMouseListener(new MouseListener() {
-			@Override
-			public void mouseDoubleClick(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseDown(MouseEvent e) {
-			}
-
-			@Override
-			public void mouseUp(MouseEvent e) {
+		list.addMouseListener(mouseUpAdapter(e -> shell.setVisible(false)));
+		list.addKeyListener(keyPressedAdapter(e -> {
+			if (e.character == '\r') {
 				shell.setVisible(false);
 			}
-		});
-		list.addKeyListener(new KeyListener() {
-			@Override
-			public void keyReleased(KeyEvent e) {
-			}
-
-			@Override
-			public void keyPressed(KeyEvent e) {
-				if (e.character == '\r') {
-					shell.setVisible(false);
-				}
-			}
-		});
-
+		}));
 	}
 
 	private static int checkStyle(int style) {

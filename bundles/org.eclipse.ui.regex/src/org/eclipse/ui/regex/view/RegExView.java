@@ -11,6 +11,8 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,7 +35,6 @@ import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.MenuEvent;
 import org.eclipse.swt.events.MenuListener;
-import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -236,22 +237,11 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		new MenuItem(txt_RegExp.getMenu(), SWT.BAR);
 		mit_EvalSelection = new MenuItem(txt_RegExp.getMenu(), SWT.NONE);
 		mit_EvalSelection.setText("Eval Selection Only");
-		mit_EvalSelection.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				regex.setRegExp(txt_RegExp.getSelectionText());
-				regex.setSearchText(txt_SearchText.getText());
-				regex.process();
-
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-
-			}
-		});
+		mit_EvalSelection.addSelectionListener(widgetSelectedAdapter(e -> {
+			regex.setRegExp(txt_RegExp.getSelectionText());
+			regex.setSearchText(txt_SearchText.getText());
+			regex.process();
+		}));
 
 		SashForm sashForm = new SashForm(parent, SWT.VERTICAL);
 		sashForm.setLayoutData(new GridData(GridData.FILL_BOTH));
@@ -309,18 +299,14 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 			liveEval.start();
 		}
 
-		btn_LiveEval.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				Button check = (Button) e.widget;
-				if (check.getSelection()) {
-					liveEval.start();
-				} else {
-					liveEval.stop();
-				}
+		btn_LiveEval.addSelectionListener(widgetSelectedAdapter(e -> {
+			Button check = (Button) e.widget;
+			if (check.getSelection()) {
+				liveEval.start();
+			} else {
+				liveEval.stop();
 			}
-		});
+		}));
 
 		StyledTextActionHandler styledTextActionHandler = new StyledTextActionHandler(
 				this.getViewSite().getActionBars());
@@ -418,25 +404,20 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 	}
 
 	private void setPatternFlagMenu(Menu menu) {
-		class FlagStatusAdapter extends SelectionAdapter {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				MenuItem menItem = (MenuItem) e.widget;
-				Integer flag = (Integer) menItem.getData();
-				if (menItem.getSelection()) {
-					regex.addPatternFlag(flag.intValue());
-				} else {
-					regex.removePatternFlag(flag.intValue());
-				}
-				if (liveEval.isLiveEval()) {
-					processRegEx();
-					updateFoundStatus();
-				}
-				txt_RegExp.setToolTipText(regex.getPatternFlagsAsString());
+		SelectionListener flagStatusAdapter = widgetSelectedAdapter(e -> {
+			MenuItem menItem = (MenuItem) e.widget;
+			Integer flag = (Integer) menItem.getData();
+			if (menItem.getSelection()) {
+				regex.addPatternFlag(flag.intValue());
+			} else {
+				regex.removePatternFlag(flag.intValue());
 			}
-		}
-		FlagStatusAdapter flagStatusAdapter = new FlagStatusAdapter();
+			if (liveEval.isLiveEval()) {
+				processRegEx();
+				updateFoundStatus();
+			}
+			txt_RegExp.setToolTipText(regex.getPatternFlagsAsString());
+		});
 
 		men_PatternFlags = new Menu(menu);
 		MenuItem mit_PatternFlags = new MenuItem(menu, SWT.CASCADE);
@@ -488,19 +469,15 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 		new MenuItem(men_PatternFlags, SWT.BAR);
 		MenuItem mit_Flags_deactivateAll = new MenuItem(men_PatternFlags, SWT.NONE);
 		mit_Flags_deactivateAll.setText("Deactivate &All");
-		mit_Flags_deactivateAll.addSelectionListener(new SelectionAdapter() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				MenuItem widget = (MenuItem) e.widget;
-				Menu menu = widget.getParent();
-				MenuItem[] menuItems = menu.getItems();
-				for (MenuItem menuItem : menuItems) {
-					menuItem.setSelection(false);
-				}
-				regex.resetPatternFlag();
+		mit_Flags_deactivateAll.addSelectionListener(widgetSelectedAdapter(e -> {
+			MenuItem widget = (MenuItem) e.widget;
+			Menu parentMenu = widget.getParent();
+			MenuItem[] menuItems = parentMenu.getItems();
+			for (MenuItem menuItem : menuItems) {
+				menuItem.setSelection(false);
 			}
-		});
+			regex.resetPatternFlag();
+		}));
 
 	}
 

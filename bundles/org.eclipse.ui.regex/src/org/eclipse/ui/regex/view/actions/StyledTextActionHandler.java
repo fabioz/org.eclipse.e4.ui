@@ -17,16 +17,17 @@
 
 package org.eclipse.ui.regex.view.actions;
 
+import static org.eclipse.swt.events.KeyListener.keyReleasedAdapter;
+import static org.eclipse.swt.events.MouseListener.mouseUpAdapter;
+
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.util.IPropertyChangeListener;
 import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.events.KeyAdapter;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.KeyListener;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.ui.IActionBars;
@@ -72,18 +73,8 @@ public class StyledTextActionHandler {
 	private Listener textControlListener = new TextControlListener();
 	private StyledText activeTextControl;
 
-	private MouseAdapter mouseAdapter = new MouseAdapter() {
-		@Override
-		public void mouseUp(MouseEvent e) {
-			updateActionsEnableState();
-		}
-	};
-	private KeyAdapter keyAdapter = new KeyAdapter() {
-		@Override
-		public void keyReleased(KeyEvent e) {
-			updateActionsEnableState();
-		}
-	};
+	private MouseListener mouseAdapter = mouseUpAdapter(e -> updateActionsEnableState());
+	private KeyListener keyAdapter = keyReleasedAdapter(e -> updateActionsEnableState());
 
 	private class TextControlListener implements Listener {
 		@Override

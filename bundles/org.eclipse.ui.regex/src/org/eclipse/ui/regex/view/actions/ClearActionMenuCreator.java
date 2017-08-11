@@ -11,10 +11,11 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view.actions;
 
+import static org.eclipse.swt.events.SelectionListener.widgetSelectedAdapter;
+
 import org.eclipse.jface.action.IMenuCreator;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
@@ -23,11 +24,7 @@ public class ClearActionMenuCreator implements IMenuCreator {
 
 	Menu menu;
 	ClearAction clearAction;
-	ClearSelection clearSelection = new ClearSelection();
-
-	class ClearSelection extends SelectionAdapter {
-		@Override
-		public void widgetSelected(SelectionEvent e) {
+	SelectionListener clearSelection = widgetSelectedAdapter(e -> {
 			MenuItem menuItem = (MenuItem) e.widget;
 			boolean selected = menuItem.getSelection();
 			int mode = ((Integer) menuItem.getData()).intValue();
@@ -35,8 +32,7 @@ public class ClearActionMenuCreator implements IMenuCreator {
 			if (selected) {
 				clearAction.setMode(mode);
 			}
-		}
-	}
+	});
 
 	public ClearActionMenuCreator(ClearAction action) {
 		clearAction = action;

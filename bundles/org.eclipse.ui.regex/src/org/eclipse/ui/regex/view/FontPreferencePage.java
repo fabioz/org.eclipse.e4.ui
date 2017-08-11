@@ -199,8 +199,7 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
-		// TODO Auto-generated method stub
-
+		// do nothing on purpose
 	}
 
 	private String buildDescription(String fontName, int fontHeight) {
