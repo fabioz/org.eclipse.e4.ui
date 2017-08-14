@@ -15,19 +15,19 @@ package org.eclipse.ui.regex.event;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ListenerManager {
+public abstract class ListenerManager<Listener> {
 
-	private List<IListener> listeners = new ArrayList<>();
+	private List<Listener> listeners = new ArrayList<>();
 
-	public void addListener(IListener listener) {
+	public void addListener(Listener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeListener(IListener listener) {
+	public void removeListener(Listener listener) {
 		listeners.remove(listener);
 	}
 
-	protected List<IListener> getListeners() {
+	protected List<Listener> getListeners() {
 		return listeners;
 	}
 }

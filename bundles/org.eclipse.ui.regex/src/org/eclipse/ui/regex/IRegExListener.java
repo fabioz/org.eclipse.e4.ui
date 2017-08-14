@@ -11,9 +11,7 @@
  ******************************************************************************/
 package org.eclipse.ui.regex;
 
-import org.eclipse.ui.regex.event.IListener;
-
-public interface IRegExListener extends IListener {
+public interface IRegExListener {
 
 	public void foundMatches(Matches matches);
 

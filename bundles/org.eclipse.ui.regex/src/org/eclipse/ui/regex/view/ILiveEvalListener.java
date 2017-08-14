@@ -12,9 +12,7 @@
 
 package org.eclipse.ui.regex.view;
 
-import org.eclipse.ui.regex.event.IListener;
-
-public interface ILiveEvalListener extends IListener {
+public interface ILiveEvalListener {
 
 	public void evalActivated();
 

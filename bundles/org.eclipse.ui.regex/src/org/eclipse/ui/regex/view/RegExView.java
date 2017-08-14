@@ -697,25 +697,28 @@ public class RegExView extends ViewPart implements SelectionListener, IRegExList
 			styleRanges[c++] = new StyleRange(match.getStart(), match.getEnd() - match.getStart(), COLOR_RED,
 					COLOR_WHITE);
 
-			out.append("start=");
-			out.append(match.getStart());
-			out.append(", end=");
-			out.append(match.getEnd());
-			out.append("\n");
-			for (Iterator<Group> groups = match.getGroups().iterator(); groups.hasNext();) {
-				Group group = groups.next();
-				out.append("Group(");
-				out.append(group.getIndex());
-				out.append(") = ");
-				out.append(group.getText());
-				out.append("\n");
-			}
-
-			out.append("\n");
+			appendMatchInfoToOutput(out, match);
 
 		}
 		txt_SearchText.setStyleRanges(styleRanges);
 		txt_Result.setText(out.toString());
+	}
+
+	private void appendMatchInfoToOutput(StringBuffer out, Match match) {
+		out.append("start=");
+		out.append(match.getStart());
+		out.append(", end=");
+		out.append(match.getEnd());
+		out.append("\n");
+		for (Group group : match.getGroups()) {
+			out.append("Group(");
+			out.append(group.getIndex());
+			out.append(") = ");
+			out.append(group.getText());
+			out.append("\n");
+		}
+
+		out.append("\n");
 	}
 
 	@Override

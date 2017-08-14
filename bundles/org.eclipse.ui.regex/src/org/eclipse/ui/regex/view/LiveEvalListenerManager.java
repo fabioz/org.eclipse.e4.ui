@@ -11,39 +11,24 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view;
 
-import java.util.Iterator;
-
-import org.eclipse.ui.regex.event.IListener;
 import org.eclipse.ui.regex.event.ListenerManager;
 
-public class LiveEvalListenerManager extends ListenerManager {
+public class LiveEvalListenerManager extends ListenerManager<ILiveEvalListener> {
 
 	public void publishEvalActivated() {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			ILiveEvalListener listener = (ILiveEvalListener) i.next();
-			listener.evalActivated();
-		}
+		getListeners().forEach(listener -> listener.evalActivated());
 	};
 
 	public void publishEvalDeactivated() {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			ILiveEvalListener listener = (ILiveEvalListener) i.next();
-			listener.evalDeactivated();
-		}
+		getListeners().forEach(listener -> listener.evalDeactivated());
 	};
 
 	public void publishEvalDone() {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			ILiveEvalListener listener = (ILiveEvalListener) i.next();
-			listener.evalDone();
-		}
+		getListeners().forEach(listener -> listener.evalDone());
 	};
 
 	public void publishDoEval() {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			ILiveEvalListener listener = (ILiveEvalListener) i.next();
-			listener.doEval();
-		}
+		getListeners().forEach(listener -> listener.doEval());
 	};
 
 }

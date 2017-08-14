@@ -12,7 +12,6 @@
 package org.eclipse.ui.regex.view;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ExpressionLoader {
@@ -40,8 +39,7 @@ public class ExpressionLoader {
 	}
 
 	public void fireLoadExpression(Expression expression) {
-		for (Iterator<IExpressionLoaderListener> i = listener.iterator(); i.hasNext();) {
-			IExpressionLoaderListener l = i.next();
+		for (IExpressionLoaderListener l : listener) {
 			l.loadExpression(expression);
 		}
 	}

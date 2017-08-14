@@ -12,53 +12,32 @@
 
 package org.eclipse.ui.regex;
 
-import java.util.Iterator;
-
-import org.eclipse.ui.regex.event.IListener;
 import org.eclipse.ui.regex.event.ListenerManager;
 
-public class RegExListenerManager extends ListenerManager {
+public class RegExListenerManager extends ListenerManager<IRegExListener> {
 
 	public void publishExpressionError(String errMsg) {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			IRegExListener listener = (IRegExListener) i.next();
-			listener.expressionError(errMsg);
-		}
+		getListeners().forEach(listener -> listener.expressionError(errMsg));
 	}
 
 	public void publishFoundMatches(Matches foundMatches) {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			IRegExListener listener = (IRegExListener) i.next();
-			listener.foundMatches(foundMatches);
-		}
+		getListeners().forEach(listener -> listener.foundMatches(foundMatches));
 	}
 
 	public void publishFoundNoMatches() {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			IRegExListener listener = (IRegExListener) i.next();
-			listener.foundNoMatches();
-		}
+		getListeners().forEach(listener -> listener.foundNoMatches());
 	}
 
 	public void publishDoneWithReplace(ReplaceResult result) {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			IRegExListener listener = (IRegExListener) i.next();
-			listener.doneWithReplace(result);
-		}
+		getListeners().forEach(listener -> listener.doneWithReplace(result));
 	}
 
 	public void publishDoneWithSplit(String[] result) {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			IRegExListener listener = (IRegExListener) i.next();
-			listener.doneWithSplit(result);
-		}
+		getListeners().forEach(listener -> listener.doneWithSplit(result));
 	}
 
 	public void updateRequested() {
-		for (Iterator<IListener> i = getListeners().iterator(); i.hasNext();) {
-			IRegExListener listener = (IRegExListener) i.next();
-			listener.updateRequested();
-		}
+		getListeners().forEach(listener -> listener.updateRequested());
 	}
 
 }

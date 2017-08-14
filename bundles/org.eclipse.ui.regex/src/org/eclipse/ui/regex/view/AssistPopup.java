@@ -15,7 +15,6 @@ import static org.eclipse.swt.events.KeyListener.keyPressedAdapter;
 import static org.eclipse.swt.events.MouseListener.mouseUpAdapter;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -149,13 +148,11 @@ public class AssistPopup {
 
 	public void setProposals(ArrayList<Proposal> proposals) {
 		this.proposals = proposals;
-		int c = 0;
-		String[] items = new String[proposals.size()];
-		for (Iterator<Proposal> i = proposals.iterator(); i.hasNext();) {
-			Proposal proposal = i.next();
-			items[c++] = proposal.getDescription();
+		String[] proposalDescriptions = new String[proposals.size()];
+		for (int i = 0; i < proposals.size(); i++) {
+			proposalDescriptions[i] = proposals.get(i).getDescription();
 		}
-		list.setItems(items);
+		list.setItems(proposalDescriptions);
 	}
 
 }
