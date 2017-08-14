@@ -11,6 +11,9 @@
  ******************************************************************************/
 package org.eclipse.ui.regex.view;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionEvent;
@@ -29,6 +32,8 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.regex.RegExPlugin;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class FontPreferencePage extends PreferencePage implements IWorkbenchPreferencePage, SelectionListener {
 
@@ -77,7 +82,12 @@ public class FontPreferencePage extends PreferencePage implements IWorkbenchPref
 	@Override
 	public boolean performOk() {
 		setFontData();
-		RegExPlugin.getDefault().savePluginPreferences();
+		try {
+			InstanceScope.INSTANCE.getNode(FrameworkUtil.getBundle(FontPreferencePage.class).getSymbolicName()).flush();
+		} catch (BackingStoreException | IllegalStateException e) {
+			RegExPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
+					RegExPlugin.getDefault().getBundle().getSymbolicName(), e.getMessage(), e));
+		}
 		return true;
 	}
 

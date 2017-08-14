@@ -17,7 +17,7 @@ import java.util.List;
 
 public abstract class ListenerManager {
 
-	private List listeners = new ArrayList();
+	private List<IListener> listeners = new ArrayList<>();
 
 	public void addListener(IListener listener) {
 		listeners.add(listener);
@@ -27,7 +27,7 @@ public abstract class ListenerManager {
 		listeners.remove(listener);
 	}
 
-	protected List getListeners() {
+	protected List<IListener> getListeners() {
 		return listeners;
 	}
 }

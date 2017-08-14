@@ -17,7 +17,7 @@ import java.util.List;
 
 public class ExpressionLoader {
 
-	private List listener = new ArrayList();
+	private List<IExpressionLoaderListener> listener = new ArrayList<>();
 
 	private static ExpressionLoader instance;
 
@@ -40,8 +40,8 @@ public class ExpressionLoader {
 	}
 
 	public void fireLoadExpression(Expression expression) {
-		for (Iterator i = listener.iterator(); i.hasNext();) {
-			IExpressionLoaderListener l = (IExpressionLoaderListener) i.next();
+		for (Iterator<IExpressionLoaderListener> i = listener.iterator(); i.hasNext();) {
+			IExpressionLoaderListener l = i.next();
 			l.loadExpression(expression);
 		}
 	}

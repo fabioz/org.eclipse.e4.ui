@@ -31,7 +31,7 @@ public class AssistPopup {
 	private Shell shell;
 	private List list;
 	private int minimumWidth;
-	private ArrayList proposals;
+	private ArrayList<Proposal> proposals;
 	private static final Color bgColor = new Color(Display.getCurrent(), 254, 241, 233);
 
 	public AssistPopup(Shell parent) {
@@ -124,7 +124,7 @@ public class AssistPopup {
 		Proposal result = null;
 		if (!shell.isDisposed()) {
 			if (list.getSelectionIndex() != -1) {
-				result = (Proposal) proposals.get(list.getSelectionIndex());
+				result = proposals.get(list.getSelectionIndex());
 			}
 			shell.dispose();
 		}
@@ -147,12 +147,12 @@ public class AssistPopup {
 		}
 	}
 
-	public void setProposals(ArrayList proposals) {
+	public void setProposals(ArrayList<Proposal> proposals) {
 		this.proposals = proposals;
 		int c = 0;
 		String[] items = new String[proposals.size()];
-		for (Iterator i = proposals.iterator(); i.hasNext();) {
-			Proposal proposal = (Proposal) i.next();
+		for (Iterator<Proposal> i = proposals.iterator(); i.hasNext();) {
+			Proposal proposal = i.next();
 			items[c++] = proposal.getDescription();
 		}
 		list.setItems(items);

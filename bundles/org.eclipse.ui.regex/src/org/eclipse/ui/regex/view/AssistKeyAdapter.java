@@ -34,7 +34,7 @@ public class AssistKeyAdapter extends KeyAdapter {
 
 		String textSoFar = textField.getText(0, caretOffset - 1);
 
-		ArrayList proposals = Assistant.getAssistItems(textSoFar);
+		ArrayList<Proposal> proposals = Assistant.getAssistItems(textSoFar);
 
 		if (proposals.size() != 0 && e.stateMask == SWT.CONTROL && e.keyCode == 32) {
 			Proposal proposal = showProposals(proposals);
@@ -51,7 +51,7 @@ public class AssistKeyAdapter extends KeyAdapter {
 		}
 	}
 
-	protected Proposal showProposals(ArrayList proposals) {
+	protected Proposal showProposals(ArrayList<Proposal> proposals) {
 		AssistPopup assist = new AssistPopup(textField.getShell());
 		assist.setProposals(proposals);
 		Point pos = textField.toDisplay(textField.getCaret().getLocation());

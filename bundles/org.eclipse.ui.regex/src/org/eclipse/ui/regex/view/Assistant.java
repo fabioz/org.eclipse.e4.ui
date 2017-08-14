@@ -15,8 +15,8 @@ import java.util.ArrayList;
 
 public class Assistant {
 
-	public static ArrayList getAssistItems(String textLeftOfCursor) {
-		ArrayList proposals = new ArrayList();
+	public static ArrayList<Proposal> getAssistItems(String textLeftOfCursor) {
+		ArrayList<Proposal> proposals = new ArrayList<Proposal>();
 		if (textLeftOfCursor.endsWith("\\")) {
 			proposals.add(new Proposal("\\A", "Beginning input \\A", 1));
 			proposals.add(new Proposal("\\b", "Word boundary \\b", 1));

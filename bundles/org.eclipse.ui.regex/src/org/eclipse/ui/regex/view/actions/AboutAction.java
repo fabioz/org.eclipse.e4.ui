@@ -29,8 +29,8 @@ public class AboutAction extends Action {
 
 	@Override
 	public void run() {
-		Dictionary d = RegExPlugin.getDefault().getBundle().getHeaders();
-		String version = (String) d.get(org.osgi.framework.Constants.BUNDLE_VERSION);
+		Dictionary<String, String> d = RegExPlugin.getDefault().getBundle().getHeaders();
+		String version = d.get(org.osgi.framework.Constants.BUNDLE_VERSION);
 
 		String msg = "Regular Expression Tester " + version + "\n";
 		msg += "(C) 2006-2012 by Stephan Brosinski <sbrosinski@gmail.com>\n\n";

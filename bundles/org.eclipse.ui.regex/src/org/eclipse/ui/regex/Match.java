@@ -30,7 +30,7 @@ public class Match {
 	/** contains the match text actually found */
 	private String text_;
 
-	private ArrayList groups_;
+	private ArrayList<Group> groups_;
 
 	/**
 	 * Construct a Match.
@@ -48,7 +48,7 @@ public class Match {
 		start_ = start;
 		end_ = end;
 		text_ = text;
-		groups_ = new ArrayList();
+		groups_ = new ArrayList<Group>();
 	}
 
 	public void addGroup(Group group) {
@@ -59,7 +59,7 @@ public class Match {
 		return groups_.size();
 	}
 
-	public List getGroups() {
+	public List<Group> getGroups() {
 		return groups_;
 	}
 

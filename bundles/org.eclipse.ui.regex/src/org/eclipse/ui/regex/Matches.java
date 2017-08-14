@@ -23,7 +23,7 @@ import java.util.Iterator;
 public class Matches {
 
 	/** a list containing all matches. */
-	private ArrayList matchList_;
+	private ArrayList<Match> matchList_;
 
 	/**
 	 * virtual marker, can be set to a certain position within the matches list. Is
@@ -35,12 +35,12 @@ public class Matches {
 	 * Constructs a new Matches object.
 	 */
 	public Matches() {
-		matchList_ = new ArrayList();
+		matchList_ = new ArrayList<Match>();
 		// set position marker "in front" of list
 		posMarker_ = -1;
 	}
 
-	public Iterator iterator() {
+	public Iterator<Match> iterator() {
 		return matchList_.iterator();
 	}
 
@@ -73,7 +73,7 @@ public class Matches {
 	 */
 	public Match getMatchByRange(int start, int end) {
 		for (int i = 0; i < matchList_.size(); i++) {
-			Match match = (Match) matchList_.get(i);
+			Match match = matchList_.get(i);
 			if (start >= match.getStart() && end <= match.getEnd())
 				return match;
 		}
@@ -90,7 +90,7 @@ public class Matches {
 
 		if (!(posMarker_ + 1 > matchList_.size() - 1)) {
 			posMarker_++;
-			Match match = (Match) matchList_.get(posMarker_);
+			Match match = matchList_.get(posMarker_);
 			return match;
 		}
 
@@ -103,7 +103,7 @@ public class Matches {
 
 		if (!(posMarker_ - 1 < 0)) {
 			posMarker_--;
-			Match match = (Match) matchList_.get(posMarker_);
+			Match match = matchList_.get(posMarker_);
 			return match;
 		}
 
@@ -119,7 +119,7 @@ public class Matches {
 	}
 
 	public void reset() {
-		matchList_ = new ArrayList();
+		matchList_ = new ArrayList<Match>();
 	}
 
 }

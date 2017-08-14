@@ -13,6 +13,9 @@ package org.eclipse.ui.regex.view;
 
 import java.util.regex.Pattern;
 
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.PreferencePage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
@@ -24,6 +27,8 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPreferencePage;
 import org.eclipse.ui.regex.RegExPlugin;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.service.prefs.BackingStoreException;
 
 public class RegExPreferencePage extends PreferencePage implements IWorkbenchPreferencePage {
 
@@ -75,7 +80,13 @@ public class RegExPreferencePage extends PreferencePage implements IWorkbenchPre
 		getPreferenceStore().setValue("EvalSearch", btn_EvalSearch.getSelection());
 		getPreferenceStore().setValue("EvalBoth", btn_EvalBoth.getSelection());
 		getPreferenceStore().setValue("EvalSwitch", btn_EvalSwitch.getSelection());
-		RegExPlugin.getDefault().savePluginPreferences();
+		try {
+			InstanceScope.INSTANCE.getNode(FrameworkUtil.getBundle(RegExPreferencePage.class).getSymbolicName())
+					.flush();
+		} catch (BackingStoreException | IllegalStateException e) {
+			RegExPlugin.getDefault().getLog().log(new Status(IStatus.ERROR,
+					RegExPlugin.getDefault().getBundle().getSymbolicName(), e.getMessage(), e));
+		}
 		return true;
 	}
 
