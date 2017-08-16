@@ -34,13 +34,13 @@ public class GlancePlugin extends AbstractUIPlugin {
 	private static final String IMG_PREFIX = "icons/";
 
 	public static final String IMG_WAIT = IMG_PREFIX + "wait.gif";
-	public static final String IMG_NEXT = IMG_PREFIX + "next.gif";
-	public static final String IMG_PREV = IMG_PREFIX + "prev.gif";
-	public static final String IMG_SEARCH = IMG_PREFIX + "search.png";
-	public static final String IMG_START_INDEXING = IMG_PREFIX + "update_1.gif";
-	public static final String IMG_END_INDEXING = IMG_PREFIX + "update_2.gif";
+	public static final String IMG_NEXT = IMG_PREFIX + "full/elcl16/next_nav.png";
+	public static final String IMG_PREV = IMG_PREFIX + "full/elcl16/prev_nav.png";
+	public static final String IMG_SEARCH = IMG_PREFIX + "full/elcl16/focus.png";
+	public static final String IMG_START_INDEXING = IMG_PREFIX + "full/elcl16/refresh.png";
+	public static final String IMG_END_INDEXING = IMG_PREFIX + "full/elcl16/refresh_2.png";
 	public static final String IMG_INDEXING_FINISHED = IMG_PREFIX
-			+ "update_done.gif";
+			+ "full/dlcl16/refresh.png";
 	public static final String[] IMG_INDEXING_LOOP = new String[] {
 			IMG_START_INDEXING, IMG_END_INDEXING };
 

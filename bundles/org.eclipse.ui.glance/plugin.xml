@@ -131,7 +131,7 @@
 		<imageprovider 
 			id="org.eclipse.ui.glance.markerProvider"
 			markertype="org.eclipse.ui.glance.marker"
-			icon="icons/marker.gif">
+			icon="icons/full/elcl16/searchm_obj.png">
 		</imageprovider>
 	</extension>
 	
@@ -150,7 +150,7 @@
 		<specification
 			annotationType="org.eclipse.ui.glance.highlight"
 			label="Glance Results"
-			icon="icons/marker.gif"
+			icon="icons/full/elcl16/searchm_obj.png"
 			textPreferenceKey="glanceText"
 			textPreferenceValue="false"
 			highlightPreferenceKey="glanceHighlight"
@@ -175,7 +175,7 @@
         colorPreferenceValue="255,128,0"
         highlightPreferenceKey="glanceHighlight"
         highlightPreferenceValue="true"
-        icon="icons/marker.gif"
+        icon="icons/full/elcl16/searchm_obj.png"
         isGoToNextNavigationTarget="false"
         isGoToNextNavigationTargetKey="glanceGoNext"
         isGoToPreviousNavigationTarget="false"
