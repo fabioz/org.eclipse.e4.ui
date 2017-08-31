@@ -11,8 +11,8 @@
 package org.eclipse.ui.glance.internal.search;
 
 import org.eclipse.core.runtime.IProgressMonitor;
-
 import org.eclipse.ui.glance.panels.ISearchPanel;
+import org.eclipse.ui.glance.panels.ISearchPanel.IndexingState;
 
 public class SearchProgressMonitor implements IProgressMonitor {
 
@@ -37,7 +37,7 @@ public class SearchProgressMonitor implements IProgressMonitor {
 		if (isCanceled()) {
 			return;
 		}
-		panel.setIndexingState(ISearchPanel.INDEXING_STATE_FINISHED);
+		panel.setIndexingState(IndexingState.FINISHED);
 	}
 
 	@Override
@@ -60,7 +60,8 @@ public class SearchProgressMonitor implements IProgressMonitor {
 	@Override
 	public void setCanceled(boolean value) {
 		this.cancel = value;
-		panel.setIndexingState(ISearchPanel.INDEXING_STATE_FINISHED);
+		if (value)
+			panel.setIndexingState(IndexingState.CANCELED);
 	}
 
 	@Override

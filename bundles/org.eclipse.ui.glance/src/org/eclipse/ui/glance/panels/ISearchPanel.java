@@ -11,7 +11,6 @@
 package org.eclipse.ui.glance.panels;
 
 import org.eclipse.swt.widgets.Control;
-
 import org.eclipse.ui.glance.internal.search.ISearchListener;
 import org.eclipse.ui.glance.internal.search.SearchRule;
 
@@ -21,13 +20,9 @@ import org.eclipse.ui.glance.internal.search.SearchRule;
  */
 public interface ISearchPanel extends ISearchListener {
 
-	public static int INDEXING_STATE_DISABLE = 0;
-
-	public static int INDEXING_STATE_INITIAL = 1;
-
-	public static int INDEXING_STATE_IN_PROGRESS = 2;
-
-	public static int INDEXING_STATE_FINISHED = 3;
+	public enum IndexingState {
+		DISABLED, INITIAL, IN_PROGRESS, CANCELED, FINISHED
+	}
 
 	public void addPanelListener(ISearchPanelListener listener);
 
@@ -39,7 +34,7 @@ public interface ISearchPanel extends ISearchListener {
 
 	public Control getControl();
 
-	public void setIndexingState(int state);
+	public void setIndexingState(IndexingState state);
 
 	public void updateIndexingPercent(double percent);
 

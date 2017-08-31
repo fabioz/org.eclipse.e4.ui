@@ -20,7 +20,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
-
 import org.eclipse.ui.glance.internal.GlancePlugin;
 import org.eclipse.ui.glance.internal.panels.SearchPanelManager;
 import org.eclipse.ui.glance.internal.panels.SearchStatusLine;
@@ -29,6 +28,7 @@ import org.eclipse.ui.glance.internal.sources.ISourceProviderListener;
 import org.eclipse.ui.glance.internal.sources.TextSourceMaker;
 import org.eclipse.ui.glance.internal.sources.TextSourceManager;
 import org.eclipse.ui.glance.panels.ISearchPanel;
+import org.eclipse.ui.glance.panels.ISearchPanel.IndexingState;
 import org.eclipse.ui.glance.panels.ISearchPanelListener;
 import org.eclipse.ui.glance.sources.ITextSource;
 import org.eclipse.ui.glance.sources.Match;
@@ -331,8 +331,7 @@ public class SearchManager {
 				&& indexRequired) {
 			index();
 		} else {
-			panel.setIndexingState(indexRequired ? ISearchPanel.INDEXING_STATE_INITIAL
-					: ISearchPanel.INDEXING_STATE_DISABLE);
+			panel.setIndexingState(indexRequired ? IndexingState.INITIAL : IndexingState.DISABLED);
 		}
 	}
 
@@ -342,7 +341,7 @@ public class SearchManager {
 			new Thread() {
 				@Override
 				public void run() {
-					panel.setIndexingState(ISearchPanel.INDEXING_STATE_IN_PROGRESS);
+					panel.setIndexingState(IndexingState.IN_PROGRESS);
 					if (source != null) {
 						source.index(monitor);
 					}
@@ -357,7 +356,7 @@ public class SearchManager {
 		if (panel != null) {
 			panel.setEnabled(source != null);
 			if (source == null) {
-				panel.setIndexingState(ISearchPanel.INDEXING_STATE_FINISHED);
+				panel.setIndexingState(IndexingState.FINISHED);
 			}
 		}
 	}

@@ -55,7 +55,6 @@ import org.eclipse.swt.widgets.ToolItem;
 import org.eclipse.ui.ISharedImages;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.dialogs.PreferencesUtil;
-
 import org.eclipse.ui.glance.internal.GlanceEventDispatcher;
 import org.eclipse.ui.glance.internal.GlancePlugin;
 import org.eclipse.ui.glance.internal.panels.CheckAction;
@@ -84,15 +83,15 @@ public abstract class SearchPanel implements ISearchPanel,
 	}
 
 	@Override
-	public void setIndexingState(final int state) {
-		indexState = state;
+	public void setIndexingState(final IndexingState state) {
+		indexingState = state;
 
 		if (updateInfoThread != null) {
 			final UpdateInfoThread thread = updateInfoThread;
 			thread.requestStop();
 			updateInfoThread = null;
 		}
-		if (state == INDEXING_STATE_IN_PROGRESS) {
+		if (state == IndexingState.IN_PROGRESS) {
 			indexPercent = 0;
 			try {
 				updateInfoThread = new UpdateInfoThread();
@@ -155,7 +154,7 @@ public abstract class SearchPanel implements ISearchPanel,
 
 		@Override
 		protected boolean isTerminated() {
-			return stop || indexState != INDEXING_STATE_IN_PROGRESS;
+			return stop || indexingState != IndexingState.IN_PROGRESS;
 		}
 
 		@Override
@@ -173,27 +172,24 @@ public abstract class SearchPanel implements ISearchPanel,
 			return;
 		}
 
-		if (indexState == INDEXING_STATE_DISABLE) {
-			bIndexing.setToolTipText("Index component");
-			bIndexing.setSelection(false);
+		if (indexingState == IndexingState.DISABLED) {
+			bIndexing.setToolTipText("Indexing isn't available for the component");
 			bIndexing.setEnabled(false);
 			if (bIndexing.getImage() == null) {
 				bIndexing.setImage(GlancePlugin
 						.getImage(GlancePlugin.IMG_START_INDEXING));
 			}
-		} else if (indexState == INDEXING_STATE_INITIAL) {
+		} else if (indexingState == IndexingState.INITIAL || indexingState == IndexingState.CANCELED) {
 			bIndexing.setToolTipText("Index component");
-			bIndexing.setSelection(false);
 			bIndexing.setImage(GlancePlugin
 					.getImage(GlancePlugin.IMG_START_INDEXING));
 			bIndexing.setEnabled(true);
-		} else if (indexState == INDEXING_STATE_FINISHED) {
-			bIndexing.setToolTipText("Index finished");
-			bIndexing.setSelection(false);
+		} else if (indexingState == IndexingState.FINISHED) {
+			bIndexing.setToolTipText("Component indexed");
+			bIndexing.setImage(GlancePlugin.getImage(GlancePlugin.IMG_START_INDEXING));
 			bIndexing.setEnabled(false);
 		} else {
 			final StringBuilder buffer = new StringBuilder();
-			bIndexing.setSelection(true);
 			bIndexing.setImage(image);
 			if (taskName != null && taskName.length() > 0) {
 				buffer.append(taskName);
@@ -294,7 +290,7 @@ public abstract class SearchPanel implements ISearchPanel,
 			createNextItem(toolBar);
 			createPreviousItem(toolBar);
 		}
-		createIndexing(toolBar);
+		createIndexItem(toolBar);
 		createSettingsMenu(toolBar);
 		if (getPreferences().getBoolean(PANEL_CLOSE)) {
 			createClose(toolBar);
@@ -324,16 +320,16 @@ public abstract class SearchPanel implements ISearchPanel,
 		return bPrev;
 	}
 
-	private void createIndexing(final ToolBar bar) {
-		bIndexing = new ToolItem(bar, SWT.CHECK);
+	private void createIndexItem(final ToolBar bar) {
+		bIndexing = new ToolItem(bar, SWT.PUSH);
 		bIndexing.setDisabledImage(GlancePlugin
 				.getImage(GlancePlugin.IMG_INDEXING_FINISHED));
 		bIndexing.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void selected(final SelectionEvent e) {
-				if (indexState == INDEXING_STATE_INITIAL) {
+				if (indexingState == IndexingState.INITIAL || indexingState == IndexingState.CANCELED) {
 					SearchManager.getIntance().index();
-				} else if (indexState != INDEXING_STATE_FINISHED) {
+				} else if (indexingState != IndexingState.FINISHED) {
 					fireIndexCanceled();
 				}
 			}
@@ -674,7 +670,7 @@ public abstract class SearchPanel implements ISearchPanel,
 	protected Combo title;
 	private boolean titleEnabled = true;
 
-	private final ListenerList listeners = new ListenerList();
+	private final ListenerList<ISearchPanelListener> listeners = new ListenerList<>();
 	private final ModifyListener modifyListener = new ModifyListener() {
 		@Override
 		public void modifyText(final ModifyEvent e) {
@@ -691,7 +687,7 @@ public abstract class SearchPanel implements ISearchPanel,
 	private SearchRule rule;
 	private Match[] result = Match.EMPTY;
 
-	private double indexState;
+	private IndexingState indexingState;
 	private double indexPercent;
 	private String taskName;
 
