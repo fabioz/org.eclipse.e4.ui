@@ -24,7 +24,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
-
 import org.eclipse.ui.glance.panels.SearchPanel;
 import org.eclipse.ui.glance.sources.Match;
 import org.eclipse.ui.glance.utils.UIUtils;
@@ -207,8 +206,12 @@ public class PopupSearchDialog extends SearchPanel {
 			return list;
 		}
 
+		private Color initialBackground;
+
 		public void setBackground(boolean found) {
-			Color color = found ? getBackground() : BAD_COLOR;
+			if (initialBackground == null)
+				initialBackground = getBackgroundColor();
+			Color color = found ? initialBackground : BAD_COLOR;
 			applyBackgroundColor(color);
 		}
 

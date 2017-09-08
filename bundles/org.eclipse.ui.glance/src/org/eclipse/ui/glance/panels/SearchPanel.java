@@ -658,11 +658,12 @@ public abstract class SearchPanel implements ISearchPanel,
 	}
 
 	protected void setBackground(final boolean found) {
-		title.setBackground(found ? GOOD_COLOR : BAD_COLOR);
+		if (initialBackground == null)
+			initialBackground = title.getBackground();
+		title.setBackground(found ? initialBackground : BAD_COLOR);
 	}
 
-	protected static final Color GOOD_COLOR = Display.getDefault()
-			.getSystemColor(SWT.COLOR_WHITE);
+	protected Color initialBackground;
 	protected static final Color BAD_COLOR = new Color(Display.getDefault(),
 			255, 102, 102);
 

@@ -52,7 +52,6 @@ public class SearchDialog extends PopupDialog {
 		separator = createHorizontalSeparator(composite);
 		createInfoTextArea(composite);
 
-		applyColors(composite);
 		applyFonts(composite);
 		return composite;
 	}
@@ -85,11 +84,6 @@ public class SearchDialog extends PopupDialog {
 	@Override
 	protected void setInfoText(final String text) {
 		info.setText(text);
-	}
-
-	protected void applyColors(final Composite composite) {
-		applyForegroundColor(getForeground(), composite);
-		applyBackgroundColor(getBackground(), composite);
 	}
 
 	protected void applyFonts(final Composite composite) {
@@ -161,6 +155,10 @@ public class SearchDialog extends PopupDialog {
 			result.add(control);
 		}
 		return result;
+	}
+
+	protected Color getBackgroundColor() {
+		return titleArea.getBackground();
 	}
 
 	protected void applyBackgroundColor(final Color color) {
