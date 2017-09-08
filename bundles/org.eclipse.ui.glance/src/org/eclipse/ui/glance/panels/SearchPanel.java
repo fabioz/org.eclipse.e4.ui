@@ -322,6 +322,7 @@ public abstract class SearchPanel implements ISearchPanel,
 
 	private void createIndexItem(final ToolBar bar) {
 		bIndexing = new ToolItem(bar, SWT.PUSH);
+		bIndexing.setImage(GlancePlugin.getImage(GlancePlugin.IMG_START_INDEXING));
 		bIndexing.setDisabledImage(GlancePlugin
 				.getImage(GlancePlugin.IMG_INDEXING_FINISHED));
 		bIndexing.addSelectionListener(new SelectionAdapter() {
