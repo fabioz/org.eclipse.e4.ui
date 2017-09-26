@@ -21,6 +21,9 @@
    <bundle id="org.eclipse.e4.jdt.scope" version="0.0.1.qualifier">
       <category name="JDT"/>
    </bundle>
+   <bundle id="org.eclipse.ui.regex" version="0.0.1.qualifier">
+      <category name="Misc"/>
+   </bundle>
    <category-def name="org.eclipse.e4.ui.keys" label="Eclipse e4 Key Schemes"/>
    <category-def name="Macros" label="Keyboard macros"/>
    <category-def name="JDT" label="JDT/PDE Extensions"/>
