@@ -1,121 +1,87 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?eclipse version="3.4"?>
 <plugin>
-   <extension-point id="hooks" name="Macro Recording and Playback Hooks" schema="schema/hooks.exsd"/>
-   <extension-point id="commands" name="Describe commands that have been vetted or disallowed for macros" schema="schema/commands.exsd"/>
 
-   <extension
-         id="macroinstaller"
-         point="org.eclipse.e4.workbench.model">
-      <processor
-            apply="always"
-            beforefragment="true"
-            class="org.eclipse.e4.ui.internal.macros.MacroRecorderInstaller">
-      </processor>
+
+   <extension point="org.eclipse.e4.core.macros.macroCommandCustomization">
+
+      <!-- We should be able to stop the macro recording after the recording started. -->
+      <customizedCommand id="org.eclipse.e4.ui.macros.toggleRecordMacro" recordMacroInstruction="false"/>
+
+      <!-- Playback is Ok during recording, but only its side-effects are recorded, not the command itself. -->
+      <customizedCommand id="org.eclipse.e4.ui.macros.macroPlayback" recordMacroInstruction="false"/>
+
+      <!-- Disable recording of actions not related to the editor (which the user may choose to do
+      but shouldn't interfere with the macro recording). -->
+      <customizedCommand id="org.eclipse.ui.window.nextEditor" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.window.nextView" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.window.nextPerspective" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.navigate.showInQuickMenu" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.window.showKeyAssist" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.window.openEditorDropDown" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.window.quickAccess" recordMacroInstruction="false"/>
+      <customizedCommand id="org.eclipse.ui.edit.findReplace" recordMacroInstruction="false"/>
    </extension>
 
    <extension
-         point="org.eclipse.e4.ui.macros.commands">
-      <whitelist id="org.eclipse.e4.ui.macros.toggleRecording" />
-            
-      <whitelist id="org.eclipse.ui.edit.cut" />
-      <whitelist id="org.eclipse.ui.edit.copy" />
-      <whitelist id="org.eclipse.ui.edit.paste" />
-      <whitelist id="org.eclipse.ui.edit.delete" />
-      <whitelist id="org.eclipse.ui.edit.undo" />
-      <whitelist id="org.eclipse.ui.edit.redo" />
-      <whitelist id="org.eclipse.ui.edit.text.join.lines" />
-      <whitelist id="org.eclipse.ui.edit.text.delete.line" />
-      <whitelist id="org.eclipse.ui.edit.text.removeTrailingWhitespace" />
-      <whitelist id="org.eclipse.ui.edit.text.delete.line.to.beginning" />
-      <whitelist id="org.eclipse.ui.edit.text.delete.line.to.end" />
-      <whitelist id="org.eclipse.ui.edit.text.cut.line" />
-      <whitelist id="org.eclipse.ui.edit.text.cut.line.to.beginning" />
-      <whitelist id="org.eclipse.ui.edit.text.cut.line.to.end" />
-      <whitelist id="org.eclipse.ui.edit.findIncremental" />
-      <whitelist id="org.eclipse.ui.edit.findIncrementalReverse" />
-      <whitelist id="org.eclipse.ui.edit.revertToSaved" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.lineUp" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.lineDown" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.lineStart" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.lineEnd" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.columnPrevious" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.columnNext" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.pageUp" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.pageDown" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.wordPrevious" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.wordNext" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.textStart" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.textEnd" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.windowStart" />
-      <whitelist id="org.eclipse.ui.edit.text.goto.windowEnd" />
-      <whitelist id="org.eclipse.ui.edit.text.scroll.lineUp" />
-      <whitelist id="org.eclipse.ui.edit.text.scroll.lineDown" />
-      <whitelist id="org.eclipse.ui.edit.text.select.lineUp" />
-      <whitelist id="org.eclipse.ui.edit.text.select.lineDown" />
-      <whitelist id="org.eclipse.ui.edit.text.select.lineStart" />
-      <whitelist id="org.eclipse.ui.edit.text.select.lineEnd" />
-      <whitelist id="org.eclipse.ui.edit.text.select.columnPrevious" />
-      <whitelist id="org.eclipse.ui.edit.text.select.columnNext" />
-      <whitelist id="org.eclipse.ui.edit.text.select.pageUp" />
-      <whitelist id="org.eclipse.ui.edit.text.select.pageDown" />
-      <whitelist id="org.eclipse.ui.edit.text.select.wordPrevious" />
-      <whitelist id="org.eclipse.ui.edit.text.select.wordNext" />
-      <whitelist id="org.eclipse.ui.edit.text.select.textStart" />
-      <whitelist id="org.eclipse.ui.edit.text.select.textEnd" />
-      <whitelist id="org.eclipse.ui.edit.text.select.windowStart" />
-      <whitelist id="org.eclipse.ui.edit.text.select.windowEnd" />
-      <whitelist id="org.eclipse.ui.edit.text.deletePrevious" />
-      <whitelist id="org.eclipse.ui.edit.text.deleteNext" />
-      <whitelist id="org.eclipse.ui.edit.text.deletePreviousWord" />
-      <whitelist id="org.eclipse.ui.edit.text.deleteNextWord" />
-      <whitelist id="org.eclipse.ui.edit.text.shiftRight" />
-      <whitelist id="org.eclipse.ui.edit.text.shiftLeft" />
-      <whitelist id="org.eclipse.ui.edit.text.toggleOverwrite" />
-      <whitelist id="org.eclipse.ui.edit.text.smartEnter" />
-      <whitelist id="org.eclipse.ui.edit.text.smartEnterInverse" />
-      <whitelist id="org.eclipse.ui.edit.text.moveLineUp" />
-      <whitelist id="org.eclipse.ui.edit.text.moveLineDown" />
-      <whitelist id="org.eclipse.ui.edit.text.copyLineUp" />
-      <whitelist id="org.eclipse.ui.edit.text.copyLineDown" />
-      <whitelist id="org.eclipse.ui.edit.text.upperCase" />
-      <whitelist id="org.eclipse.ui.edit.text.lowerCase" />
-      <whitelist id="org.eclipse.ui.edit.text.toggleBlockSelectionMode" />
-      <whitelist id="org.eclipse.ui.edit.text.toggleInsertMode" />
-      <whitelist id="org.eclipse.ui.edit.text.recenter" />
-      <whitelist id="org.eclipse.ui.edit.text.open.hyperlink" />
-      
-      <whitelist id="org.eclipse.ui.window.showViewMenu" />
+         point="org.eclipse.e4.core.macros.macroInstructionsFactory">
+      <macroInstructionsFactory
+            class="org.eclipse.e4.ui.macros.internal.keybindings.MacroInstructionForParameterizedCommandFactory"
+            macroInstructionId="Command">
+      </macroInstructionsFactory>
    </extension>
-      
-   <extension
-         point="org.eclipse.e4.ui.macros.commands">
-      <!-- can't play a macro during recording -->
-      <blacklist id="org.eclipse.e4.ui.macros.playRecording" />
 
-      <!-- non deterministic order -->
-      <blacklist id="org.eclipse.ui.edit.text.contentAssist.proposals" />
-      
-      <!-- Can tap F6 repeatedly to alternate, which we can't intercept -->
-      <blacklist id="org.eclipse.ui.window.nextEditor" />
-      <blacklist id="org.eclipse.ui.window.previousEditor" />
-      <blacklist id="org.eclipse.ui.window.nextView" />
-      <blacklist id="org.eclipse.ui.window.previousView" />
-      <blacklist id="org.eclipse.ui.window.nextPerspective" />
-      <blacklist id="org.eclipse.ui.window.previousPerspective" />
-      
-      <blacklist id="org.eclipse.ui.file.openWorkspace" />
-      <blacklist id="org.eclipse.ui.file.newQuickMenu" />
-      <blacklist id="org.eclipse.ui.edit.text.openLocalFile" />
-      <blacklist id="org.eclipse.ui.navigate.showInQuickMenu" />
-      <blacklist id="org.eclipse.ui.navigate.goToResource" />
-      <blacklist id="org.eclipse.ui.navigate.openResource" />
-      <blacklist id="org.eclipse.ui.project.openProject" />
-      <blacklist id="org.eclipse.ui.project.closeProject" />
-      <blacklist id="org.eclipse.ui.project.closeUnrelatedProjects" />
-      <blacklist id="org.eclipse.ui.project.properties" />
-      <blacklist id="org.eclipse.ui.edit.addTask" />
-      <blacklist id="org.eclipse.ui.navigate.selectWorkingSets" />
+   <extension
+         point="org.eclipse.e4.core.macros.macroStateListeners">
+      <macroStateListener
+            class="org.eclipse.e4.ui.macros.internal.keybindings.CommandManagerExecutionListenerInstaller">
+      </macroStateListener>
+      <macroStateListener
+            class="org.eclipse.e4.ui.macros.internal.actions.KeepMacroUIUpdated">
+      </macroStateListener>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.commands">
+      <category
+            id="org.eclipse.e4.ui.macros.category"
+            name="%category.macros.name">
+      </category>
+      <command
+            categoryId="org.eclipse.e4.ui.macros.category"
+            defaultHandler="org.eclipse.e4.ui.macros.internal.actions.ToggleMacroRecordAction"
+            id="org.eclipse.e4.ui.macros.toggleRecordMacro"
+            name="%command.toggle_macro_record.label">
+      </command>
+      <command
+            categoryId="org.eclipse.e4.ui.macros.category"
+            defaultHandler="org.eclipse.e4.ui.macros.internal.actions.MacroPlaybackAction"
+            id="org.eclipse.e4.ui.macros.macroPlayback"
+            name="%command.macro_playback.name">
+      </command>
+   </extension>
+
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="toolbar:org.eclipse.ui.main.toolbar?after=additions">
+         <toolbar
+               id="org.eclipse.e4.ui.macros.toolbar"
+               label="%toolbar.macro.label">
+            <command
+                  commandId="org.eclipse.e4.ui.macros.toggleRecordMacro"
+                  icon="icons/full/dtool16/macro_record.png"
+                  label="%command.toggle_macro_record.label"
+                  style="toggle">
+            </command>
+            <command
+                  commandId="org.eclipse.e4.ui.macros.macroPlayback"
+                  icon="icons/full/dtool16/macro_playback.png"
+                  label="%command.macro_playback.name"
+                  style="push">
+            </command>
+         </toolbar>
+      </menuContribution>
    </extension>
 
 </plugin>

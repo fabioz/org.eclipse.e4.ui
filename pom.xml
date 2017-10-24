@@ -39,6 +39,7 @@
   <modules>
     <module>tests/org.eclipse.e4.naturist.tests</module>
     <module>tests/org.eclipse.e4.jdt.scope.tests</module>
+    <module>tests/org.eclipse.e4.ui.macros.tests</module>
     <module>build/org.eclipse.e4.ui.update</module>
     <module>bundles</module>
     <module>features</module>

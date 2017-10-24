@@ -12,12 +12,9 @@
    <feature id="org.eclipse.ui.glance.feature" version="0.0.1.qualifier">
       <category name="Incrementation Text Search with Eclipse Glance"/>
    </feature>
-   <bundle id="org.eclipse.e4.ui.macros" version="0.1.0.qualifier">
+   <feature id="org.eclipse.e4.ui.macros.feature" version="0.1.0.qualifier">
       <category name="Macros"/>
-   </bundle>
-   <bundle id="org.eclipse.e4.ui.macros.jdt" version="0.1.0.qualifier">
-      <category name="Macros"/>
-   </bundle>
+   </feature>
    <bundle id="org.eclipse.e4.jdt.scope" version="0.0.1.qualifier">
       <category name="JDT"/>
    </bundle>
@@ -25,7 +22,11 @@
       <category name="Misc"/>
    </bundle>
    <category-def name="org.eclipse.e4.ui.keys" label="Eclipse e4 Key Schemes"/>
-   <category-def name="Macros" label="Keyboard macros"/>
+   <category-def name="Macros" label="Keyboard macros">
+      <description>
+         Record/playback 
+      </description>
+   </category-def>
    <category-def name="JDT" label="JDT/PDE Extensions"/>
    <category-def name="Misc" label="Misc"/>
    <category-def name="Incrementation Text Search with Eclipse Glance" label="Incrementation Text Search with Eclipse Glance">
