@@ -256,7 +256,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 
 		notifyCtrlI(styledText);
 		assertTrue(handler.q2);
-		assertEquals(macroService.getLenOfMacroBeingRecorded(), 1);
+		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLenOfMacroBeingRecorded(), 1);
 
 		finishRecording(macroService);
 
@@ -291,7 +291,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 		startRecording(macroService);
 		notifyCtrlI(styledText);
 		assertTrue(handler.q2);
-		assertEquals(macroService.getLenOfMacroBeingRecorded(), 1);
+		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLenOfMacroBeingRecorded(), 1);
 		finishRecording(macroService);
 
 		// Macro was saved in the dir.

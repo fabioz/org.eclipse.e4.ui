@@ -15,7 +15,6 @@ import org.eclipse.e4.core.macros.IMacroContext;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
-import org.eclipse.e4.core.macros.IMacroStateListener1;
 import org.eclipse.e4.ui.macros.internal.EditorUtils;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.ITextOperationTarget;
@@ -34,7 +33,7 @@ import org.eclipse.ui.texteditor.TextEditorAction;
 /**
  * Helper class to deal with entering/exiting macro record/playback.
  */
-public class MacroStyledTextInstaller implements IMacroStateListener, IMacroStateListener1 {
+public class MacroStyledTextInstaller implements IMacroStateListener {
 
 	/**
 	 * Constant used to keep memento on the macro context.
@@ -191,13 +190,13 @@ public class MacroStyledTextInstaller implements IMacroStateListener, IMacroStat
 	}
 
 	@Override
-	public void onMacroPlaybackContextCreated(IMacroPlaybackContext context) {
+	public void macroPlaybackContextCreated(IMacroPlaybackContext context) {
 		EditorUtils.cacheTargetEditorPart(context);
 		EditorUtils.cacheTargetStyledText(context);
 	}
 
 	@Override
-	public void onMacroRecordContextCreated(IMacroRecordContext context) {
+	public void macroRecordContextCreated(IMacroRecordContext context) {
 		EditorUtils.cacheTargetEditorPart(context);
 		EditorUtils.cacheTargetStyledText(context);
 	}

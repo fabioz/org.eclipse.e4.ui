@@ -6,9 +6,9 @@
          <meta.schema plugin="org.eclipse.e4.core.macros" id="macroStateListeners" name="Listeners for changes on the macro state"/>
       </appinfo>
       <documentation>
-         Allows for other plugins to register listeners which must be notified of changes in the macro service (i.e.: when a record or playback is started or stopped).
+         Allows for other plugins to register listeners to be notified of changes in the macro service (i.e.: when a record or playback is started or stopped).
 
-It&apos;s possible, for instance, to add listeners which will do the recording of keystrokes for playing back later when that happens, disable commands/actions which are not allowed during macro record/playback, add a listener to record changes to preferences, etc.
+It is possible, for instance, to add listeners which will do the recording of keystrokes for playing back later when that happens, disable commands/actions which are not allowed during macro record/playback, add a listener to record changes to preferences, etc.
       </documentation>
    </annotation>
 
@@ -25,21 +25,21 @@ It&apos;s possible, for instance, to add listeners which will do the recording o
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
-                  
+
                </documentation>
             </annotation>
          </attribute>
          <attribute name="id" type="string">
             <annotation>
                <documentation>
-                  
+
                </documentation>
             </annotation>
          </attribute>
          <attribute name="name" type="string">
             <annotation>
                <documentation>
-                  
+
                </documentation>
                <appinfo>
                   <meta.attribute translatable="true"/>
@@ -56,13 +56,9 @@ It&apos;s possible, for instance, to add listeners which will do the recording o
                <documentation>
                   A listener for changes in the macro state (i.e.: macro record or playback started or stopped).
 
-Listeners should be added to listen the macro state when in order to properly record or playback a macro, some pre/post work must be done.
+These events signal that packages should install and remove instrumentation for generating macro instructions in response to user gestures.
 
-For instance, an interceptor is added to the keybindings dispatcher in order to blacklist/whitelist commands being triggered by the user when in record mode.
-
-Note: it&apos;s lazily created the first time the macro service changes and the same instance is kept alive afterwards.
-
-Note: it&apos;s also possible to programatically add an IMacroStateListener to the EMacroService (so, existing instances, such as the text editor can act upon starting a macro record session and start recording keystrokes or disable code-completion if it can&apos;t deal with playing it back).
+Note: it is also possible to programatically add an IMacroStateListener to the EMacroService (so, existing instances, such as the text editor can act upon starting a macro record session and start recording keystrokes or disable code-completion if it cannot deal with playing it back).
                </documentation>
                <appinfo>
                   <meta.attribute kind="java" basedOn=":org.eclipse.e4.core.macros.IMacroStateListener"/>

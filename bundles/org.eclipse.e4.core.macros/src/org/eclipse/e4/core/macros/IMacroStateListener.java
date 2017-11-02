@@ -33,4 +33,24 @@ public interface IMacroStateListener {
 	 */
 	public void macroStateChanged(EMacroService macroService, StateChange stateChange)
 			throws CancelMacroException;
+
+	/**
+	 * Called after the creation of the macro playback context (before notifying
+	 * about changes to the macro state or actual playback).
+	 *
+	 * @param context
+	 *            the context for the macro playback.
+	 */
+	default void macroPlaybackContextCreated(IMacroPlaybackContext context) {
+	}
+
+	/**
+	 * Called after the creation of the macro record context (before notifying about
+	 * changes to the macro state or actual record).
+	 *
+	 * @param context
+	 *            the context for the macro record.
+	 */
+	default void macroRecordContextCreated(IMacroRecordContext context) {
+	}
 }

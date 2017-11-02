@@ -30,12 +30,12 @@ public class KeepMacroUIUpdated implements IMacroStateListener {
 	 */
 	private static final class MacroInstructionsListener implements IMacroInstructionsListener {
 		@Override
-		public void beforeMacroInstructionAdded(IMacroInstruction macroInstruction) {
+		public void preAddMacroInstruction(IMacroInstruction macroInstruction) {
 
 		}
 
 		@Override
-		public void afterMacroInstructionAdded(IMacroInstruction macroInstruction) {
+		public void postAddMacroInstruction(IMacroInstruction macroInstruction) {
 			UserNotifications.setMessage(Messages.KeepMacroUIUpdated_RecordedInMacro + macroInstruction);
 		}
 	}

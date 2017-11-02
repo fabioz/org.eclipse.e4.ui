@@ -10,13 +10,12 @@
  *******************************************************************************/
 package org.eclipse.e4.core.macros.internal;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.e4.core.macros.Activator;
 import org.eclipse.e4.core.macros.IMacroInstruction;
 import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
@@ -142,7 +141,8 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 	}
 
 	@Override
-	public void playback(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException {
+	public void playback(IMacroPlaybackContext macroPlaybackContext,
+			Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) throws MacroPlaybackException {
 		for (IMacroInstruction macroInstruction : fMacroInstructions) {
 			macroInstruction.execute(macroPlaybackContext);
 		}
@@ -174,14 +174,7 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 		}
 		buf.append("}\n"); //$NON-NLS-1$
 
-		try {
-			return buf.toString().getBytes("UTF-8"); //$NON-NLS-1$
-		} catch (UnsupportedEncodingException e) {
-			// Make this a RuntimeException (UTF-8 should definitely be
-			// supported).
-			Activator.log(e);
-			throw new RuntimeException(e);
-		}
+		return buf.toString().getBytes(StandardCharsets.UTF_8);
 	}
 
 	/**

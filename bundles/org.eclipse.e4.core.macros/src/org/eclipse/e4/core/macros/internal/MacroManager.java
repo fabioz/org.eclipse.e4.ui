@@ -38,7 +38,6 @@ import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
 import org.eclipse.e4.core.macros.IMacroStateListener.StateChange;
-import org.eclipse.e4.core.macros.IMacroStateListener1;
 import org.eclipse.e4.core.macros.MacroPlaybackException;
 
 /**
@@ -159,11 +158,11 @@ public class MacroManager {
 		ComposableMacro macroBeingRecorded = fMacroBeingRecorded;
 		if (macroBeingRecorded != null) {
 			for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
-				listener.beforeMacroInstructionAdded(macroInstruction);
+				listener.preAddMacroInstruction(macroInstruction);
 			}
 			macroBeingRecorded.addMacroInstruction(macroInstruction);
 			for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
-				listener.afterMacroInstructionAdded(macroInstruction);
+				listener.postAddMacroInstruction(macroInstruction);
 			}
 		}
 	}
@@ -200,11 +199,11 @@ public class MacroManager {
 		ComposableMacro macroBeingRecorded = fMacroBeingRecorded;
 		if (macroBeingRecorded != null) {
 			for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
-				listener.beforeMacroInstructionAdded(macroInstruction);
+				listener.preAddMacroInstruction(macroInstruction);
 			}
 			if (macroBeingRecorded.addMacroInstruction(macroInstruction, event, priority)) {
 				for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
-					listener.afterMacroInstructionAdded(macroInstruction);
+					listener.postAddMacroInstruction(macroInstruction);
 				}
 			}
 		}
@@ -246,10 +245,7 @@ public class MacroManager {
 			fMacroRecordContext = new MacroRecordContext();
 			fMacroBeingRecorded = new ComposableMacro(macroInstructionIdToFactory);
 			for (IMacroStateListener listener : this.fStateListeners) {
-				if (listener instanceof IMacroStateListener1) {
-					IMacroStateListener1 macroStateListener = (IMacroStateListener1) listener;
-					SafeRunner.run(() -> macroStateListener.onMacroRecordContextCreated(fMacroRecordContext));
-				}
+				SafeRunner.run(() -> listener.macroRecordContextCreated(fMacroRecordContext));
 			}
 			if (!notifyMacroStateChange(macroService, StateChange.RECORD_STARTED)) {
 				stopRecording(macroService);
@@ -407,10 +403,14 @@ public class MacroManager {
 	 * @param macroPlaybackContext
 	 *            a context to be used to playback the macro (passed to the macro to
 	 *            be played back).
+	 * @param macroInstructionIdToFactory
+	 *            a map pointing from the macro instruction id to the factory used
+	 *            to create the related macro instruction.
 	 * @throws MacroPlaybackException
 	 *             if some error happens when running the macro.
 	 */
-	public void playbackLastMacro(EMacroService macroService, final IMacroPlaybackContext macroPlaybackContext)
+	public void playbackLastMacro(EMacroService macroService, final IMacroPlaybackContext macroPlaybackContext,
+			final Map<String, IMacroInstructionFactory> macroInstructionIdToFactory)
 			throws MacroPlaybackException {
 		if (fLastMacro != null && !fIsPlayingBack) {
 			// Note that we can play back while recording, but we can't change
@@ -419,14 +419,11 @@ public class MacroManager {
 			try {
 				fMacroPlaybackContext = macroPlaybackContext;
 				for (IMacroStateListener listener : this.fStateListeners) {
-					if (listener instanceof IMacroStateListener1) {
-						IMacroStateListener1 macroStateListener = (IMacroStateListener1) listener;
-						SafeRunner.run(() -> macroStateListener.onMacroPlaybackContextCreated(macroPlaybackContext));
-					}
+					SafeRunner.run(() -> listener.macroPlaybackContextCreated(macroPlaybackContext));
 				}
 
 				if (notifyMacroStateChange(macroService, StateChange.PLAYBACK_STARTED)) {
-					fLastMacro.playback(macroPlaybackContext);
+					fLastMacro.playback(macroPlaybackContext, macroInstructionIdToFactory);
 				}
 			} finally {
 				fIsPlayingBack = false;

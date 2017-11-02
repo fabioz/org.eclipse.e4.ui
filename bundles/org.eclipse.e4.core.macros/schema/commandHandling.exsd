@@ -3,14 +3,14 @@
 <schema targetNamespace="org.eclipse.e4.ui.macros" xmlns="http://www.w3.org/2001/XMLSchema">
 <annotation>
       <appinfo>
-         <meta.schema plugin="org.eclipse.e4.ui.macros" id="macroCommandCustomization" name=""/>
+         <meta.schema plugin="org.eclipse.e4.ui.macros" id="commandHandling" name=""/>
       </appinfo>
       <documentation>
-         Defines commands that will be customized during a macro record/playback operation -- by default,
-a macro instruction should be automatically added when in macro record mode to execute Eclipse commands
-during playback and this extension allows customization over that (i.e.: to skip recording a command).
+         Defines Eclipse Core Commands that will be customized during a macro record/playback operation. By default,
+a macro instruction is automatically added when in macro record mode to execute Eclipse Core Commands
+during playback. This extension allows customization over that (i.e.: to skip recording a command).
 
-It&apos;s also possible to programatically customize how Eclipse commands are handled through the org.eclipse.e4.core.macros.EMacroService.
+It is also possible to programatically customize how Eclipse commands are handled through the org.eclipse.e4.core.macros.EMacroService.
       </documentation>
    </annotation>
 
@@ -22,26 +22,26 @@ It&apos;s also possible to programatically customize how Eclipse commands are ha
       </annotation>
       <complexType>
          <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="whitelistedCommand"/>
+            <element ref="coreCommand"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
-                  
+
                </documentation>
             </annotation>
          </attribute>
          <attribute name="id" type="string">
             <annotation>
                <documentation>
-                  
+
                </documentation>
             </annotation>
          </attribute>
          <attribute name="name" type="string">
             <annotation>
                <documentation>
-                  
+
                </documentation>
                <appinfo>
                   <meta.attribute translatable="true"/>
@@ -51,17 +51,17 @@ It&apos;s also possible to programatically customize how Eclipse commands are ha
       </complexType>
    </element>
 
-   <element name="whitelistedCommand">
+   <element name="coreCommand">
       <annotation>
          <documentation>
-            A command which is allowed during macro record/playback.
+            An Eclipse Core Command to be customized during macro record/playback.
          </documentation>
       </annotation>
       <complexType>
          <attribute name="id" type="string" use="required">
             <annotation>
                <documentation>
-                  A command identifier
+                  The Eclipse Core Command identifier.
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier" basedOn="org.eclipse.ui.commands/command/@id"/>
@@ -96,9 +96,8 @@ Examples of actions whose activation should not be recorded (in which case, they
          <meta.section type="examples"/>
       </appinfo>
       <documentation>
-         
-&lt;extension point=&quot;org.eclipse.e4.core.macros.macroCommandCustomization&quot;&gt;
-    &lt;customizedCommand id=&quot;org.eclipse.ui.edit.text.contentAssist.proposals&quot; recordMacroInstruction=&quot;false&quot;/&gt;
+         &lt;extension point=&quot;org.eclipse.e4.core.macros.commandHandling&quot;&gt;
+    &lt;coreCommand id=&quot;org.eclipse.ui.edit.text.contentAssist.proposals&quot; recordMacroInstruction=&quot;false&quot;/&gt;
 &lt;/extension&gt;
 
 Will let the command &quot;org.eclipse.ui.edit.text.contentAssist.proposals&quot; be executed but will not record it to be re-executed on macro playback (in which case the command is responsible for recording its side-effects in the macro later on).

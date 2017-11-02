@@ -23,7 +23,8 @@ public interface IMacroInstruction {
 	 * @return the id for the macro instruction.
 	 * @note this id may be visible to the user, so, it should ideally be something
 	 *       short and readable (such as KeyDown, or Command), not a dotted name as
-	 *       is usual for Eclipse ids (and it can't be changed afterwards).
+	 *       is usual for Eclipse ids (note that it cannot be changed afterwards as
+	 *       this id may be written to disk).
 	 */
 	String getId();
 

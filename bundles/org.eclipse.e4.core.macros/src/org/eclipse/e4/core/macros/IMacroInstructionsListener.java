@@ -16,7 +16,7 @@ package org.eclipse.e4.core.macros;
 public interface IMacroInstructionsListener {
 
 	/**
-	 * The macro instruction to be added to the macro.
+	 * Called before adding a macro instruction to the macro.
 	 *
 	 * @param macroInstruction
 	 *            the macro instruction to be added.
@@ -24,7 +24,7 @@ public interface IMacroInstructionsListener {
 	 *             if the recording of the macro should stop before actually adding
 	 *             the given macro instruction.
 	 */
-	void beforeMacroInstructionAdded(IMacroInstruction macroInstruction) throws CancelMacroRecordingException;
+	void preAddMacroInstruction(IMacroInstruction macroInstruction) throws CancelMacroRecordingException;
 
 	/**
 	 * Called after a given macro instruction is added to the macro. Note that it's
@@ -35,5 +35,5 @@ public interface IMacroInstructionsListener {
 	 * @param macroInstruction
 	 *            the macro instruction just added to the current macro.
 	 */
-	void afterMacroInstructionAdded(IMacroInstruction macroInstruction);
+	void postAddMacroInstruction(IMacroInstruction macroInstruction);
 }

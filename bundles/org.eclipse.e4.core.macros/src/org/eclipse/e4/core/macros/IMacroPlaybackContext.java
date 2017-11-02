@@ -10,27 +10,9 @@
  *******************************************************************************/
 package org.eclipse.e4.core.macros;
 
-import java.util.Map;
-
 /**
  * Context passed when playing back a macro.
  */
 public interface IMacroPlaybackContext extends IMacroContext {
-
-	/**
-	 * Creates a macro instruction (for execution) given its id and the
-	 * {@link IMacroInstruction#toMap()} contents gotten from a previously recorded
-	 * instruction.
-	 *
-	 * @param macroInstructionId
-	 *            the id of the macro instruction to be created.
-	 * @param stringMap
-	 *            the contents previously gotten from
-	 *            {@link IMacroInstruction#toMap()}.
-	 * @return a macro instruction created from the given id and parameters.
-	 * @throws Exception
-	 *             if some error was thrown when creating the macro instruction.
-	 */
-	IMacroInstruction createMacroInstruction(String macroInstructionId, Map<String, String> stringMap) throws Exception;
 
 }

@@ -19,9 +19,9 @@
       </macroInstructionsFactory>
    </extension>
 
-   <extension point="org.eclipse.e4.core.macros.macroCommandCustomization">
-      <customizedCommand id="org.eclipse.ui.edit.text.contentAssist.proposals" recordMacroInstruction="false"/>
-      <customizedCommand id="org.eclipse.ui.edit.text.quick_assist.proposals" recordMacroInstruction="false"/>
+   <extension point="org.eclipse.e4.core.macros.commandHandling">
+      <coreCommand id="org.eclipse.ui.edit.text.contentAssist.proposals" recordMacroInstruction="false"/>
+      <coreCommand id="org.eclipse.ui.edit.text.quick_assist.proposals" recordMacroInstruction="false"/>
    </extension>
 
 </plugin>

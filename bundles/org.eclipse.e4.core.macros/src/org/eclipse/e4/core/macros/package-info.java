@@ -58,7 +58,7 @@ package org.eclipse.e4.core.macros;
  * <li>start and stop the macro record;</li>
  * <li>playback a previous macro;</li>
  * <li>get commands customization from the
- * org.eclipse.e4.core.macros.macroCommandCustomization extension point;</li>
+ * org.eclipse.e4.core.macros.commandHandling extension point;</li>
  * <li>programatically customize commands.</li>
  * </ul>
  * </p>
@@ -220,7 +220,7 @@ package org.eclipse.e4.core.macros;
  * <p>
  * -- Note: commands registered through the eclipse commands extensions will be
  * already recorded by default if they aren't registered in the
- * org.eclipse.e4.core.macros.macroCommandCustomization extension point and
+ * org.eclipse.e4.core.macros.commandHandling extension point and
  * their activation will already be recorded for proper playback by default (so,
  * clients only actually need to customize actions which currently aren't
  * implemented as eclipse actions or to disable recording of some eclipse

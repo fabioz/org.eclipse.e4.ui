@@ -95,7 +95,7 @@ Any macro instruction which is added to the macro engine during the record phase
       <documentation>
          &lt;extension point=&quot;org.eclipse.e4.core.macros.macroInstructionsFactory&quot;&gt;
     &lt;macroInstructionsFactory
-        class=&quot;org.eclipse.my.IMacroInstructionFactoryImplementation&quot;
+        class=&quot;org.eclipse.MyIMacroInstructionFactoryImplementation&quot;
         macroInstructionId=&quot;org.eclipse.my.macro.instructionId&quot;&gt;
     &lt;/macroInstructionsFactory&gt;
 &lt;/extension&gt;

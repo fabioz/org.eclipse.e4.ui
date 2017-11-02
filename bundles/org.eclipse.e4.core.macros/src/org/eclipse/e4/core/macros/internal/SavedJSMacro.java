@@ -24,6 +24,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.SimpleScriptContext;
 import org.eclipse.e4.core.macros.IMacroInstruction;
+import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.MacroPlaybackException;
 
@@ -64,13 +65,17 @@ public class SavedJSMacro implements IMacro {
 	 *            the id of the macro instruction to be executed.
 	 * @param macroInstructionParameters
 	 *            the parameters to create the macro instruction.
+	 * @param macroInstructionIdToFactory
+	 *            a map pointing from the macro instruction id to the factory used
+	 *            to create the related macro instruction.
 	 * @throws Exception
 	 *             if something happened when creating the macro instruction or
 	 *             actually executing it.
 	 */
 	@SuppressWarnings({ "rawtypes" })
 	public static void runMacroInstruction(IMacroPlaybackContext macroPlaybackContext, String macroInstructionId,
-			Object macroInstructionParameters) throws Exception {
+			Object macroInstructionParameters, Map<String, IMacroInstructionFactory> macroInstructionIdToFactory)
+			throws Exception {
 		Map<String, String> stringMap = new HashMap<>();
 		Map m = (Map) macroInstructionParameters;
 		Set<Map.Entry> entrySet = m.entrySet();
@@ -79,12 +84,20 @@ public class SavedJSMacro implements IMacro {
 			Object value = entry.getValue();
 			stringMap.put(key.toString(), value.toString());
 		}
-		IMacroInstruction macroInstruction = macroPlaybackContext.createMacroInstruction(macroInstructionId, stringMap);
+
+		IMacroInstructionFactory macroFactory = macroInstructionIdToFactory.get(macroInstructionId);
+		if (macroFactory == null) {
+			throw new RuntimeException(
+					"Unable to find IMacroInstructionFactory for macro instruction: " + macroInstructionId); //$NON-NLS-1$
+		}
+
+		IMacroInstruction macroInstruction = macroFactory.create(stringMap);
 		macroInstruction.execute(macroPlaybackContext);
 	}
 
 	@Override
-	public void playback(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException {
+	public void playback(IMacroPlaybackContext macroPlaybackContext,
+			Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) throws MacroPlaybackException {
 		ScriptEngineManager manager = new ScriptEngineManager();
 		ScriptEngine engine = manager.getEngineByName("nashorn"); //$NON-NLS-1$
 		SimpleScriptContext context = new SimpleScriptContext();
@@ -93,12 +106,13 @@ public class SavedJSMacro implements IMacro {
 
 		// Setup the default context.
 		engineScope.put("__macroPlaybackContext", macroPlaybackContext); //$NON-NLS-1$
+		engineScope.put("__macroInstructionIdToFactory", macroInstructionIdToFactory); //$NON-NLS-1$
 
 		try {
 			engine.eval("" + //$NON-NLS-1$
 					"__macro = Java.type('org.eclipse.e4.core.macros.internal.SavedJSMacro');\n" //$NON-NLS-1$
 					+ "function runMacroInstruction(macroMacroInstructionId, macroInstructionParameters){" //$NON-NLS-1$
-					+ "    __macro.runMacroInstruction(__macroPlaybackContext, macroMacroInstructionId, macroInstructionParameters);" //$NON-NLS-1$
+					+ "    __macro.runMacroInstruction(__macroPlaybackContext, macroMacroInstructionId, macroInstructionParameters, __macroInstructionIdToFactory);" //$NON-NLS-1$
 					+ "}" //$NON-NLS-1$
 					+ "", context); //$NON-NLS-1$
 

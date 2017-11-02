@@ -113,7 +113,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 		}
 		if (fMacroService.isRecording()) {
 			// Record it if needed.
-			if (fMacroService.getRecordCommandInMacro(commandId)) {
+			if (fMacroService.isCommandRecorded(commandId)) {
 				if (commandAndTrigger.trigger instanceof Event) {
 					Event swtEvent = (Event) commandAndTrigger.trigger;
 					// Only record commands executed in the initial editor.
@@ -138,7 +138,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 			}
 		}
 		// Let's check if it should actually be recorded.
-		if (fMacroService.getRecordCommandInMacro(commandId)) {
+		if (fMacroService.isCommandRecorded(commandId)) {
 			if (!acceptEvent(event)) {
 				fParameterizedCommandsAndTriggerStack.add(null);
 				return;

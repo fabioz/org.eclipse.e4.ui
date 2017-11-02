@@ -148,26 +148,27 @@ public interface EMacroService {
 
 	// Deal with managing accepted commands during macro record/playback.
 	// (by default should load the command behavior
-	// through the org.eclipse.e4.core.macros.macroCommandCustomization extension
+	// through the org.eclipse.e4.core.macros.commandHandling extension
 	// point,
 	// but it's possible to programmatically change it as needed later on).
 
 	/**
 	 * @param commandId
-	 *            the id of the command.
+	 *            the id of the Eclipse Core Command.
 	 *
 	 * @return whether the command should be recorded for playback when recording a
 	 *         macro (i.e.: an {@link org.eclipse.e4.core.macros.IMacroInstruction}
 	 *         will be automatically created to play it back when in record mode).
 	 *
-	 * @see org.eclipse.e4.core.macros.macroCommandCustomization extension point
+	 * @see org.eclipse.e4.core.macros.commandHandling extension point
 	 */
 	@SuppressWarnings("javadoc")
-	boolean getRecordCommandInMacro(String commandId);
+	boolean isCommandRecorded(String commandId);
 
 	/**
 	 * @param commandId
-	 *            the command id to be customized during macro record/playback.
+	 *            the Eclipse Core Command id to be customized during macro
+	 *            record/playback.
 	 *
 	 * @param recordInMacro
 	 *            if true, the command activation will be automatically recorded in
@@ -176,7 +177,7 @@ public interface EMacroService {
 	 *            automatically created to play it back when in record mode. If
 	 *            false, the activation of the command will not be recorded.
 	 *
-	 * @see org.eclipse.e4.core.macros.macroCommandCustomization extension point
+	 * @see org.eclipse.e4.core.macros.commandHandling extension point
 	 */
 	@SuppressWarnings("javadoc")
 	void setRecordCommandInMacro(String commandId, boolean recordInMacro);
@@ -197,11 +198,5 @@ public interface EMacroService {
 	 *            the listener for macro instructions.
 	 */
 	void removeMacroInstructionsListener(IMacroInstructionsListener macroInstructionsListener);
-
-	/**
-	 * @return the number of macro instructions in the macro currently recorded or
-	 *         -1 if no macro is being recorded.
-	 */
-	int getLenOfMacroBeingRecorded();
 
 }

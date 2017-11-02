@@ -229,8 +229,9 @@ public class MacroServiceImplementation implements EMacroService {
 	@Override
 	public void playbackLastMacro() throws MacroPlaybackException {
 		loadExtensionPointsmacroStateListeners();
-		IMacroPlaybackContext macroPlaybackContext = new MacroPlaybackContextImpl(getMacroInstructionIdToFactory());
-		getMacroManager().playbackLastMacro(this, macroPlaybackContext);
+		Map<String, IMacroInstructionFactory> macroInstructionIdToFactory = getMacroInstructionIdToFactory();
+		IMacroPlaybackContext macroPlaybackContext = new MacroPlaybackContextImpl();
+		getMacroManager().playbackLastMacro(this, macroPlaybackContext, macroInstructionIdToFactory);
 	}
 
 	@Override
@@ -272,15 +273,15 @@ public class MacroServiceImplementation implements EMacroService {
 	/**
 	 * @return a set with the commands that are accepted when macro recording.
 	 */
-	private Map<String, Boolean> getInternalmacroCommandCustomization() {
+	private Map<String, Boolean> getInternalcommandHandling() {
 		if (fCustomizedCommandIds == null) {
 			fCustomizedCommandIds = new HashMap<>();
 			if (fEclipseContext != null) {
 				IExtensionRegistry registry = fEclipseContext.get(IExtensionRegistry.class);
 				if (registry != null) {
 					for (IConfigurationElement ce : registry
-							.getConfigurationElementsFor("org.eclipse.e4.core.macros.macroCommandCustomization")) { //$NON-NLS-1$
-						if ("customizedCommand".equals(ce.getName()) && ce.getAttribute("id") != null //$NON-NLS-1$ //$NON-NLS-2$
+							.getConfigurationElementsFor("org.eclipse.e4.core.macros.commandHandling")) { //$NON-NLS-1$
+						if ("coreCommand".equals(ce.getName()) && ce.getAttribute("id") != null //$NON-NLS-1$ //$NON-NLS-2$
 								&& ce.getAttribute("recordMacroInstruction") != null) { //$NON-NLS-1$
 							Boolean recordMacroInstruction = Boolean
 									.parseBoolean(ce.getAttribute("recordMacroInstruction")) //$NON-NLS-1$
@@ -296,9 +297,9 @@ public class MacroServiceImplementation implements EMacroService {
 	}
 
 	@Override
-	public boolean getRecordCommandInMacro(String commandId) {
-		Map<String, Boolean> macromacroCommandCustomization = getInternalmacroCommandCustomization();
-		Boolean recordMacro = macromacroCommandCustomization.get(commandId);
+	public boolean isCommandRecorded(String commandId) {
+		Map<String, Boolean> macrocommandHandling = getInternalcommandHandling();
+		Boolean recordMacro = macrocommandHandling.get(commandId);
 		if (recordMacro == null) {
 			return true;
 		}
@@ -307,7 +308,7 @@ public class MacroServiceImplementation implements EMacroService {
 
 	@Override
 	public void setRecordCommandInMacro(String commandId, boolean recordMacroInstruction) {
-		getInternalmacroCommandCustomization().put(commandId, recordMacroInstruction);
+		getInternalcommandHandling().put(commandId, recordMacroInstruction);
 	}
 
 	@Override
@@ -320,8 +321,4 @@ public class MacroServiceImplementation implements EMacroService {
 		getMacroManager().removeMacroInstructionsListener(macroInstructionsListener);
 	}
 
-	@Override
-	public int getLenOfMacroBeingRecorded() {
-		return getMacroManager().getLenOfMacroBeingRecorded();
-	}
 }

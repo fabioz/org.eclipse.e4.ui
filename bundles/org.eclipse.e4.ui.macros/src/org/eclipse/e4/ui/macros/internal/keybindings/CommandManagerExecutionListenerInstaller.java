@@ -17,14 +17,13 @@ import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
-import org.eclipse.e4.core.macros.IMacroStateListener1;
 import org.eclipse.e4.ui.macros.internal.EditorUtils;
 
 /**
  * A macro state listener that will install the execution listener when in a
  * record context.
  */
-public class CommandManagerExecutionListenerInstaller implements IMacroStateListener, IMacroStateListener1 {
+public class CommandManagerExecutionListenerInstaller implements IMacroStateListener {
 
 	@Inject
 	private CommandManager fCommandManager;
@@ -54,12 +53,12 @@ public class CommandManagerExecutionListenerInstaller implements IMacroStateList
 	}
 
 	@Override
-	public void onMacroPlaybackContextCreated(IMacroPlaybackContext macroContext) {
+	public void macroPlaybackContextCreated(IMacroPlaybackContext macroContext) {
 		EditorUtils.cacheTargetStyledText(macroContext);
 	}
 
 	@Override
-	public void onMacroRecordContextCreated(IMacroRecordContext macroContext) {
+	public void macroRecordContextCreated(IMacroRecordContext macroContext) {
 		EditorUtils.cacheTargetStyledText(macroContext);
 	}
 }

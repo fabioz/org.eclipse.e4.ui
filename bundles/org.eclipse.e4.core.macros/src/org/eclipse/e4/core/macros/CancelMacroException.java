@@ -10,7 +10,10 @@
  *******************************************************************************/
 package org.eclipse.e4.core.macros;
 
-public class CancelMacroException extends Exception {
+/**
+ * Base class for canceling macro record/playback.
+ */
+public abstract class CancelMacroException extends Exception {
 
 	private static final long serialVersionUID = -7828623675170028608L;
 
