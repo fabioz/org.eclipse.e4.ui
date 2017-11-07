@@ -237,6 +237,7 @@ public class MacroStyledTextInstaller implements IMacroStateListener {
 		if (object == null) {
 			XMLMemento mementoStateBeforeMacro = XMLMemento.createWriteRoot("AbstractTextEditorXmlMemento"); //$NON-NLS-1$
 			enterMacroMode(mementoStateBeforeMacro, context);
+			context.set(MACRO_STYLED_TEXT_INSTALLER_MEMENTO, mementoStateBeforeMacro);
 		}
 	}
 
