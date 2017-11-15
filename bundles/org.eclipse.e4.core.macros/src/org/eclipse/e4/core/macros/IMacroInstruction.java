@@ -13,18 +13,17 @@ package org.eclipse.e4.core.macros;
 import java.util.Map;
 
 /**
- * The basic abstraction of a macro instruction (i.e.: a macro may be composed
- * of multiple macro instructions). The macro instruction also can be stored in
- * disk to be reconstructed later on.
+ * A step in a macro. A macro may be composed of multiple macro instructions. A
+ * macro instruction can be stored on disk for later reconstruction.
  */
 public interface IMacroInstruction {
 
 	/**
 	 * @return the id for the macro instruction.
-	 * @note this id may be visible to the user, so, it should ideally be something
-	 *       short and readable (such as KeyDown, or Command), not a dotted name as
-	 *       is usual for Eclipse ids (note that it cannot be changed afterwards as
-	 *       this id may be written to disk).
+	 * @note This id may be visible to the user so it should ideally be
+	 *       something short and readable (such as {@code KeyDown}, or
+	 *       {@code Command}). Note that an id cannot be changed afterwards as
+	 *       this id may be written to disk.
 	 */
 	String getId();
 
@@ -34,7 +33,7 @@ public interface IMacroInstruction {
 	 * @param macroPlaybackContext
 	 *            the context used to playback the macro.
 	 * @throws MacroPlaybackException
-	 *             if something didn't work when executing the macro.
+	 *             if an error occurred when executing the macro.
 	 */
 	void execute(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException;
 

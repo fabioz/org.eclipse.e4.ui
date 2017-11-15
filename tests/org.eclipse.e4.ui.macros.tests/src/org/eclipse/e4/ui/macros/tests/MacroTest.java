@@ -19,7 +19,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-
+import org.eclipse.core.runtime.IExtensionRegistry;
+import org.eclipse.core.runtime.RegistryFactory;
+import org.eclipse.core.runtime.spi.RegistryStrategy;
+import org.eclipse.e4.core.contexts.EclipseContextFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.CancelMacroRecordingException;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroInstruction;
@@ -100,7 +104,11 @@ public class MacroTest {
 	@Test
 	public void testRecordingState() throws Exception {
 		Map<String, IMacroInstructionFactory> macroInstructionIdToFactory = makeMacroInstructionIdToFactory();
-		MacroServiceImplementation macroService = new MacroServiceImplementation(null, null);
+		IEclipseContext eclipseContext = EclipseContextFactory.create("testRecordingState");
+		IExtensionRegistry extensionRegistry = RegistryFactory.createRegistry(new RegistryStrategy(null, null), "foo",
+				"bar");
+		MacroServiceImplementation macroService = new MacroServiceImplementation(eclipseContext,
+				extensionRegistry);
 		Field field = macroService.getClass().getDeclaredField("fMacroInstructionIdToFactory");
 		field.setAccessible(true);
 		field.set(macroService, macroInstructionIdToFactory);

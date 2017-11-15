@@ -69,29 +69,27 @@ public interface EMacroService {
 	int PRIORITY_HIGH = 10;
 
 	/**
-	 * Adds a macro instruction to be added to the current macro being recorded. The
-	 * difference between this method and
-	 * {@link #addMacroInstruction(IMacroInstruction)} is that it's meant to be used
-	 * when an event may trigger the creation of multiple macro instructions and
-	 * only one of those should be recorded.
+	 * Adds a macro instruction to be added to the current macro being recorded.
+	 * This method should be used when an event may trigger the creation of
+	 * multiple macro instructions but only one of those should be recorded.
 	 *
-	 * For instance, if a given KeyDown event is recorded in a StyledText and later
-	 * an action is triggered by this event, the recorded action should overwrite
-	 * the KeyDown event.
+	 * For instance, if a given {@code KeyDown} event is recorded in a
+	 * {@link StyledText} and later an action is triggered by this event, the
+	 * recorded action should overwrite the {@code KeyDown} event.
 	 *
 	 * @param macroInstruction
 	 *            the macro instruction to be added to the macro currently being
 	 *            recorded.
 	 * @param event
-	 *            the event that triggered the creation of the macro instruction to
-	 *            be added. If there are multiple macro instructions added for the
-	 *            same event, only the one with the highest priority will be kept
-	 *            (if 2 events have the same priority, the last one will replace the
-	 *            previous one).
+	 *            the event that triggered the creation of the macro instruction
+	 *            to be added. If there are multiple macro instructions added
+	 *            for the same event, only the one with the highest priority
+	 *            will be kept (if 2 events have the same priority, the last one
+	 *            will replace the previous one).
 	 * @param priority
-	 *            the priority of the macro instruction being added (to be compared
-	 *            against the priority of other added macro instructions for the
-	 *            same event).
+	 *            the priority of the macro instruction being added (to be
+	 *            compared against the priority of other added macro
+	 *            instructions for the same event).
 	 * @see #addMacroInstruction(IMacroInstruction)
 	 */
 	void addMacroInstruction(IMacroInstruction macroInstruction, Object event, int priority);

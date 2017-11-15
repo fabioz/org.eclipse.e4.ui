@@ -11,9 +11,11 @@
 package org.eclipse.e4.core.macros.internal;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import javax.inject.Inject;
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
@@ -37,11 +39,39 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
  * with the eclipse context and extension points).
  */
 public class MacroServiceImplementation implements EMacroService {
+	private static final String MACRO_COMMAND_HANDLING_EXTENSION_POINT = "org.eclipse.e4.core.macros.commandHandling"; //$NON-NLS-1$
+	private static final String MACRO_COMMAND_HANDLING_ELEMENT = "command"; //$NON-NLS-1$
+	private static final String MACRO_COMMAND_HANDLING_ID = "id"; //$NON-NLS-1$
+	private static final String MACRO_COMMAND_HANDLING_RECORDING = "recordMacroInstruction"; //$NON-NLS-1$
+
+	public static final String MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT = "org.eclipse.e4.core.macros.macroInstructionsFactory"; //$NON-NLS-1$
+	public static final String MACRO_INSTRUCTION_ID = "macroInstructionId"; //$NON-NLS-1$
+	public static final String MACRO_INSTRUCTION_FACTORY_CLASS = "class"; //$NON-NLS-1$
+
+	public static final String MACRO_LISTENERS_EXTENSION_POINT = "org.eclipse.e4.core.macros.macroStateListeners"; //$NON-NLS-1$
+	public static final String MACRO_LISTENER_CLASS = "class"; //$NON-NLS-1$
+
+	// id to factory used in instance
+	private Map<String, IMacroInstructionFactory> fMacroInstructionIdToFactory;
+
+	private boolean fLoadedExtensionListeners = false;
+
+	private IEclipseContext fEclipseContext;
+
+	private IExtensionRegistry fExtensionRegistry;
 
 	/**
 	 * The instance of the macro manager.
 	 */
 	private MacroManager fMacroManager;
+
+	@Inject
+	public MacroServiceImplementation(IEclipseContext eclipseContext, IExtensionRegistry extensionRegistry) {
+		Assert.isNotNull(eclipseContext);
+		Assert.isNotNull(extensionRegistry);
+		fEclipseContext = eclipseContext;
+		fExtensionRegistry = extensionRegistry;
+	}
 
 	/**
 	 * Gets the macro manager (lazily creates it if needed).
@@ -81,37 +111,11 @@ public class MacroServiceImplementation implements EMacroService {
 		return fMacroManager;
 	}
 
-	public static final String MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT = "org.eclipse.e4.core.macros.macroInstructionsFactory"; //$NON-NLS-1$
-	public static final String MACRO_INSTRUCTION_ID = "macroInstructionId"; //$NON-NLS-1$
-	public static final String MACRO_INSTRUCTION_FACTORY_CLASS = "class"; //$NON-NLS-1$
-
-	// Globally loaded id to factory
-	private static Map<String, IMacroInstructionFactory> fCachedMacroInstructionIdToFactory;
-
-	// id to factory used in instance
-	private Map<String, IMacroInstructionFactory> fMacroInstructionIdToFactory;
-
-	public static final String MACRO_LISTENERS_EXTENSION_POINT = "org.eclipse.e4.core.macros.macroStateListeners"; //$NON-NLS-1$
-	public static final String MACRO_LISTENER_CLASS = "class"; //$NON-NLS-1$
-
-	private boolean fLoadedExtensionListeners = false;
-
-	private IEclipseContext fEclipseContext;
-
-	private IExtensionRegistry fExtensionRegistry;
-
-	@Inject
-	public MacroServiceImplementation(IEclipseContext eclipseContext, IExtensionRegistry extensionRegistry) {
-		this.fEclipseContext = eclipseContext;
-		this.fExtensionRegistry = extensionRegistry;
-	}
-
-
 	/**
 	 * Loads the macro listeners provided through extension points.
 	 */
 	private void loadExtensionPointsmacroStateListeners() {
-		if (!fLoadedExtensionListeners && fExtensionRegistry != null) {
+		if (!fLoadedExtensionListeners) {
 			fLoadedExtensionListeners = true;
 
 			MacroManager macroManager = getMacroManager();
@@ -142,31 +146,28 @@ public class MacroServiceImplementation implements EMacroService {
 	 */
 	private Map<String, IMacroInstructionFactory> getMacroInstructionIdToFactory() {
 		if (fMacroInstructionIdToFactory == null) {
-			if (fCachedMacroInstructionIdToFactory == null && fEclipseContext != null && fExtensionRegistry != null) {
-				Map<String, IMacroInstructionFactory> validMacroInstructionIds = new HashMap<>();
-				for (IConfigurationElement ce : fExtensionRegistry
-						.getConfigurationElementsFor(MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT)) {
-					String macroInstructionId = ce.getAttribute(MACRO_INSTRUCTION_ID);
-					String macroInstructionFactoryClass = ce.getAttribute(MACRO_INSTRUCTION_FACTORY_CLASS);
-					if (macroInstructionId != null && macroInstructionFactoryClass != null) {
-						try {
-							IMacroInstructionFactory macroInstructionFactory = (IMacroInstructionFactory) ce
-									.createExecutableExtension(MACRO_INSTRUCTION_FACTORY_CLASS);
+			Map<String, IMacroInstructionFactory> validMacroInstructionIds = new HashMap<>();
+			for (IConfigurationElement ce : fExtensionRegistry
+					.getConfigurationElementsFor(MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT)) {
+				String macroInstructionId = ce.getAttribute(MACRO_INSTRUCTION_ID);
+				String macroInstructionFactoryClass = ce.getAttribute(MACRO_INSTRUCTION_FACTORY_CLASS);
+				if (macroInstructionId != null && macroInstructionFactoryClass != null) {
+					try {
+						IMacroInstructionFactory macroInstructionFactory = (IMacroInstructionFactory) ce
+								.createExecutableExtension(MACRO_INSTRUCTION_FACTORY_CLASS);
 
-							// Make sure that it has the proper eclipse context.
-							ContextInjectionFactory.inject(macroInstructionFactory, fEclipseContext);
-							validMacroInstructionIds.put(macroInstructionId, macroInstructionFactory);
-						} catch (CoreException e) {
-							Activator.log(e);
-						}
-					} else {
-						Activator.log(new RuntimeException("Wrong definition for extension: " //$NON-NLS-1$
-								+ MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT + ": " + ce)); //$NON-NLS-1$
+						// Make sure that it has the proper eclipse context.
+						ContextInjectionFactory.inject(macroInstructionFactory, fEclipseContext);
+						validMacroInstructionIds.put(macroInstructionId, macroInstructionFactory);
+					} catch (CoreException e) {
+						Activator.log(e);
 					}
+				} else {
+					Activator.log(new RuntimeException("Wrong definition for extension: " //$NON-NLS-1$
+							+ MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT + ": " + ce)); //$NON-NLS-1$
 				}
-				fCachedMacroInstructionIdToFactory = validMacroInstructionIds;
 			}
-			fMacroInstructionIdToFactory = fCachedMacroInstructionIdToFactory;
+			fMacroInstructionIdToFactory = Collections.unmodifiableMap(validMacroInstructionIds);
 		}
 		return fMacroInstructionIdToFactory;
 	}
@@ -191,7 +192,7 @@ public class MacroServiceImplementation implements EMacroService {
 
 	@Override
 	public void addMacroInstruction(IMacroInstruction macroInstruction) {
-		if (this.isRecording()) {
+		if (isRecording()) {
 			try {
 				getMacroManager().addMacroInstruction(macroInstruction);
 			} catch (CancelMacroRecordingException e) {
@@ -202,7 +203,7 @@ public class MacroServiceImplementation implements EMacroService {
 
 	@Override
 	public void addMacroInstruction(IMacroInstruction macroInstruction, Object event, int priority) {
-		if (this.isRecording()) {
+		if (isRecording()) {
 			try {
 				getMacroManager().addMacroInstruction(macroInstruction, event, priority);
 			} catch (CancelMacroRecordingException e) {
@@ -215,8 +216,8 @@ public class MacroServiceImplementation implements EMacroService {
 	 * Stops the macro recording.
 	 */
 	private void stopMacroRecording() {
-		if (this.isRecording()) {
-			this.toggleMacroRecord();
+		if (isRecording()) {
+			toggleMacroRecord();
 		}
 	}
 
@@ -276,20 +277,13 @@ public class MacroServiceImplementation implements EMacroService {
 	private Map<String, Boolean> getInternalcommandHandling() {
 		if (fCustomizedCommandIds == null) {
 			fCustomizedCommandIds = new HashMap<>();
-			if (fEclipseContext != null) {
-				IExtensionRegistry registry = fEclipseContext.get(IExtensionRegistry.class);
-				if (registry != null) {
-					for (IConfigurationElement ce : registry
-							.getConfigurationElementsFor("org.eclipse.e4.core.macros.commandHandling")) { //$NON-NLS-1$
-						if ("command".equals(ce.getName()) && ce.getAttribute("id") != null //$NON-NLS-1$ //$NON-NLS-2$
-								&& ce.getAttribute("recordMacroInstruction") != null) { //$NON-NLS-1$
-							Boolean recordMacroInstruction = Boolean
-									.parseBoolean(ce.getAttribute("recordMacroInstruction")) //$NON-NLS-1$
-											? Boolean.TRUE
-											: Boolean.FALSE;
-							fCustomizedCommandIds.put(ce.getAttribute("id"), recordMacroInstruction); //$NON-NLS-1$
-						}
-					}
+			for (IConfigurationElement ce : fExtensionRegistry
+					.getConfigurationElementsFor(MACRO_COMMAND_HANDLING_EXTENSION_POINT)) {
+				if (MACRO_COMMAND_HANDLING_ELEMENT.equals(ce.getName())
+						&& ce.getAttribute(MACRO_COMMAND_HANDLING_ID) != null
+						&& ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING) != null) {
+					Boolean recordMacroInstruction = Boolean.parseBoolean(ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING));
+					fCustomizedCommandIds.put(ce.getAttribute(MACRO_COMMAND_HANDLING_ID), recordMacroInstruction);
 				}
 			}
 		}
@@ -299,11 +293,7 @@ public class MacroServiceImplementation implements EMacroService {
 	@Override
 	public boolean isCommandRecorded(String commandId) {
 		Map<String, Boolean> macrocommandHandling = getInternalcommandHandling();
-		Boolean recordMacro = macrocommandHandling.get(commandId);
-		if (recordMacro == null) {
-			return true;
-		}
-		return recordMacro;
+		return macrocommandHandling.getOrDefault(commandId, true);
 	}
 
 	@Override

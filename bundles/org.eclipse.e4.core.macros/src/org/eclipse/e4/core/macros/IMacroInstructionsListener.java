@@ -11,7 +11,13 @@
 package org.eclipse.e4.core.macros;
 
 /**
- * A listener for the macro instructions being added.
+ * An instance of this interface can be notified of changes during macro
+ * recording.
+ *
+ * <ul>
+ * <li>FIXME: this seems to be more of an adviser than listener?
+ * <li>FIXME: rename preAddMacroInstruction -> verifyMacroInstruction()?
+ * </ul>
  */
 public interface IMacroInstructionsListener {
 
@@ -27,13 +33,14 @@ public interface IMacroInstructionsListener {
 	void preAddMacroInstruction(IMacroInstruction macroInstruction) throws CancelMacroRecordingException;
 
 	/**
-	 * Called after a given macro instruction is added to the macro. Note that it's
-	 * possible that beforeMacroInstructionAdded is called and
-	 * afterMacroInstructionAdded isn't if the macro instruction doesn't have enough
-	 * priority.
+	 * Called after a given macro instruction is added to the macro. Note that
+	 * it is possible that {@link #preAddMacroInstruction(IMacroInstruction)} is
+	 * called without a matching
+	 * {@link #postAddMacroInstruction(IMacroInstruction)) should the macro
+	 * instruction not be of high-enough priority.
 	 *
 	 * @param macroInstruction
-	 *            the macro instruction just added to the current macro.
+	 *            the macro instruction added to the current macro.
 	 */
 	void postAddMacroInstruction(IMacroInstruction macroInstruction);
 }

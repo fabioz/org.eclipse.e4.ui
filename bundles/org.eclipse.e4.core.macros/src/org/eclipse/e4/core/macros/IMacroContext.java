@@ -11,10 +11,10 @@
 package org.eclipse.e4.core.macros;
 
 /**
- * The context bound to the macro record or playback. Macro state listeners
- * (org.eclipse.e4.core.macros.IMacroStateListener) registered in
- * {@link EMacroService} may use it as a simple key-value store to keep
- * macro-specific state during a record or playback.
+ * The context bound to the macro record or playback.
+ * {@link org.eclipse.e4.core.macros.IMacroStateListener Macro state listeners}
+ * registered with a {@link EMacroService} may use it as a simple key-value
+ * store to keep macro-specific state during macro recording and playback.
  */
 public interface IMacroContext {
 

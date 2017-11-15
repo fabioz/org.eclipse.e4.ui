@@ -60,7 +60,7 @@ public class MacroManager {
 	 */
 	public void setMaxNumberOfTemporaryMacros(int maxNumberOfTemporaryMacros) {
 		Assert.isTrue(maxNumberOfTemporaryMacros >= 1);
-		this.fMaxNumberOfTemporaryMacros = maxNumberOfTemporaryMacros;
+		fMaxNumberOfTemporaryMacros = maxNumberOfTemporaryMacros;
 	}
 
 	/**
@@ -128,7 +128,7 @@ public class MacroManager {
 		for (File file : macrosDirectories) {
 			Assert.isNotNull(file);
 		}
-		this.fMacrosDirectories = macrosDirectories;
+		fMacrosDirectories = macrosDirectories;
 		reloadMacros();
 	}
 
@@ -244,7 +244,7 @@ public class MacroManager {
 			// Start recording
 			fMacroRecordContext = new MacroRecordContext();
 			fMacroBeingRecorded = new ComposableMacro(macroInstructionIdToFactory);
-			for (IMacroStateListener listener : this.fStateListeners) {
+			for (IMacroStateListener listener : fStateListeners) {
 				SafeRunner.run(() -> listener.macroRecordContextCreated(fMacroRecordContext));
 			}
 			if (!notifyMacroStateChange(macroService, StateChange.RECORD_STARTED)) {
@@ -287,8 +287,8 @@ public class MacroManager {
 		public final long fLastModified;
 
 		public PathAndTime(Path path, long lastModified) {
-			this.fPath = path;
-			this.fLastModified = lastModified;
+			fPath = path;
+			fLastModified = lastModified;
 		}
 
 	}
@@ -298,12 +298,12 @@ public class MacroManager {
 	 *            the macro to be recorded as a temporary macro.
 	 */
 	private void saveTemporaryMacro(ComposableMacro macro) {
-		if (fMacrosDirectories == null || this.fMacrosDirectories.length == 0) {
+		if (fMacrosDirectories == null || fMacrosDirectories.length == 0) {
 			return;
 		}
 		// The first one is the one we use as a working directory to store
 		// temporary macros.
-		File macroDirectory = this.fMacrosDirectories[0];
+		File macroDirectory = fMacrosDirectories[0];
 		if (!macroDirectory.isDirectory()) {
 			Activator.log(new RuntimeException(
 					String.format("Unable to save macro. Expected: %s to be a directory.", macroDirectory))); //$NON-NLS-1$
@@ -418,7 +418,7 @@ public class MacroManager {
 			fIsPlayingBack = true;
 			try {
 				fMacroPlaybackContext = macroPlaybackContext;
-				for (IMacroStateListener listener : this.fStateListeners) {
+				for (IMacroStateListener listener : fStateListeners) {
 					SafeRunner.run(() -> listener.macroPlaybackContextCreated(macroPlaybackContext));
 				}
 
@@ -471,11 +471,11 @@ public class MacroManager {
 	 * Reloads the macros available from the disk.
 	 */
 	public void reloadMacros() {
-		for (File macroDirectory : this.fMacrosDirectories) {
+		for (File macroDirectory : fMacrosDirectories) {
 			if (macroDirectory.isDirectory()) {
 				List<PathAndTime> listPathsAndTimes = listTemporaryMacrosPathAndTime(macroDirectory);
 				if (listPathsAndTimes.size() > 0) {
-					this.fLastMacro = new SavedJSMacro(listPathsAndTimes.get(0).fPath.toFile());
+					fLastMacro = new SavedJSMacro(listPathsAndTimes.get(0).fPath.toFile());
 					return; // Load the last from the first directory (others aren't used for the last
 							// macro).
 				}

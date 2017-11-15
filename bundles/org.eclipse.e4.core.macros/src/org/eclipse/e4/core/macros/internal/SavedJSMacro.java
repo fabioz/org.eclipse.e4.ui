@@ -46,18 +46,18 @@ public class SavedJSMacro implements IMacro {
 	private final File fFile;
 
 	/**
-	 * Creates a macro which is backed up by the contents of a javascript file.
+	 * Creates a macro which is backed by the contents of a javascript file.
 	 *
 	 * @param file
 	 *            the file with the contents of the macro.
 	 */
 	public SavedJSMacro(File file) {
-		this.fFile = file;
+		fFile = file;
 	}
 
 	/**
 	 * Static method to be called when playing back a macro to run a macro
-	 * instruction..
+	 * instruction.
 	 *
 	 * @param macroPlaybackContext
 	 *            the context for the macro playback.
@@ -66,8 +66,8 @@ public class SavedJSMacro implements IMacro {
 	 * @param macroInstructionParameters
 	 *            the parameters to create the macro instruction.
 	 * @param macroInstructionIdToFactory
-	 *            a map pointing from the macro instruction id to the factory used
-	 *            to create the related macro instruction.
+	 *            a map pointing from the macro instruction id to the factory
+	 *            used to create the related macro instruction.
 	 * @throws Exception
 	 *             if something happened when creating the macro instruction or
 	 *             actually executing it.
@@ -87,7 +87,7 @@ public class SavedJSMacro implements IMacro {
 
 		IMacroInstructionFactory macroFactory = macroInstructionIdToFactory.get(macroInstructionId);
 		if (macroFactory == null) {
-			throw new RuntimeException(
+			throw new IllegalStateException(
 					"Unable to find IMacroInstructionFactory for macro instruction: " + macroInstructionId); //$NON-NLS-1$
 		}
 
@@ -99,7 +99,10 @@ public class SavedJSMacro implements IMacro {
 	public void playback(IMacroPlaybackContext macroPlaybackContext,
 			Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) throws MacroPlaybackException {
 		ScriptEngineManager manager = new ScriptEngineManager();
-		ScriptEngine engine = manager.getEngineByName("nashorn"); //$NON-NLS-1$
+		ScriptEngine engine = manager.getEngineByName("JavaScript"); //$NON-NLS-1$
+		if (engine == null) {
+			throw new MacroPlaybackException(Messages.SavedJSMacro_NoJavaScriptEngineFound);
+		}
 		SimpleScriptContext context = new SimpleScriptContext();
 		context.setBindings(engine.createBindings(), ScriptContext.ENGINE_SCOPE);
 		Bindings engineScope = context.getBindings(ScriptContext.ENGINE_SCOPE);
