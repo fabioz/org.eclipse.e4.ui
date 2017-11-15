@@ -281,7 +281,7 @@ public class MacroServiceImplementation implements EMacroService {
 				if (registry != null) {
 					for (IConfigurationElement ce : registry
 							.getConfigurationElementsFor("org.eclipse.e4.core.macros.commandHandling")) { //$NON-NLS-1$
-						if ("coreCommand".equals(ce.getName()) && ce.getAttribute("id") != null //$NON-NLS-1$ //$NON-NLS-2$
+						if ("command".equals(ce.getName()) && ce.getAttribute("id") != null //$NON-NLS-1$ //$NON-NLS-2$
 								&& ce.getAttribute("recordMacroInstruction") != null) { //$NON-NLS-1$
 							Boolean recordMacroInstruction = Boolean
 									.parseBoolean(ce.getAttribute("recordMacroInstruction")) //$NON-NLS-1$

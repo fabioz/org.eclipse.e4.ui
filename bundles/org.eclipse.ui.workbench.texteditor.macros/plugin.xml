@@ -20,8 +20,8 @@
    </extension>
 
    <extension point="org.eclipse.e4.core.macros.commandHandling">
-      <coreCommand id="org.eclipse.ui.edit.text.contentAssist.proposals" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.edit.text.quick_assist.proposals" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.edit.text.contentAssist.proposals" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.edit.text.quick_assist.proposals" recordMacroInstruction="false"/>
    </extension>
 
 </plugin>

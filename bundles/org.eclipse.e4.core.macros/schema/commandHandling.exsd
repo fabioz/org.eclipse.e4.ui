@@ -6,9 +6,7 @@
          <meta.schema plugin="org.eclipse.e4.ui.macros" id="commandHandling" name=""/>
       </appinfo>
       <documentation>
-         Defines Eclipse Core Commands that will be customized during a macro record/playback operation. By default,
-a macro instruction is automatically added when in macro record mode to execute Eclipse Core Commands
-during playback. This extension allows customization over that (i.e.: to skip recording a command).
+         Describes how to customize how the macro framework handles invocations of Eclipse Core Commands during macro recording and playback. When recording a macro the default behaviour is to record a command invocation as a macro instruction.  When replaying a macro, the default behaviour the command during macro playback.  It may be appropriate to skip a command, or abort the recording.
 
 It is also possible to programatically customize how Eclipse commands are handled through the org.eclipse.e4.core.macros.EMacroService.
       </documentation>
@@ -22,26 +20,26 @@ It is also possible to programatically customize how Eclipse commands are handle
       </annotation>
       <complexType>
          <choice minOccurs="1" maxOccurs="unbounded">
-            <element ref="coreCommand"/>
+            <element ref="command"/>
          </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
-
+                  
                </documentation>
             </annotation>
          </attribute>
          <attribute name="id" type="string">
             <annotation>
                <documentation>
-
+                  
                </documentation>
             </annotation>
          </attribute>
          <attribute name="name" type="string">
             <annotation>
                <documentation>
-
+                  
                </documentation>
                <appinfo>
                   <meta.attribute translatable="true"/>
@@ -51,7 +49,7 @@ It is also possible to programatically customize how Eclipse commands are handle
       </complexType>
    </element>
 
-   <element name="coreCommand">
+   <element name="command">
       <annotation>
          <documentation>
             An Eclipse Core Command to be customized during macro record/playback.
@@ -97,7 +95,7 @@ Examples of actions whose activation should not be recorded (in which case, they
       </appinfo>
       <documentation>
          &lt;extension point=&quot;org.eclipse.e4.core.macros.commandHandling&quot;&gt;
-    &lt;coreCommand id=&quot;org.eclipse.ui.edit.text.contentAssist.proposals&quot; recordMacroInstruction=&quot;false&quot;/&gt;
+    &lt;command id=&quot;org.eclipse.ui.edit.text.contentAssist.proposals&quot; recordMacroInstruction=&quot;false&quot;/&gt;
 &lt;/extension&gt;
 
 Will let the command &quot;org.eclipse.ui.edit.text.contentAssist.proposals&quot; be executed but will not record it to be re-executed on macro playback (in which case the command is responsible for recording its side-effects in the macro later on).

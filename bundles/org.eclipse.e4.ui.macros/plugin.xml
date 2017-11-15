@@ -5,21 +5,21 @@
    <extension point="org.eclipse.e4.core.macros.commandHandling">
 
       <!-- We should be able to stop the macro recording after the recording started. -->
-      <coreCommand id="org.eclipse.e4.ui.macros.toggleRecordMacro" recordMacroInstruction="false"/>
+      <command id="org.eclipse.e4.ui.macros.toggleRecordMacro" recordMacroInstruction="false"/>
 
       <!-- Playback is Ok during recording, but only its side-effects are recorded, not the command itself. -->
-      <coreCommand id="org.eclipse.e4.ui.macros.macroPlayback" recordMacroInstruction="false"/>
+      <command id="org.eclipse.e4.ui.macros.macroPlayback" recordMacroInstruction="false"/>
 
       <!-- Disable recording of actions not related to the editor (which the user may choose to do
       but shouldn't interfere with the macro recording). -->
-      <coreCommand id="org.eclipse.ui.window.nextEditor" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.window.nextView" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.window.nextPerspective" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.navigate.showInQuickMenu" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.window.showKeyAssist" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.window.openEditorDropDown" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.window.quickAccess" recordMacroInstruction="false"/>
-      <coreCommand id="org.eclipse.ui.edit.findReplace" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.window.nextEditor" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.window.nextView" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.window.nextPerspective" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.navigate.showInQuickMenu" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.window.showKeyAssist" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.window.openEditorDropDown" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.window.quickAccess" recordMacroInstruction="false"/>
+      <command id="org.eclipse.ui.edit.findReplace" recordMacroInstruction="false"/>
    </extension>
 
    <extension
