@@ -119,7 +119,8 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 					// Only record commands executed in the initial editor.
 					if (fFilter.acceptEvent(swtEvent)) {
 						fMacroService.addMacroInstruction(new MacroInstructionForParameterizedCommand(
-								commandAndTrigger.parameterizedCommand, swtEvent, this.fHandlerService));
+								commandAndTrigger.parameterizedCommand, swtEvent, this.fHandlerService), swtEvent,
+								EMacroService.PRIORITY_HIGH);
 					}
 				} else {
 					fMacroService.addMacroInstruction(new MacroInstructionForParameterizedCommand(
