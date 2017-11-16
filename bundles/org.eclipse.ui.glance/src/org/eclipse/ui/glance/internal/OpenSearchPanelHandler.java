@@ -13,7 +13,7 @@ package org.eclipse.ui.glance.internal;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.glance.internal.search.SearchManager;
 
 /**
@@ -34,7 +34,12 @@ public class OpenSearchPanelHandler extends AbstractHandler {
 	 */
 	@Override
 	public Object execute(ExecutionEvent event) throws ExecutionException {
-		SearchManager.getIntance().activate();
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				SearchManager.getIntance().activate();
+			}
+		});
 		return null;
 	}
 }
