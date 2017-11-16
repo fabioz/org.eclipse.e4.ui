@@ -220,6 +220,9 @@ public abstract class SearchPanel implements ISearchPanel,
 		createText(container, SWT.BORDER);
 		createToolBar(container);
 		initSize(container);
+
+		if (result.length == 0)
+			updateState(false);
 	}
 
 	@Override
@@ -237,7 +240,7 @@ public abstract class SearchPanel implements ISearchPanel,
 		UIUtils.asyncExec(title, new Runnable() {
 			@Override
 			public void run() {
-				setBackground(match != null);
+				updateState(match != null);
 			}
 		});
 	}
@@ -248,7 +251,7 @@ public abstract class SearchPanel implements ISearchPanel,
 		UIUtils.asyncExec(title, new Runnable() {
 			@Override
 			public void run() {
-				setBackground(result.length > 0);
+				updateState(result.length > 0);
 			}
 		});
 	}
@@ -268,8 +271,6 @@ public abstract class SearchPanel implements ISearchPanel,
 		final String text = rule.getText();
 		title.setText(text);
 		loadHistory();
-		if (text != null && text.length() > 0 && result.length == 0)
-			setBackground(false);
 		title.addModifyListener(modifyListener);
 		title.addListener(SWT.KeyDown, new Listener() {
 			@Override
@@ -433,15 +434,11 @@ public abstract class SearchPanel implements ISearchPanel,
 		final boolean empty = text.length() == 0;
 		if (empty)
 			textEmpty();
-		if (bNext != null && !bNext.isDisposed())
-			bNext.setEnabled(!empty);
-		if (bPrev != null && !bPrev.isDisposed())
-			bPrev.setEnabled(!empty);
 		updateRule();
 	}
 
 	protected void textEmpty() {
-		setBackground(true);
+		updateState(false);
 	}
 
 	protected void updateRule() {
@@ -658,15 +655,15 @@ public abstract class SearchPanel implements ISearchPanel,
 		return GlancePlugin.getDefault().getPreferenceStore();
 	}
 
-	protected void setBackground(final boolean found) {
-		if (initialBackground == null)
-			initialBackground = title.getBackground();
-		title.setBackground(found ? initialBackground : BAD_COLOR);
+	protected void updateState(final boolean found) {
+		doSetEnabled(bNext, found);
+		doSetEnabled(bPrev, found);
 	}
 
-	protected Color initialBackground;
-	protected static final Color BAD_COLOR = new Color(Display.getDefault(),
-			255, 102, 102);
+	private void doSetEnabled(ToolItem item, boolean enabled) {
+		if (item != null && !item.isDisposed())
+			item.setEnabled(enabled);
+	}
 
 	protected Composite container;
 	protected Combo title;

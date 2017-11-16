@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.GridData;
@@ -113,11 +112,6 @@ public class PopupSearchDialog extends SearchPanel {
 	}
 
 	@Override
-	protected void setBackground(boolean found) {
-		popup.setBackground(found);
-	}
-
-	@Override
 	public void finished() {
 	}
 
@@ -205,16 +199,5 @@ public class PopupSearchDialog extends SearchPanel {
 			list.add(PopupSearchDialog.this.title);
 			return list;
 		}
-
-		private Color initialBackground;
-
-		public void setBackground(boolean found) {
-			if (initialBackground == null)
-				initialBackground = getBackgroundColor();
-			Color color = found ? initialBackground : BAD_COLOR;
-			applyBackgroundColor(color);
-		}
-
 	}
-
 }
