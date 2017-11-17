@@ -25,7 +25,6 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Item;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Tree;
-
 import org.eclipse.ui.glance.sources.ColorManager;
 
 public class StructDecorator implements Listener {
@@ -42,8 +41,13 @@ public class StructDecorator implements Listener {
 	}
 
 	public void redraw() {
-		Rectangle rect = composite.getClientArea();
-		composite.redraw(rect.x, rect.y, rect.width, rect.height, true);
+		// Rectangle rect = composite.getClientArea();
+		// composite.redraw(rect.x, rect.y, rect.width, rect.height, true);
+		// redraw doesn't work on linux, use relayout
+		composite.pack(true);
+		Composite parent = composite.getParent();
+		if (parent != null)
+			parent.requestLayout();
 	}
 
 	public void redraw(StructCell cell) {
