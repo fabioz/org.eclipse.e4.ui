@@ -22,12 +22,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.eclipse.core.commands.Category;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.core.commands.contexts.Context;
 import org.eclipse.core.commands.contexts.ContextManager;
+import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.e4.core.commands.CommandServiceAddon;
 import org.eclipse.e4.core.commands.ECommandService;
 import org.eclipse.e4.core.commands.EHandlerService;
@@ -38,6 +40,7 @@ import org.eclipse.e4.core.di.annotations.Execute;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
+import org.eclipse.e4.core.macros.internal.MacroManager;
 import org.eclipse.e4.core.macros.internal.MacroServiceImplementation;
 import org.eclipse.e4.ui.bindings.BindingServiceAddon;
 import org.eclipse.e4.ui.bindings.EBindingService;
@@ -57,6 +60,10 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.IViewReference;
+import org.eclipse.ui.IWorkbench;
+import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PlatformUI;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -149,8 +156,28 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 		btm.addTable(new BindingTable(cm.getContext(ID_DIALOG)));
 	}
 
+	/**
+	 * Closes the welcome view (if being shown)
+	 */
+	public static void closeWelcomeView() {
+		IWorkbench workbench;
+		try {
+			workbench = PlatformUI.getWorkbench();
+		} catch (IllegalStateException e) {
+			return; // No welcome view to close (workbench not available).
+		}
+		IWorkbenchWindow workbenchWindow = workbench.getActiveWorkbenchWindow();
+		IViewReference[] viewReferences = workbenchWindow.getActivePage().getViewReferences();
+		for (IViewReference ref : viewReferences) {
+			if (ref.getPartName().equals("Welcome")) {
+				workbenchWindow.getActivePage().hideView(ref);
+			}
+		}
+	}
+
 	@Before
 	public void setUp() throws Exception {
+		closeWelcomeView();
 		display = Display.getDefault();
 		shell = new Shell(display, SWT.NONE);
 		styledText = new StyledText(shell, SWT.NONE);
@@ -179,7 +206,21 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 
 		fMacrosDirectory = folder.getRoot();
 		EMacroService macroService = workbenchContext.get(EMacroService.class);
-		((MacroServiceImplementation) macroService).getMacroManager().setMacrosDirectories(fMacrosDirectory);
+		MacroServiceImplementation macroServiceImplementation = (MacroServiceImplementation) macroService;
+		MacroManager macroManager = macroServiceImplementation.getMacroManager();
+		macroManager.setMacrosDirectories(fMacrosDirectory);
+		Predicate<IConfigurationElement> filterMacroListeners = new Predicate<IConfigurationElement>() {
+
+			@Override
+			public boolean test(IConfigurationElement t) {
+				String namespace = t.getNamespaceIdentifier();
+				return namespace.equals("org.eclipse.e4.ui.macros") || namespace.equals("org.eclipse.e4.core.macros");
+			}
+		};
+
+		Field field = MacroServiceImplementation.class.getDeclaredField("fFilterMacroListeners");
+		field.setAccessible(true);
+		field.set(macroServiceImplementation, filterMacroListeners);
 	}
 
 	@After

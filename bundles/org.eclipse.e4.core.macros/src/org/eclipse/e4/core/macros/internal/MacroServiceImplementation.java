@@ -11,9 +11,11 @@
 package org.eclipse.e4.core.macros.internal;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Predicate;
 import javax.inject.Inject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
@@ -64,6 +66,13 @@ public class MacroServiceImplementation implements EMacroService {
 	 * The instance of the macro manager.
 	 */
 	private MacroManager fMacroManager;
+
+	/**
+	 * A filter which allows blacklisting registered macro listeners. Note that it's
+	 * private and has no setters because it's meant only to be used in tests
+	 * (through reflection).
+	 */
+	private Predicate<IConfigurationElement> fFilterMacroListeners;
 
 	@Inject
 	public MacroServiceImplementation(IEclipseContext eclipseContext, IExtensionRegistry extensionRegistry) {
@@ -119,8 +128,15 @@ public class MacroServiceImplementation implements EMacroService {
 			fLoadedExtensionListeners = true;
 
 			MacroManager macroManager = getMacroManager();
-			for (IConfigurationElement ce : fExtensionRegistry
-					.getConfigurationElementsFor(MACRO_LISTENERS_EXTENSION_POINT)) {
+			IConfigurationElement[] macroListenersConfigurationElements = fExtensionRegistry
+					.getConfigurationElementsFor(MACRO_LISTENERS_EXTENSION_POINT);
+
+			if (fFilterMacroListeners != null) {
+				macroListenersConfigurationElements = Arrays.asList(macroListenersConfigurationElements).stream()
+						.filter(fFilterMacroListeners).toArray(IConfigurationElement[]::new);
+			}
+
+			for (IConfigurationElement ce : macroListenersConfigurationElements) {
 				String macroStateListenerClass = ce.getAttribute(MACRO_LISTENER_CLASS);
 				if (macroStateListenerClass != null) {
 					try {
@@ -282,7 +298,8 @@ public class MacroServiceImplementation implements EMacroService {
 				if (MACRO_COMMAND_HANDLING_ELEMENT.equals(ce.getName())
 						&& ce.getAttribute(MACRO_COMMAND_HANDLING_ID) != null
 						&& ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING) != null) {
-					Boolean recordMacroInstruction = Boolean.parseBoolean(ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING));
+					Boolean recordMacroInstruction = Boolean
+							.parseBoolean(ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING));
 					fCustomizedCommandIds.put(ce.getAttribute(MACRO_COMMAND_HANDLING_ID), recordMacroInstruction);
 				}
 			}
