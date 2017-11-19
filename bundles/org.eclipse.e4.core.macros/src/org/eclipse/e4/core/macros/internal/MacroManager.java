@@ -157,9 +157,6 @@ public class MacroManager {
 	public void addMacroInstruction(IMacroInstruction macroInstruction) throws CancelMacroRecordingException {
 		ComposableMacro macroBeingRecorded = fMacroBeingRecorded;
 		if (macroBeingRecorded != null) {
-			for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
-				listener.preAddMacroInstruction(macroInstruction);
-			}
 			macroBeingRecorded.addMacroInstruction(macroInstruction);
 			for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
 				listener.postAddMacroInstruction(macroInstruction);
@@ -198,9 +195,6 @@ public class MacroManager {
 			throws CancelMacroRecordingException {
 		ComposableMacro macroBeingRecorded = fMacroBeingRecorded;
 		if (macroBeingRecorded != null) {
-			for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
-				listener.preAddMacroInstruction(macroInstruction);
-			}
 			if (macroBeingRecorded.addMacroInstruction(macroInstruction, event, priority)) {
 				for (IMacroInstructionsListener listener : fMacroInstructionsListeners) {
 					listener.postAddMacroInstruction(macroInstruction);

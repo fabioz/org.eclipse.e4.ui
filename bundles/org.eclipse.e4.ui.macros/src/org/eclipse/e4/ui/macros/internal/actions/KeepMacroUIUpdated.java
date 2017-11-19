@@ -29,10 +29,6 @@ public class KeepMacroUIUpdated implements IMacroStateListener {
 	 * instructions.
 	 */
 	private static final class MacroInstructionsListener implements IMacroInstructionsListener {
-		@Override
-		public void preAddMacroInstruction(IMacroInstruction macroInstruction) {
-
-		}
 
 		@Override
 		public void postAddMacroInstruction(IMacroInstruction macroInstruction) {
