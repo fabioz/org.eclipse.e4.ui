@@ -6,7 +6,7 @@
          <meta.schema plugin="org.eclipse.e4.ui.macros" id="commandHandling" name=""/>
       </appinfo>
       <documentation>
-         Describes how to customize how the macro framework handles invocations of Eclipse Core Commands during macro recording and playback. When recording a macro the default behaviour is to record a command invocation as a macro instruction.  When replaying a macro, the default behaviour the command during macro playback.  It may be appropriate to skip a command, or abort the recording.
+         Describes how to customize how the macro framework handles invocations of Eclipse Core Commands during macro recording. When recording a macro the default behaviour is to record a command invocation as a macro instruction, and this extension allows for skipping the creation of the macro instruction for a command invocation.
 
 It is also possible to programatically customize how Eclipse commands are handled through the org.eclipse.e4.core.macros.EMacroService.
       </documentation>
