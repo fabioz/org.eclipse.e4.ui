@@ -55,8 +55,13 @@ public class MacroManager {
 	private int fMaxNumberOfTemporaryMacros = 5;
 
 	/**
+	 * Sets the maximum number of temporary macros (so, if more than
+	 * {@code maxNumberOfTemporaryMacros} are created, the oldest ones will be
+	 * removed until the number of temporary macros equals
+	 * {@code maxNumberOfTemporaryMacros}).
+	 *
 	 * @param maxNumberOfTemporaryMacros
-	 *            The max number of temporary macros to be kept.
+	 *            The max number of temporary macros to be kept (must be >= 1).
 	 */
 	public void setMaxNumberOfTemporaryMacros(int maxNumberOfTemporaryMacros) {
 		Assert.isTrue(maxNumberOfTemporaryMacros >= 1);
@@ -64,7 +69,10 @@ public class MacroManager {
 	}
 
 	/**
-	 * @return Returns the max number of temporary macros to be kept.
+	 * Provides the maximum number of temporary macros to be kept (if there are more
+	 * macros than the value returned, older temporary macros should be removed).
+	 *
+	 * @return the maximum number of temporary macros to be kept.
 	 */
 	public int getMaxNumberOfTemporaryMacros() {
 		return fMaxNumberOfTemporaryMacros;
@@ -117,6 +125,8 @@ public class MacroManager {
 	}
 
 	/**
+	 * Sets the macro directories which should be tracked for macros.
+	 *
 	 * @param macrosDirectories
 	 *            the directories where macros should be looked up. The first
 	 *            directory is the one where macros are persisted. If there are 2
@@ -133,6 +143,9 @@ public class MacroManager {
 	}
 
 	/**
+	 * If there's a macro being currently recorded, {@code true} is returned,
+	 * otherwise, {@code false} is returned.
+	 *
 	 * @return whether a macro is currently being recorded.
 	 */
 	public boolean isRecording() {
@@ -140,6 +153,9 @@ public class MacroManager {
 	}
 
 	/**
+	 * If there's a macro being currently played back, {@code true} is returned,
+	 * otherwise, {@code false} is returned.
+	 *
 	 * @return whether a macro is currently being played back.
 	 */
 	public boolean isPlayingBack() {
@@ -153,6 +169,7 @@ public class MacroManager {
 	 * @param macroInstruction
 	 *            the macro instruction to be recorded.
 	 * @throws CancelMacroRecordingException
+	 *             if the macro recording should be cancelled.
 	 */
 	public void addMacroInstruction(IMacroInstruction macroInstruction) throws CancelMacroRecordingException {
 		ComposableMacro macroBeingRecorded = fMacroBeingRecorded;
@@ -167,9 +184,9 @@ public class MacroManager {
 	/**
 	 * Adds a macro instruction to be added to the current macro being recorded. The
 	 * difference between this method and
-	 * {@link #addMacroInstruction(IMacroInstruction)} is that it's meant to be used
-	 * when an event may trigger the creation of multiple macro instructions and
-	 * only one of those should be recorded.
+	 * {@link #addMacroInstruction(IMacroInstruction)} is that it is meant to be
+	 * used when an event may trigger the creation of multiple macro instructions
+	 * and only one of those should be recorded.
 	 *
 	 * For instance, if a given KeyDown event is recorded in a StyledText and later
 	 * an action is triggered by this event, the recorded action should overwrite
@@ -189,6 +206,7 @@ public class MacroManager {
 	 *            against the priority of other added macro instructions for the
 	 *            same event).
 	 * @throws CancelMacroRecordingException
+	 *             if the macro recording should be cancelled.
 	 * @see #addMacroInstruction(IMacroInstruction)
 	 */
 	public void addMacroInstruction(IMacroInstruction macroInstruction, Object event, int priority)
@@ -288,6 +306,8 @@ public class MacroManager {
 	}
 
 	/**
+	 * Saves a composable macro as a temporary macro on disk.
+	 *
 	 * @param macro
 	 *            the macro to be recorded as a temporary macro.
 	 */
@@ -327,17 +347,20 @@ public class MacroManager {
 	}
 
 	/**
+	 * Provides the path/time for the temporary macros at a given directory as n
+	 * list sorted such that the last element is the oldest one and the first is the
+	 * newest.
+	 *
 	 * @param macroDirectory
 	 *            the directory from where we should get the temporary macros.
 	 *
-	 * @return The path/time for the temporary macros at a given directory as an
-	 *         array list sorted such that the last element is the oldest one and
-	 *         the first is the newest.
+	 * @return the temporary macros available along with their path and creation
+	 *         time
 	 */
 	public List<PathAndTime> listTemporaryMacrosPathAndTime(File macroDirectory) {
-		// It's a sorted list and not a tree map to deal with the case of
+		// It is a sorted list and not a tree map to deal with the case of
 		// multiple times pointing to the same file (although hard to happen,
-		// it's not impossible).
+		// it is not impossible).
 		List<PathAndTime> pathAndTime = new ArrayList<>();
 
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(macroDirectory.toURI()),
@@ -356,7 +379,7 @@ public class MacroManager {
 			Activator.log(e1);
 		}
 
-		// Sort by reversed modified time (because it's faster to remove the
+		// Sort by reversed modified time (because it is faster to remove the
 		// last element from an ArrayList later on).
 		Collections.sort(pathAndTime, new Comparator<PathAndTime>() {
 
@@ -390,7 +413,7 @@ public class MacroManager {
 	}
 
 	/**
-	 * Playback the last recorded macro.
+	 * Plays back the last recorded macro.
 	 *
 	 * @param macroService
 	 *            the macro service (used to notify listeners of the change.
@@ -452,6 +475,9 @@ public class MacroManager {
 	}
 
 	/**
+	 * Provides the listeners which are currently registered to be notified of
+	 * changes in the macro state.
+	 *
 	 * @return the currently registered listeners.
 	 */
 	public IMacroStateListener[] getMacroStateListeners() {
@@ -503,22 +529,31 @@ public class MacroManager {
 	}
 
 	/**
+	 * Provides the macro record context or null if the macro engine is not
+	 * recording.
+	 *
 	 * @return the macro record context created when macro record started or null if
-	 *         it's not currently recording.
+	 *         it is not currently recording.
 	 */
 	public IMacroRecordContext getMacroRecordContext() {
 		return fMacroRecordContext;
 	}
 
 	/**
+	 * Provides the macro playback context or null if the macro engine is not
+	 * playing back.
+	 *
 	 * @return the macro playback context created when macro playback started or
-	 *         null if it's not currently recording.
+	 *         null if it is not currently recording.
 	 */
 	public IMacroPlaybackContext getMacroPlaybackContext() {
 		return fMacroPlaybackContext;
 	}
 
 	/**
+	 * Provides the number of macro instructions in the macro being currently
+	 * recorded or -1 if there is no macro being recorded.
+	 *
 	 * @return the number of macro instructions in the macro currently recorded or
 	 *         -1 if no macro is being recorded.
 	 */

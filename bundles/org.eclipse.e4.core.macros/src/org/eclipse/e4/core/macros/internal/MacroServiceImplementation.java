@@ -68,8 +68,8 @@ public class MacroServiceImplementation implements EMacroService {
 	private MacroManager fMacroManager;
 
 	/**
-	 * A filter which allows blacklisting registered macro listeners. Note that it's
-	 * private and has no setters because it's meant only to be used in tests
+	 * A filter which allows blacklisting registered macro listeners. Note that it is
+	 * private and has no setters because it is meant only to be used in tests
 	 * (through reflection).
 	 */
 	private Predicate<IConfigurationElement> fFilterMacroListeners;
@@ -157,8 +157,11 @@ public class MacroServiceImplementation implements EMacroService {
 	}
 
 	/**
-	 * @return Returns the fMacroInstructionIdToFactory (creates it lazily if it
-	 *         still wasn't created).
+	 * Provides a map which maps macro instruction ids to the factory used to
+	 * recreate the related instruction.
+	 *
+	 * @return a map with macro instruction id to the related factory (creates it
+	 *         lazily if it still wasn't created).
 	 */
 	private Map<String, IMacroInstructionFactory> getMacroInstructionIdToFactory() {
 		if (fMacroInstructionIdToFactory == null) {
@@ -285,14 +288,11 @@ public class MacroServiceImplementation implements EMacroService {
 	 * A map which maps accepted command ids when recording a macro to whether they
 	 * should be recorded as a macro instruction to be played back later on.
 	 */
-	private Map<String, Boolean> fCustomizedCommandIds;
+	private Map<String, Boolean> fCommandIdToRecordFlag;
 
-	/**
-	 * @return a set with the commands that are accepted when macro recording.
-	 */
-	private Map<String, Boolean> getInternalcommandHandling() {
-		if (fCustomizedCommandIds == null) {
-			fCustomizedCommandIds = new HashMap<>();
+	private Map<String, Boolean> getCommandIdToRecordFlag() {
+		if (fCommandIdToRecordFlag == null) {
+			fCommandIdToRecordFlag = new HashMap<>();
 			for (IConfigurationElement ce : fExtensionRegistry
 					.getConfigurationElementsFor(MACRO_COMMAND_HANDLING_EXTENSION_POINT)) {
 				if (MACRO_COMMAND_HANDLING_ELEMENT.equals(ce.getName())
@@ -300,22 +300,22 @@ public class MacroServiceImplementation implements EMacroService {
 						&& ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING) != null) {
 					Boolean recordMacroInstruction = Boolean
 							.parseBoolean(ce.getAttribute(MACRO_COMMAND_HANDLING_RECORDING));
-					fCustomizedCommandIds.put(ce.getAttribute(MACRO_COMMAND_HANDLING_ID), recordMacroInstruction);
+					fCommandIdToRecordFlag.put(ce.getAttribute(MACRO_COMMAND_HANDLING_ID), recordMacroInstruction);
 				}
 			}
 		}
-		return fCustomizedCommandIds;
+		return fCommandIdToRecordFlag;
 	}
 
 	@Override
-	public boolean isCommandRecorded(String commandId) {
-		Map<String, Boolean> macrocommandHandling = getInternalcommandHandling();
+	public boolean getRecordCommandInMacro(String commandId) {
+		Map<String, Boolean> macrocommandHandling = getCommandIdToRecordFlag();
 		return macrocommandHandling.getOrDefault(commandId, true);
 	}
 
 	@Override
 	public void setRecordCommandInMacro(String commandId, boolean recordMacroInstruction) {
-		getInternalcommandHandling().put(commandId, recordMacroInstruction);
+		getCommandIdToRecordFlag().put(commandId, recordMacroInstruction);
 	}
 
 	@Override

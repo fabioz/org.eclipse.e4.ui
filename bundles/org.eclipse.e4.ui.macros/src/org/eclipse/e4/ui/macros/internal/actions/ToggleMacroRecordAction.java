@@ -34,6 +34,7 @@ public class ToggleMacroRecordAction extends AbstractHandler implements IElement
 		return null;
 	}
 
+	@SuppressWarnings("rawtypes")
 	@Override
 	public void updateElement(UIElement element, Map parameters) {
 		element.setChecked(PlatformUI.getWorkbench().getService(EMacroService.class).isRecording());

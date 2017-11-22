@@ -55,6 +55,8 @@ public abstract class AbstractSWTEventMacroInstruction implements IMacroInstruct
 	}
 
 	/**
+	 * Provides the event type of the events that this macro instruction is related
+	 * to.
 	 *
 	 * @return the event type of the events that this macro instruction is related
 	 *         to.

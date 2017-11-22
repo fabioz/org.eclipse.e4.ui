@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.ui.workbench.texteditor.macros.internal;
 
+import javax.inject.Inject;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.CancelMacroException;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
@@ -23,13 +25,16 @@ public class EditorPartMacroInstaller implements IMacroStateListener {
 
 	private static final String NOTIFY_MACRO_ONLY_IN_CURRENT_EDITOR = "NOTIFY_MACRO_ONLY_IN_CURRENT_EDITOR"; //$NON-NLS-1$
 
+	@Inject
+	private IEclipseContext fEclipseContext;
+
 	@Override
 	public void macroStateChanged(EMacroService macroService, StateChange stateChange)
 			throws CancelMacroException {
 		if (stateChange == StateChange.RECORD_STARTED) {
 			IMacroRecordContext context = macroService.getMacroRecordContext();
 			NotifyMacroOnlyInCurrentEditor notifyMacroOnlyInCurrentEditor = new NotifyMacroOnlyInCurrentEditor(
-					macroService);
+					macroService, fEclipseContext);
 			notifyMacroOnlyInCurrentEditor.checkEditorActiveForMacroRecording();
 
 			notifyMacroOnlyInCurrentEditor.install();
@@ -43,7 +48,7 @@ public class EditorPartMacroInstaller implements IMacroStateListener {
 				notifyMacroOnlyInCurrentEditor.uninstall();
 			}
 		} else if (stateChange == StateChange.PLAYBACK_STARTED) {
-			new NotifyMacroOnlyInCurrentEditor(macroService).checkEditorActiveForMacroPlayback();
+			new NotifyMacroOnlyInCurrentEditor(macroService, fEclipseContext).checkEditorActiveForMacroPlayback();
 		}
 	}
 }

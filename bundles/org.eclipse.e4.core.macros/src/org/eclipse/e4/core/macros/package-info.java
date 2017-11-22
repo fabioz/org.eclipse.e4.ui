@@ -34,9 +34,9 @@ package org.eclipse.e4.core.macros;
  * </p>
  *
  * <p>
- * -- note that it's important that things are not the other way around: the
+ * -- note that it is important that things are not the other way around: the
  * macro plugin is a thin layer to start/stop macro recording and provide the
- * basic abstractions and management of macros, it's up to the clients to be
+ * basic abstractions and management of macros, it is up to the clients to be
  * aware that they are in macro record mode and act accordingly, issuing
  * commands to be recorded and later played back.
  * </p>
@@ -80,7 +80,7 @@ package org.eclipse.e4.core.macros;
  *
  * <p>
  * {@link org.eclipse.e4.core.macros.IMacroPlaybackContext}: received by a macro
- * instruction when it's being played back.
+ * instruction when it is being played back.
  * </p>
  *
  * <p>
@@ -106,7 +106,7 @@ package org.eclipse.e4.core.macros;
  * </p>
  *
  * <p>
- * -- Note: it's possible for the user to start a record mode and playback a
+ * -- Note: it is possible for the user to start a record mode and playback a
  * previous macro in such a mode (although the opposite is not true).
  * </p>
  *
@@ -239,10 +239,10 @@ package org.eclipse.e4.core.macros;
  * </p>
  *
  * <p>
- * Afterward, when it's time to play a macro instruction back, the contents of
+ * Afterward, when it is time to play a macro instruction back, the contents of
  * the map are gotten from disk and will be recreated through factories
  * registered in the org.eclipse.e4.core.macros.macroInstructionsFactory
- * extension point (so it's important to note that if a custom macro instruction
+ * extension point (so it is important to note that if a custom macro instruction
  * is created, a factory to recreate it must be registered).
  * </p>
  *

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.e4.ui.macros.internal.actions;
 
+import javax.inject.Inject;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroInstruction;
 import org.eclipse.e4.core.macros.IMacroInstructionsListener;
@@ -19,7 +22,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 
 /**
- * Make sure that the toolbar elements are kept properly updated even if the
+ * Makes sure that the toolbar elements are kept properly updated even if the
  * macro is programmatically stopped.
  */
 public class KeepMacroUIUpdated implements IMacroStateListener {
@@ -30,17 +33,43 @@ public class KeepMacroUIUpdated implements IMacroStateListener {
 	 */
 	private static final class MacroInstructionsListener implements IMacroInstructionsListener {
 
+		/**
+		 * Helper class for giving notifications to the user.
+		 */
+		private UserNotifications fUserNotifications;
+
+		/**
+		 * @param userNotifications
+		 *            the helper class for giving notifications to the user.
+		 */
+		public MacroInstructionsListener(UserNotifications userNotifications) {
+			this.fUserNotifications = userNotifications;
+		}
+
 		@Override
 		public void postAddMacroInstruction(IMacroInstruction macroInstruction) {
-			UserNotifications.setMessage(Messages.KeepMacroUIUpdated_RecordedInMacro + macroInstruction);
+			this.fUserNotifications.setMessage(Messages.KeepMacroUIUpdated_RecordedInMacro + macroInstruction);
 		}
 	}
 
-	boolean wasRecording = false;
+	private boolean wasRecording = false;
 
-	boolean wasPlayingBack = false;
+	private boolean wasPlayingBack = false;
 
-	IMacroInstructionsListener fMacroInstructionsListener;
+	private IMacroInstructionsListener fMacroInstructionsListener;
+
+	private UserNotifications fUserNotifications;
+
+	@Inject
+	private IEclipseContext fEclipseContext;
+
+	private UserNotifications getUserNotifications() {
+		if (fUserNotifications == null) {
+			fUserNotifications = new UserNotifications();
+			ContextInjectionFactory.inject(fUserNotifications, fEclipseContext);
+		}
+		return fUserNotifications;
+	}
 
 	@Override
 	public void macroStateChanged(EMacroService macroService, StateChange stateChange) {
@@ -51,26 +80,26 @@ public class KeepMacroUIUpdated implements IMacroStateListener {
 		// Show a message to the user saying about the macro state.
 		if (macroService.isRecording() != wasRecording) {
 			if (!wasRecording) {
-				UserNotifications.setMessage(Messages.KeepMacroUIUpdated_StartMacroRecord);
+				getUserNotifications().setMessage(Messages.KeepMacroUIUpdated_StartMacroRecord);
 			} else {
 				// When we stop the record, clear the message.
-				UserNotifications.setMessage(null);
+				getUserNotifications().setMessage(null);
 			}
 			wasRecording = macroService.isRecording();
 		}
 		if (macroService.isPlayingBack() != wasPlayingBack) {
 			if (!wasPlayingBack) {
-				UserNotifications.setMessage(Messages.KeepMacroUIUpdated_StartMacroPlayback);
+				getUserNotifications().setMessage(Messages.KeepMacroUIUpdated_StartMacroPlayback);
 			} else {
 				// When we stop the playback, clear the message.
-				UserNotifications.setMessage(null);
+				getUserNotifications().setMessage(null);
 			}
 			wasPlayingBack = macroService.isPlayingBack();
 		}
 
 		if (macroService.isRecording()) {
 			if (fMacroInstructionsListener == null) {
-				fMacroInstructionsListener = new MacroInstructionsListener();
+				fMacroInstructionsListener = new MacroInstructionsListener(getUserNotifications());
 				macroService.addMacroInstructionsListener(fMacroInstructionsListener);
 			}
 		} else {

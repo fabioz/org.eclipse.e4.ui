@@ -30,7 +30,7 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 
 /**
  * Actually loads a macro from a JS file to be played back. Works with the
- * contents saved from {@link ComposableMacro#toJSBytes()}.
+ * contents saved from {@code ComposableMacro#toJSBytes()}.
  * <p>
  * Currently the saved macro is a JavaScript file to be played back again with a
  * "runMacro" function which may have multiple "runMacroInstruction" calls to

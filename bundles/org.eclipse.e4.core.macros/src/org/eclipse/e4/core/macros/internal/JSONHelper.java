@@ -19,6 +19,15 @@ import java.util.Map.Entry;
  */
 public class JSONHelper {
 
+	/**
+	 * Quotes contents of the strings so that a given string can be saved as a valid
+	 * JSON string.
+	 *
+	 * @param string
+	 *            the string to be quoted.
+	 * @return a string where the values of the input string are quoted so that it
+	 *         forms a valid JSON string.
+	 */
 	public static String quote(String string) {
 		int len = string.length();
 		if (len == 0) {
@@ -72,9 +81,11 @@ public class JSONHelper {
 	}
 
 	/**
+	 * Provides a JSON representation of the passed map.
+	 *
 	 * @param map
-	 *            a map to be converted to a json string.
-	 * @return a json string with the contents of the passed map.
+	 *            a map to be converted to a JSON string.
+	 * @return a JSON string with the contents of the passed map.
 	 */
 	public static String toJSon(Map<String, String> map) {
 		Iterator<Entry<String, String>> iterator = map.entrySet().iterator();

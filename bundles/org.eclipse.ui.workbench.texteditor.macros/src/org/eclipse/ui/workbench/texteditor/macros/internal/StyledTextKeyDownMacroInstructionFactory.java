@@ -15,6 +15,7 @@ import org.eclipse.e4.core.macros.IMacroInstruction;
 import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 
 /**
+ * A factory which will create macro instructions for styled text key presses.
  */
 public class StyledTextKeyDownMacroInstructionFactory implements IMacroInstructionFactory {
 

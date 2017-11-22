@@ -13,6 +13,7 @@ package org.eclipse.e4.ui.macros.internal.keybindings;
 import javax.inject.Inject;
 import org.eclipse.core.commands.CommandManager;
 import org.eclipse.e4.core.commands.EHandlerService;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
@@ -31,8 +32,16 @@ public class CommandManagerExecutionListenerInstaller implements IMacroStateList
 	@Inject
 	private EHandlerService fHandlerService;
 
+	@Inject
+	private IEclipseContext fEclipseContext;
+
 	private CommandManagerExecutionListener fCommandManagerExecutionListener;
 
+	/**
+	 * Gets the command manager execution listener.
+	 *
+	 * @return the command manager execution listener.
+	 */
 	public CommandManagerExecutionListener getCommandManagerExecutionListener() {
 		return fCommandManagerExecutionListener;
 	}
@@ -41,7 +50,8 @@ public class CommandManagerExecutionListenerInstaller implements IMacroStateList
 	public void macroStateChanged(EMacroService macroService, StateChange stateChange) {
 		if (macroService.isRecording()) {
 			if (fCommandManagerExecutionListener == null) {
-				fCommandManagerExecutionListener = new CommandManagerExecutionListener(macroService, fHandlerService);
+				fCommandManagerExecutionListener = new CommandManagerExecutionListener(macroService, fHandlerService,
+						fEclipseContext);
 				fCommandManager.addExecutionListener(fCommandManagerExecutionListener);
 			}
 		} else {

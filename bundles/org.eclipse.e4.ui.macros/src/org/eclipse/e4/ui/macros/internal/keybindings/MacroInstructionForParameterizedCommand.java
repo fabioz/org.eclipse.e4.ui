@@ -53,6 +53,12 @@ public class MacroInstructionForParameterizedCommand implements IMacroInstructio
 
 	private Event fEvent;
 
+	/**
+	 * @param cmd
+	 *            the command recorded.
+	 * @param handlerService
+	 *            the service to be used to execute the command.
+	 */
 	public MacroInstructionForParameterizedCommand(ParameterizedCommand cmd, EHandlerService handlerService) {
 		this.fCmd = cmd;
 		this.fHandlerService = handlerService;
@@ -63,12 +69,12 @@ public class MacroInstructionForParameterizedCommand implements IMacroInstructio
 	 *            the command recorded.
 	 * @param event
 	 *            the related event.
-	 * @param keybindingDispatcher
-	 *            the dispatcher to be used to execute commands.
+	 * @param handlerService
+	 *            the service to be used to execute the command.
 	 */
 	public MacroInstructionForParameterizedCommand(ParameterizedCommand cmd, Event event,
-			EHandlerService keybindingDispatcher) {
-		this(cmd, keybindingDispatcher);
+			EHandlerService handlerService) {
+		this(cmd, handlerService);
 
 		// Create a new event (we want to make sure that only the given info is
 		// really needed on playback and don't want to keep a reference to the
@@ -172,6 +178,9 @@ public class MacroInstructionForParameterizedCommand implements IMacroInstructio
 	}
 
 	/**
+	 * Deserializes a macro instruction which was created from a parameterized
+	 * command.
+	 *
 	 * @param map
 	 *            a map (created from {@link #toMap()}.
 	 * @param commandManager

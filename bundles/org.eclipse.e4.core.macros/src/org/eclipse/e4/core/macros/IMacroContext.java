@@ -19,6 +19,9 @@ package org.eclipse.e4.core.macros;
 public interface IMacroContext {
 
 	/**
+	 * Gets a value for a given key stored in the macro context or null if it's not
+	 * available.
+	 *
 	 * @param key
 	 *            the key of the variable to be retrieved.
 	 * @return the object related to that variable.
@@ -26,6 +29,9 @@ public interface IMacroContext {
 	public Object get(String key);
 
 	/**
+	 * Sets a value to a given key, which may be later retrieved through
+	 * {@link #get(String)}.
+	 *
 	 * @param key
 	 *            the key of the variable to store.
 	 * @param value

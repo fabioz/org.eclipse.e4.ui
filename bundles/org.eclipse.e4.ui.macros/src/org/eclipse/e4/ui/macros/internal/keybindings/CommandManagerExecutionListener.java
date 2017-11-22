@@ -17,6 +17,8 @@ import org.eclipse.core.commands.IExecutionListener;
 import org.eclipse.core.commands.NotHandledException;
 import org.eclipse.core.commands.ParameterizedCommand;
 import org.eclipse.e4.core.commands.EHandlerService;
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.ui.macros.Activator;
 import org.eclipse.e4.ui.macros.internal.EditorUtils;
@@ -61,14 +63,23 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 	private final EHandlerService fHandlerService;
 
 	/**
+	 * The Eclipse context for dependency injection.
+	 */
+	private IEclipseContext fEclipseContext;
+
+	/**
 	 * @param macroService
 	 *            the macro service
 	 * @param handlerService
 	 *            the handler service (used to execute actions).
+	 * @param eclipseContext
+	 *            Eclipse context for dependency injection.
 	 */
-	public CommandManagerExecutionListener(EMacroService macroService, EHandlerService handlerService) {
+	public CommandManagerExecutionListener(EMacroService macroService, EHandlerService handlerService,
+			IEclipseContext eclipseContext) {
 		this.fMacroService = macroService;
 		this.fHandlerService = handlerService;
+		this.fEclipseContext = eclipseContext;
 	}
 
 	@Override
@@ -113,7 +124,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 		}
 		if (fMacroService.isRecording()) {
 			// Record it if needed.
-			if (fMacroService.isCommandRecorded(commandId)) {
+			if (fMacroService.getRecordCommandInMacro(commandId)) {
 				if (commandAndTrigger.trigger instanceof Event) {
 					Event swtEvent = (Event) commandAndTrigger.trigger;
 					// Only record commands executed in the initial editor.
@@ -135,11 +146,17 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 		if (acceptEvent(event)) {
 			if ("org.eclipse.ui.edit.findReplace".equals(commandId)) { //$NON-NLS-1$
 				// We can't deal with find/replace at this point. Let the user know.
-				UserNotifications.notifyFindReplace();
+				UserNotifications userNotifications = new UserNotifications();
+				ContextInjectionFactory.inject(userNotifications, fEclipseContext);
+				try {
+					userNotifications.notifyFindReplace();
+				} finally {
+					ContextInjectionFactory.uninject(userNotifications, fEclipseContext);
+				}
 			}
 		}
 		// Let's check if it should actually be recorded.
-		if (fMacroService.isCommandRecorded(commandId)) {
+		if (fMacroService.getRecordCommandInMacro(commandId)) {
 			if (!acceptEvent(event)) {
 				fParameterizedCommandsAndTriggerStack.add(null);
 				return;
@@ -157,8 +174,15 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 	public static interface IFilter {
 
 		/**
+		 * If the given event should have a macro instruction created to it,
+		 * {@code true} should be returned and if no macro instruction should be created
+		 * from the filter, {@code false} should be returned.
+		 *
 		 * @param swtEvent
-		 * @return true if the given swtEvent should be accepted.
+		 *            the event to be filtered.
+		 *
+		 * @return {@code true} if the given swtEvent should be accepted and
+		 *         {@code false} otherwise.
 		 */
 		boolean acceptEvent(Event swtEvent);
 	}
@@ -173,7 +197,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 	}
 
 	/**
-	 * Note that it's private and shouldn't be usually changed, although the current
+	 * Note that it is private and shouldn't be usually changed, although the current
 	 * structure is helpful as it allows us to accept any event on tests through
 	 * reflection.
 	 */

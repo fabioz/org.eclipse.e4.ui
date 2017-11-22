@@ -47,7 +47,6 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 			fIndex = index;
 			fPriority = priority;
 		}
-
 	}
 
 	/**
@@ -94,25 +93,23 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 
 	/**
 	 * Adds a macro instruction to be added to the current macro being recorded.
-	 * This method should be used when an event may trigger the creation of
-	 * multiple macro instructions and only one of those should be recorded.
+	 * This method should be used when an event may trigger the creation of multiple
+	 * macro instructions and only one of those should be recorded.
 	 *
 	 * @param macroInstruction
 	 *            the macro instruction to be added to the macro currently being
 	 *            recorded.
 	 * @param event
-	 *            the event that triggered the creation of the macro instruction
-	 *            to be added. If there are multiple macro instructions added
-	 *            for the same event, only the one with the highest priority
-	 *            will be kept (if 2 events have the same priority, the last one
-	 *            will replace the previous one).
+	 *            the event that triggered the creation of the macro instruction to
+	 *            be added. If there are multiple macro instructions added for the
+	 *            same event, only the one with the highest priority will be kept
+	 *            (if 2 events have the same priority, the last one will replace the
+	 *            previous one).
 	 * @param priority
-	 *            the priority of the macro instruction being added (to be
-	 *            compared against the priority of other added macro
-	 *            instructions for the same event).
-	 * @return true if the macro instruction was actually added and false
-	 *         otherwise.
-	 * @see #addMacroInstruction(IMacroInstruction)
+	 *            the priority of the macro instruction being added (to be compared
+	 *            against the priority of other added macro instructions for the
+	 *            same event).
+	 * @return true if the macro instruction was actually added and false otherwise.
 	 */
 	public boolean addMacroInstruction(IMacroInstruction macroInstruction, Object event, int priority) {
 		Assert.isNotNull(event);
@@ -148,12 +145,11 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 	}
 
 	/**
-	 * Actually returns the bytes to be written to the disk to be loaded back
-	 * later on (the actual load and playback is later done by
-	 * {@link SavedJSMacro}).
+	 * Actually returns the bytes to be written to the disk to be loaded back later
+	 * on (the actual load and playback is later done by {@link SavedJSMacro}).
 	 *
-	 * @return an UTF-8 encoded array of bytes which can be used to rerun the
-	 *         macro later on.
+	 * @return an UTF-8 encoded array of bytes which can be used to rerun the macro
+	 *         later on.
 	 */
 	/* default */ byte[] toJSBytes() {
 		final StringBuilder buf = new StringBuilder(fMacroInstructions.size() * 60);
@@ -178,6 +174,9 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 	}
 
 	/**
+	 * Provides the number of macro instructions which have been added to this
+	 * macro.
+	 *
 	 * @return the number of macro instructions in this macro.
 	 */
 	public int getLength() {

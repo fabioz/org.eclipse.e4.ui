@@ -12,27 +12,42 @@ package org.eclipse.e4.ui.macros;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
-@SuppressWarnings("javadoc")
+/**
+ * Plug-in activator for the macros ui.
+ */
 public class Activator extends AbstractUIPlugin {
 
+	/**
+	 * Default plug-in activator instance.
+	 */
 	private static Activator plugin;
 
+	/**
+	 * Upon creating it, set it as the default instance in the class.
+	 */
 	public Activator() {
 		super();
 		plugin = this;
 	}
 
+	/**
+	 * Provides the default plug-in activator instance.
+	 *
+	 * @return the default plug-in activator instance.
+	 */
 	public static Activator getDefault() {
 		return plugin;
 	}
 
-	public static ImageDescriptor getImageDescriptor(String key) {
-		return getDefault().getImageRegistry().getDescriptor(key);
-	}
 
+	/**
+	 * Logs an exception.
+	 *
+	 * @param exception
+	 *            the exception to be logged.
+	 */
 	public static void log(Throwable exception) {
 		try {
 			if (plugin != null) {

@@ -19,11 +19,12 @@ import java.util.Map;
 public interface IMacroInstruction {
 
 	/**
+	 * Returns the id to be used for the macro instruction. This id may be visible
+	 * to the user, so it should be something short and readable (such as
+	 * {@code KeyDown}, or {@code Command}). Note that an id cannot be changed
+	 * afterwards as this id may be written to disk.
+	 *
 	 * @return the id for the macro instruction.
-	 * @note This id may be visible to the user so it should ideally be
-	 *       something short and readable (such as {@code KeyDown}, or
-	 *       {@code Command}). Note that an id cannot be changed afterwards as
-	 *       this id may be written to disk.
 	 */
 	String getId();
 
@@ -38,14 +39,14 @@ public interface IMacroInstruction {
 	void execute(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException;
 
 	/**
-	 * Convert the macro instruction into a map (which may be later dumped to the
-	 * disk) and recreated with an
-	 * {@link org.eclipse.e4.core.macros.IMacroInstructionFactory} registered
-	 * through the org.eclipse.e4.core.macros.macroInstructionsFactory extension
+	 * Converts the macro instruction into a map for serialization, that can be
+	 * used to recreate the macro instruction with an
+	 * {@link IMacroInstructionFactory} registered through the
+	 * {@code org.eclipse.e4.core.macros.macroInstructionsFactory} extension
 	 * point.
 	 *
-	 * @return a map which may be dumped to the disk and can be used to recreate the
-	 *         macro instruction later on.
+	 * @return a map that may be serialized and that can be used to recreate the
+	 *         macro instruction
 	 */
 	Map<String, String> toMap();
 

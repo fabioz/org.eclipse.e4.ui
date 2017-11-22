@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.e4.ui.macros.internal;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.e4.ui.macros.Activator;
+import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.action.IStatusLineManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.dialogs.MessageDialogWithToggle;
@@ -23,7 +26,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 
 /**
  * Helper class to show notifications to the user.
@@ -36,14 +38,18 @@ public class UserNotifications {
 
 	private static final String NO_EDITOR_ON_MACRO_RECORD_STARTUP_NOTIFICATION_MSG = "NO_EDITOR_ON_MACRO_RECORD_STARTUP_NOTIFICATION_MSG"; //$NON-NLS-1$
 
+	@Named(IServiceConstants.ACTIVE_SHELL)
+	@Inject
+	private Shell shell;
+
 	/**
 	 * Sets a given message to be shown to the user.
 	 *
 	 * @param message
 	 *            the message to be shown or null to clear it.
 	 */
-	public static void setMessage(String message) {
-		IStatusLineManager statusLineManager = UserNotifications.getStatusLineManager();
+	public void setMessage(String message) {
+		IStatusLineManager statusLineManager = getStatusLineManager();
 		if (statusLineManager != null) {
 			statusLineManager.setMessage(message);
 			if (message == null) {
@@ -59,7 +65,7 @@ public class UserNotifications {
 	 * @param message
 	 *            the error message to be shown (cannot be null).
 	 */
-	public static void showErrorMessage(String message) {
+	public void showErrorMessage(String message) {
 		Activator plugin = Activator.getDefault();
 		if (plugin != null) {
 			// Log it
@@ -67,13 +73,12 @@ public class UserNotifications {
 		}
 
 		// Make it visible to the user.
-		IStatusLineManager statusLineManager = UserNotifications.getStatusLineManager();
+		IStatusLineManager statusLineManager = getStatusLineManager();
 		if (statusLineManager == null) {
-			Shell parent = UserNotifications.getParent();
-			if (parent == null) {
+			if (shell == null) {
 				System.err.println(Messages.Activator_ErrorMacroRecording + ": " + message); //$NON-NLS-1$
 			} else {
-				MessageDialog.openWarning(parent, Messages.Activator_ErrorMacroRecording, message);
+				MessageDialog.openWarning(shell, Messages.Activator_ErrorMacroRecording, message);
 			}
 		} else {
 			statusLineManager.setErrorMessage(message);
@@ -86,21 +91,13 @@ public class UserNotifications {
 	}
 
 	/**
-	 * @return a shell to be used as a dialog's parent.
-	 */
-	private static Shell getParent() {
-		IWorkbenchWindow activeWorkbenchWindow = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-		if (activeWorkbenchWindow == null) {
-			return null;
-		}
-		return activeWorkbenchWindow.getShell();
-	}
-
-	/**
+	 * Provides the status line manager to be used for notifications or null if it
+	 * is not available.
+	 *
 	 * @return the available status line manager for the current editor.
 	 */
-	private static IStatusLineManager getStatusLineManager() {
-		IWorkbenchWindow activeWorkbenchWindow = EditorUtils.getActivateWorkbenchWindow();
+	private IStatusLineManager getStatusLineManager() {
+		IWorkbenchWindow activeWorkbenchWindow = EditorUtils.getActiveWorkbenchWindow();
 		if (activeWorkbenchWindow == null) {
 			return null;
 		}
@@ -122,7 +119,7 @@ public class UserNotifications {
 	/**
 	 * Show a notification regarding limitations on find/replace.
 	 */
-	public static void notifyFindReplace() {
+	public void notifyFindReplace() {
 		openWarningWithIgnoreToggle(Messages.UserNotifications_FindReplaceDialogTitle,
 				Messages.UserNotifications_FindReplaceDialogMessage, FIND_REPLACE_USER_NOTIFICATION_MSG);
 	}
@@ -130,7 +127,7 @@ public class UserNotifications {
 	/**
 	 * Show a notification regarding limitations on the editor changing.
 	 */
-	public static void notifyCurrentEditor() {
+	public void notifyCurrentEditor() {
 		openWarningWithIgnoreToggle(Messages.UserNotifications_EditorChangedTitle,
 				Messages.UserNotifications_EditorChangedMessage, CURRENT_EDITOR_NOTIFICATION_MSG);
 	}
@@ -139,7 +136,7 @@ public class UserNotifications {
 	 * Show a notification regarding not having an editor opened when record
 	 * started.
 	 */
-	public static void notifyNoEditorOnMacroRecordStartup() {
+	public void notifyNoEditorOnMacroRecordStartup() {
 		openWarningWithIgnoreToggle(Messages.UserNotifications_NoEditorForRecordTitle,
 				Messages.UserNotifications_NoEditorForRecordMsg, NO_EDITOR_ON_MACRO_RECORD_STARTUP_NOTIFICATION_MSG);
 	}
@@ -148,17 +145,16 @@ public class UserNotifications {
 	 * Show a notification regarding not having an editor opened when playback
 	 * started.
 	 */
-	public static void notifyNoEditorOnMacroPlaybackStartup() {
+	public void notifyNoEditorOnMacroPlaybackStartup() {
 		openWarningWithIgnoreToggle(Messages.UserNotifications_NoEditorForPlaybackTitle,
 				Messages.UserNotifications_NoEditorForPlaybackMsg, NO_EDITOR_ON_MACRO_RECORD_STARTUP_NOTIFICATION_MSG);
 	}
 
-	private static void openWarningWithIgnoreToggle(String title, String message, String key) {
-		IWorkbenchWindow activateWorkbenchWindow = EditorUtils.getActivateWorkbenchWindow();
-		if (activateWorkbenchWindow == null) {
+	private void openWarningWithIgnoreToggle(String title, String message, String key) {
+		if (shell == null) {
+			System.err.println(message);
 			return;
 		}
-		Shell shell = activateWorkbenchWindow.getShell();
 
 		IPreferenceStore store = Activator.getDefault().getPreferenceStore();
 		String val = store.getString(key);

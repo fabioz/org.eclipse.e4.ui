@@ -24,6 +24,10 @@ public class StyledTextMacroRecorder implements Listener {
 
 	private final EMacroService fMacroService;
 
+	/**
+	 * @param macroService
+	 *            the macro service where macro instructions should be added.
+	 */
 	public StyledTextMacroRecorder(EMacroService macroService) {
 		this.fMacroService = macroService;
 	}
@@ -40,10 +44,27 @@ public class StyledTextMacroRecorder implements Listener {
 		}
 	}
 
+	/**
+	 * Uninstalls the macro recorder from the given styled text (which means that it
+	 * will no longer create macro instructions from key presses in the given styled
+	 * text).
+	 *
+	 * @param textWidget
+	 *            the styled text where key presses were previously being listened
+	 *            to.
+	 */
 	public void uninstall(StyledText textWidget) {
 		textWidget.removeListener(SWT.KeyDown, this);
 	}
 
+	/**
+	 * Starts listening to key presses in the given styled text so that macro
+	 * instructions are created and added to the macro service when macro record is
+	 * active.
+	 *
+	 * @param textWidget
+	 *            the styled text to be listened for key presses.
+	 */
 	public void install(StyledText textWidget) {
 		textWidget.addListener(SWT.KeyDown, this);
 	}

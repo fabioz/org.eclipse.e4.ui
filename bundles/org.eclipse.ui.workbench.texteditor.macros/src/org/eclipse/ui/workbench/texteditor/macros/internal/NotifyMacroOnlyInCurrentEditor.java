@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.ui.workbench.texteditor.macros.internal;
 
+import org.eclipse.e4.core.contexts.ContextInjectionFactory;
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.CancelMacroPlaybackException;
 import org.eclipse.e4.core.macros.CancelMacroRecordingException;
 import org.eclipse.e4.core.macros.EMacroService;
@@ -112,12 +114,32 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 */
 	private StyledText fLastEditor;
 
+	private UserNotifications fUserNotifications;
+
+	private IEclipseContext fEclipseContext;
+
 	/**
 	 * @param macroService
 	 *            the macro service.
+	 * @param eclipseContext
+	 *            eclipse context for dependency injection.
 	 */
-	public NotifyMacroOnlyInCurrentEditor(EMacroService macroService) {
-		this.fMacroService = macroService;
+	public NotifyMacroOnlyInCurrentEditor(EMacroService macroService, IEclipseContext eclipseContext) {
+		fMacroService = macroService;
+		fEclipseContext = eclipseContext;
+	}
+
+	/**
+	 * Provides the class which should be used to give user notifications.
+	 *
+	 * @return the helper class for giving user notifications.
+	 */
+	public UserNotifications getUserNotifications() {
+		if (fUserNotifications == null) {
+			fUserNotifications = new UserNotifications();
+			ContextInjectionFactory.inject(fUserNotifications, fEclipseContext);
+		}
+		return fUserNotifications;
 	}
 
 	/**
@@ -130,11 +152,11 @@ public class NotifyMacroOnlyInCurrentEditor {
 			StyledText currentStyledText = EditorUtils.getActiveStyledText();
 			StyledText targetStyledText = EditorUtils.getTargetStyledText(macroRecordContext);
 			if (targetStyledText != currentStyledText && currentStyledText != fLastEditor) {
-				UserNotifications.setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
-				UserNotifications.notifyCurrentEditor();
+				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
+				getUserNotifications().notifyCurrentEditor();
 			} else if (targetStyledText == currentStyledText && fLastEditor != null
 					&& fLastEditor != currentStyledText) {
-				UserNotifications.setMessage(Messages.NotifyMacroOnlyInCurrentEditor_Recording);
+				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_Recording);
 			}
 			fLastEditor = currentStyledText;
 		}
@@ -142,14 +164,14 @@ public class NotifyMacroOnlyInCurrentEditor {
 
 	/**
 	 * Check if there's some active editor when the macro recording starts.
-	 * 
+	 *
 	 * @throws CancelMacroRecordingException
 	 */
 	public void checkEditorActiveForMacroRecording() throws CancelMacroRecordingException {
 		StyledText currentStyledText = EditorUtils.getActiveStyledText();
 		if (currentStyledText == null) {
-			UserNotifications.setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
-			UserNotifications.notifyNoEditorOnMacroRecordStartup();
+			getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
+			getUserNotifications().notifyNoEditorOnMacroRecordStartup();
 			throw new CancelMacroRecordingException();
 		}
 	}
@@ -162,7 +184,7 @@ public class NotifyMacroOnlyInCurrentEditor {
 	public void checkEditorActiveForMacroPlayback() throws CancelMacroPlaybackException {
 		StyledText currentStyledText = EditorUtils.getActiveStyledText();
 		if (currentStyledText == null) {
-			UserNotifications.notifyNoEditorOnMacroPlaybackStartup();
+			getUserNotifications().notifyNoEditorOnMacroPlaybackStartup();
 			throw new CancelMacroPlaybackException();
 		}
 	}

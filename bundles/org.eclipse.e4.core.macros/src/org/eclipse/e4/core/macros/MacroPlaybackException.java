@@ -11,7 +11,7 @@
 package org.eclipse.e4.core.macros;
 
 /**
- * An exception to be raised if there's some issue when playing back macros.
+ * An exception to be raised if there is some issue when playing back macros.
  */
 public class MacroPlaybackException extends Exception {
 

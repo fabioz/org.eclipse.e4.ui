@@ -28,7 +28,7 @@ package org.eclipse.e4.core.macros;
  * instructions through {@link #addMacroInstruction(IMacroInstruction)}.
  * </p>
  * <p>
- * It's also important to note that any macro instruction added through
+ * It is also important to note that any macro instruction added through
  * addMacroInstruction also needs to have an {@link IMacroInstructionFactory}
  * registered through the org.eclipse.e4.core.macros.macroInstructionsFactory
  * extension point (with a match through
@@ -38,25 +38,31 @@ package org.eclipse.e4.core.macros;
 public interface EMacroService {
 
 	/**
-	 * @return whether a macro is currently being recorded (note that it's possible
-	 *         for the user to start recording and then playback a macro
-	 *         simultaneously -- although the inverse is not true).
+	 * Return {@code true} when a macro is currently being recorded. Note that it is
+	 * possible for the user to playback a macro while recording, although the
+	 * inverse is not true.
+	 *
+	 * @return {@code true} when a macro is currently being recorded.
 	 */
 	boolean isRecording();
 
 	/**
-	 * @return whether a macro is currently being played back.
+	 * Return {@code true} when a macro is being played back and {@code false} if
+	 * there is no macro being played back.
+	 *
+	 * @return {code true} when a macro is currently being played back.
 	 */
 	boolean isPlayingBack();
 
 	/**
-	 * Adds a macro instruction to be added to the current macro being recorded. Any
-	 * macro instruction added also needs to have an
-	 * {@link IMacroInstructionFactory} registered through the
-	 * org.eclipse.e4.core.macros.macroInstructionsFactory extension point (with a
-	 * match through {@link org.eclipse.e4.core.macros.IMacroInstruction#getId()})
+	 * Adds a macro instruction to be added to the current macro being recorded.
+	 * Each type of macro instruction must have an {@link IMacroInstructionFactory}
+	 * registered through the
+	 * {@code org.eclipse.e4.core.macros.macroInstructionsFactory} extension point
+	 * (with a match through
+	 * {@link org.eclipse.e4.core.macros.IMacroInstruction#getId()})
 	 *
-	 * Does nothing if there's no macro being currently recorded.
+	 * This method is a no-op when no macro being currently recorded.
 	 *
 	 * @param macroInstruction
 	 *            the macro instruction to be added to the macro currently being
@@ -70,50 +76,50 @@ public interface EMacroService {
 
 	/**
 	 * Adds a macro instruction to be added to the current macro being recorded.
-	 * This method should be used when an event may trigger the creation of
-	 * multiple macro instructions but only one of those should be recorded.
+	 * This method should be used when an event may trigger the creation of multiple
+	 * macro instructions but only one of those should be recorded.
 	 *
 	 * For instance, if a given {@code KeyDown} event is recorded in a
-	 * {@link StyledText} and later an action is triggered by this event, the
+	 * {@code StyledText} and later an action is triggered by this event, the
 	 * recorded action should overwrite the {@code KeyDown} event.
 	 *
 	 * @param macroInstruction
 	 *            the macro instruction to be added to the macro currently being
 	 *            recorded.
 	 * @param event
-	 *            the event that triggered the creation of the macro instruction
-	 *            to be added. If there are multiple macro instructions added
-	 *            for the same event, only the one with the highest priority
-	 *            will be kept (if 2 events have the same priority, the last one
-	 *            will replace the previous one).
+	 *            the event that triggered the creation of the macro instruction to
+	 *            be added. If there are multiple macro instructions added for the
+	 *            same event, only the one with the highest priority will be kept
+	 *            (if 2 events have the same priority, the last one will replace the
+	 *            previous one).
 	 * @param priority
-	 *            the priority of the macro instruction being added (to be
-	 *            compared against the priority of other added macro
-	 *            instructions for the same event).
+	 *            the priority of the macro instruction being added (to be compared
+	 *            against the priority of other added macro instructions for the
+	 *            same event).
 	 * @see #addMacroInstruction(IMacroInstruction)
 	 */
 	void addMacroInstruction(IMacroInstruction macroInstruction, Object event, int priority);
 
 	/**
-	 * Toggles the macro record mode (i.e.: if it's currently not recording, starts
-	 * recording a macro, otherwise, stops the current record -- at which point a
-	 * macro should be saved with what was recorded so far).
+	 * Toggles the macro record mode: if currently not recording, starts recording a
+	 * macro, otherwise stops the current recording and saves the macro.
 	 *
-	 * Note that when playing back, calling toggleMacroRecord() should do nothing
-	 * (while it's Ok to start recording and then playback a previous macro to add
-	 * previously recorded macro instructions to the current macro, the opposite is
-	 * not true).
+	 * Note that calling {@link #toggleMacroRecord()} does nothing during play back.
+	 * Although it is possible to start recording and then replay a previous macro,
+	 * so as to add previously recorded macro instructions to the current macro, the
+	 * opposite is not true.
 	 */
 	void toggleMacroRecord();
 
 	/**
 	 * Plays back the last recorded macro.
 	 *
-	 * Note: it's Ok to call it while a macro is being recorded (which should
-	 * playback the given macro and add its contents to the new macro being
-	 * recorded).
+	 * Note that is is possible to call this method when recording a macro so as to
+	 * add the previously recorded macro instructions to the current macro being
+	 * recorded.
 	 *
 	 * @throws MacroPlaybackException
+	 *             if some error happened while recording the macro.
 	 */
 	void playbackLastMacro() throws MacroPlaybackException;
 
@@ -133,14 +139,20 @@ public interface EMacroService {
 	void removeMacroStateListener(IMacroStateListener listener);
 
 	/**
-	 * @return the macro record context created when macro record started or null if
-	 *         it's not currently recording.
+	 * Provides the macro record context or null if the macro engine is not
+	 * recording.
+	 *
+	 * @return the macro record context created when macro record started or
+	 *         {@code null} if not currently recording.
 	 */
 	IMacroRecordContext getMacroRecordContext();
 
 	/**
+	 * Provides the macro playback context or null if the macro engine is not
+	 * playing back.
+	 *
 	 * @return the macro playback context created when the macro playback started or
-	 *         null if it's not currently playing back.
+	 *         {@code null} if not currently playing back.
 	 */
 	IMacroPlaybackContext getMacroPlaybackContext();
 
@@ -148,22 +160,34 @@ public interface EMacroService {
 	// (by default should load the command behavior
 	// through the org.eclipse.e4.core.macros.commandHandling extension
 	// point,
-	// but it's possible to programmatically change it as needed later on).
+	// but it is possible to programmatically change it as needed later on).
 
 	/**
+	 * Returns {@code true} if the given Eclipse Core Command should be recorded and
+	 * {@code false} otherwise. This specifically means that when a given Eclipse
+	 * Core Command is executed, a macro instruction will be created for it.
+	 * Likewise, if {@code false} is returned, a macro instruction will not be
+	 * created automatically (and as such, it won't be recorded in the macro). See
+	 * the {@code org.eclipse.e4.core.macros.commandHandling} extension point for
+	 * details.
+	 *
 	 * @param commandId
 	 *            the id of the Eclipse Core Command.
 	 *
-	 * @return whether the command should be recorded for playback when recording a
-	 *         macro (i.e.: an {@link org.eclipse.e4.core.macros.IMacroInstruction}
-	 *         will be automatically created to play it back when in record mode).
+	 * @return whether the given Eclipse Core Command should be recorded for
+	 *         playback when recording a macro (i.e.: an
+	 *         {@link org.eclipse.e4.core.macros.IMacroInstruction} will be
+	 *         automatically created to play it back when in record mode).
 	 *
-	 * @see org.eclipse.e4.core.macros.commandHandling extension point
 	 */
-	@SuppressWarnings("javadoc")
-	boolean isCommandRecorded(String commandId);
+	boolean getRecordCommandInMacro(String commandId);
 
 	/**
+	 * Sets whether a given Eclipse Core Command should have a macro instruction
+	 * added automatically while recording a macro (by default, all commands are
+	 * recorded, so, this is commonly used to disable the recording of some
+	 * command).
+	 *
 	 * @param commandId
 	 *            the Eclipse Core Command id to be customized during macro
 	 *            record/playback.
@@ -175,9 +199,8 @@ public interface EMacroService {
 	 *            automatically created to play it back when in record mode. If
 	 *            false, the activation of the command will not be recorded.
 	 *
-	 * @see org.eclipse.e4.core.macros.commandHandling extension point
+	 * @see {@code org.eclipse.e4.core.macros.commandHandling} extension point
 	 */
-	@SuppressWarnings("javadoc")
 	void setRecordCommandInMacro(String commandId, boolean recordInMacro);
 
 	/**

@@ -23,6 +23,9 @@ import java.util.Map;
 public interface IMacroInstructionFactory {
 
 	/**
+	 * Creates a macro instruction from a string map obtained from
+	 * {@link IMacroInstruction#toMap()}.
+	 *
 	 * @param stringMap
 	 *            a map which was created from {@link IMacroInstruction#toMap()}
 	 * @return the {@link IMacroInstruction} created from the given stringMap.

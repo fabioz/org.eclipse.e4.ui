@@ -38,20 +38,34 @@ public class EditorUtils {
 	private final static String TARGET_EDITOR_PART = "TARGET_EDITOR_PART"; //$NON-NLS-1$
 
 	/**
-	 * @return the StyledText related to the current editor or null if there's no
+	 * Provides the styled text which is active from the current editor or null if
+	 * it is not available.
+	 *
+	 * @return the StyledText related to the current editor or null if there is no
 	 *         such widget available (i.e.: if the current editor is not a text
-	 *         editor or if there's no open editor).
+	 *         editor or if there is no open editor).
 	 */
 	public static StyledText getActiveStyledText() {
 		IEditorPart activeEditor = getActiveEditorPart();
 		if (activeEditor == null) {
 			return null;
 		}
-		return getEditorPartStyledText(activeEditor);
+		Control control = activeEditor.getAdapter(Control.class);
+		StyledText styledText = null;
+		if (control instanceof StyledText) {
+			styledText = (StyledText) control;
+		}
+		return styledText;
 	}
 
+	/**
+	 * Provides a way to get the editor part which is currently active or null if
+	 * there's no current editor part.
+	 *
+	 * @return the active editor part.
+	 */
 	public static IEditorPart getActiveEditorPart() {
-		IWorkbenchWindow activeWorkbenchWindow = getActivateWorkbenchWindow();
+		IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
 		if (activeWorkbenchWindow == null) {
 			return null;
 		}
@@ -63,9 +77,11 @@ public class EditorUtils {
 	}
 
 	/**
-	 * @return the currently active workbench window or null if not available.
+	 * Provides the current active workbench window or null if it is not available.
+	 *
+	 * @return the current active workbench window or null if it is not available.
 	 */
-	public static IWorkbenchWindow getActivateWorkbenchWindow() {
+	public static IWorkbenchWindow getActiveWorkbenchWindow() {
 		IWorkbench workbench;
 		try {
 			workbench = PlatformUI.getWorkbench();
@@ -73,21 +89,6 @@ public class EditorUtils {
 			return null;
 		}
 		return workbench.getActiveWorkbenchWindow();
-	}
-
-	/**
-	 * @param editor
-	 *            the editor for which we want the StyledText.
-	 * @return the StyledText related to the current editor or null if it doesn't
-	 *         have a StyledText.
-	 */
-	public static StyledText getEditorPartStyledText(IEditorPart editor) {
-		Control control = editor.getAdapter(Control.class);
-		StyledText styledText = null;
-		if (control instanceof StyledText) {
-			styledText = (StyledText) control;
-		}
-		return styledText;
 	}
 
 	/**
