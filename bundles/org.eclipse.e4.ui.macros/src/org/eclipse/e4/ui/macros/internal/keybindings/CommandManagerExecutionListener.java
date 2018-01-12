@@ -124,7 +124,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 		}
 		if (fMacroService.isRecording()) {
 			// Record it if needed.
-			if (fMacroService.getRecordCommandInMacro(commandId)) {
+			if (fMacroService.canRecordCommand(commandId)) {
 				if (commandAndTrigger.trigger instanceof Event) {
 					Event swtEvent = (Event) commandAndTrigger.trigger;
 					// Only record commands executed in the initial editor.
@@ -156,7 +156,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 			}
 		}
 		// Let's check if it should actually be recorded.
-		if (fMacroService.getRecordCommandInMacro(commandId)) {
+		if (fMacroService.canRecordCommand(commandId)) {
 			if (!acceptEvent(event)) {
 				fParameterizedCommandsAndTriggerStack.add(null);
 				return;
@@ -197,15 +197,16 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 	}
 
 	/**
-	 * Note that it is private and shouldn't be usually changed, although the current
-	 * structure is helpful as it allows us to accept any event on tests through
-	 * reflection.
+	 * Filter to accept or reject an event (accepting means we can generate a macro
+	 * instruction for it and false means we shouldn't).
+	 *
+	 * Note: mocked in tests using reflection.
 	 */
 	private IFilter fFilter = new IFilter() {
 
 		@Override
 		public boolean acceptEvent(Event swtEvent) {
-			if (EditorUtils.getActiveStyledText() != EditorUtils
+			if (EditorUtils.getActiveEditorStyledText() != EditorUtils
 					.getTargetStyledText(fMacroService.getMacroRecordContext())) {
 				// Note: it previously checked swtEvent.widget, but sometimes the event was
 				// generated from the wrong control (i.e.: opening a new editor and doing

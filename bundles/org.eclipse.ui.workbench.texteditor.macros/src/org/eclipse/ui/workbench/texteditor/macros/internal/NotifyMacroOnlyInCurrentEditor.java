@@ -149,7 +149,7 @@ public class NotifyMacroOnlyInCurrentEditor {
 	private void checkCurrentEditor() {
 		IMacroRecordContext macroRecordContext = this.fMacroService.getMacroRecordContext();
 		if (macroRecordContext != null) {
-			StyledText currentStyledText = EditorUtils.getActiveStyledText();
+			StyledText currentStyledText = EditorUtils.getActiveEditorStyledText();
 			StyledText targetStyledText = EditorUtils.getTargetStyledText(macroRecordContext);
 			if (targetStyledText != currentStyledText && currentStyledText != fLastEditor) {
 				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
@@ -166,9 +166,10 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 * Check if there's some active editor when the macro recording starts.
 	 *
 	 * @throws CancelMacroRecordingException
+	 *             if there's no active editor available for the macro recording.
 	 */
 	public void checkEditorActiveForMacroRecording() throws CancelMacroRecordingException {
-		StyledText currentStyledText = EditorUtils.getActiveStyledText();
+		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText();
 		if (currentStyledText == null) {
 			getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
 			getUserNotifications().notifyNoEditorOnMacroRecordStartup();
@@ -180,9 +181,10 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 * Check if there's some active editor when the macro playback starts.
 	 *
 	 * @throws CancelMacroPlaybackException
+	 *             if there's no active editor available for the macro playback.
 	 */
 	public void checkEditorActiveForMacroPlayback() throws CancelMacroPlaybackException {
-		StyledText currentStyledText = EditorUtils.getActiveStyledText();
+		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText();
 		if (currentStyledText == null) {
 			getUserNotifications().notifyNoEditorOnMacroPlaybackStartup();
 			throw new CancelMacroPlaybackException();

@@ -61,7 +61,7 @@ public class MacroManager {
 	 * {@code maxNumberOfTemporaryMacros}).
 	 *
 	 * @param maxNumberOfTemporaryMacros
-	 *            The max number of temporary macros to be kept (must be >= 1).
+	 *            The max number of temporary macros to be kept (must be &ge; 1).
 	 */
 	public void setMaxNumberOfTemporaryMacros(int maxNumberOfTemporaryMacros) {
 		Assert.isTrue(maxNumberOfTemporaryMacros >= 1);
@@ -143,8 +143,8 @@ public class MacroManager {
 	}
 
 	/**
-	 * If there's a macro being currently recorded, {@code true} is returned,
-	 * otherwise, {@code false} is returned.
+	 * Return {@code true} if a macro is currently being recorded, and {@code false}
+	 * otherwise.
 	 *
 	 * @return whether a macro is currently being recorded.
 	 */
@@ -153,8 +153,8 @@ public class MacroManager {
 	}
 
 	/**
-	 * If there's a macro being currently played back, {@code true} is returned,
-	 * otherwise, {@code false} is returned.
+	 * Return {@code true} if a macro is currently being played back, and
+	 * {@code false} otherwise.
 	 *
 	 * @return whether a macro is currently being played back.
 	 */
@@ -169,7 +169,7 @@ public class MacroManager {
 	 * @param macroInstruction
 	 *            the macro instruction to be recorded.
 	 * @throws CancelMacroRecordingException
-	 *             if the macro recording should be cancelled.
+	 *             if the macro recording has been cancelled.
 	 */
 	public void addMacroInstruction(IMacroInstruction macroInstruction) throws CancelMacroRecordingException {
 		ComposableMacro macroBeingRecorded = fMacroBeingRecorded;
@@ -206,7 +206,7 @@ public class MacroManager {
 	 *            against the priority of other added macro instructions for the
 	 *            same event).
 	 * @throws CancelMacroRecordingException
-	 *             if the macro recording should be cancelled.
+	 *             if the macro recording has been cancelled.
 	 * @see #addMacroInstruction(IMacroInstruction)
 	 */
 	public void addMacroInstruction(IMacroInstruction macroInstruction, Object event, int priority)
@@ -293,12 +293,12 @@ public class MacroManager {
 	/**
 	 * Helper class to store a path an a time.
 	 */
-	public static final class PathAndTime {
+	public static final class StoredMacroReference {
 
 		public final Path fPath;
 		public final long fLastModified;
 
-		public PathAndTime(Path path, long lastModified) {
+		public StoredMacroReference(Path path, long lastModified) {
 			fPath = path;
 			fLastModified = lastModified;
 		}
@@ -324,7 +324,7 @@ public class MacroManager {
 			return;
 		}
 
-		List<PathAndTime> pathAndTime = listTemporaryMacrosPathAndTime(macroDirectory);
+		List<StoredMacroReference> storedMacroReferences = listTemporaryMacroReferences(macroDirectory);
 
 		try {
 			Path tempFile = Files.createTempFile(Paths.get(macroDirectory.toURI()), TEMP_MACRO_PREFIX, JS_EXT);
@@ -336,8 +336,8 @@ public class MacroManager {
 		}
 
 		// Remove older files
-		while (pathAndTime.size() >= fMaxNumberOfTemporaryMacros) {
-			PathAndTime removeFile = pathAndTime.remove(pathAndTime.size() - 1);
+		while (storedMacroReferences.size() >= fMaxNumberOfTemporaryMacros) {
+			StoredMacroReference removeFile = storedMacroReferences.remove(storedMacroReferences.size() - 1);
 			try {
 				Files.deleteIfExists(removeFile.fPath);
 			} catch (Exception e) {
@@ -357,11 +357,11 @@ public class MacroManager {
 	 * @return the temporary macros available along with their path and creation
 	 *         time
 	 */
-	public List<PathAndTime> listTemporaryMacrosPathAndTime(File macroDirectory) {
+	public List<StoredMacroReference> listTemporaryMacroReferences(File macroDirectory) {
 		// It is a sorted list and not a tree map to deal with the case of
 		// multiple times pointing to the same file (although hard to happen,
 		// it is not impossible).
-		List<PathAndTime> pathAndTime = new ArrayList<>();
+		List<StoredMacroReference> storedMacroReferences = new ArrayList<>();
 
 		try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(Paths.get(macroDirectory.toURI()),
 				new DirectoryStream.Filter<Path>() {
@@ -373,7 +373,8 @@ public class MacroManager {
 					}
 				})) {
 			for (Path p : directoryStream) {
-				pathAndTime.add(new PathAndTime(p, Files.getLastModifiedTime(p).to(TimeUnit.NANOSECONDS)));
+				storedMacroReferences
+						.add(new StoredMacroReference(p, Files.getLastModifiedTime(p).to(TimeUnit.NANOSECONDS)));
 			}
 		} catch (IOException e1) {
 			Activator.log(e1);
@@ -381,14 +382,14 @@ public class MacroManager {
 
 		// Sort by reversed modified time (because it is faster to remove the
 		// last element from an ArrayList later on).
-		Collections.sort(pathAndTime, new Comparator<PathAndTime>() {
+		Collections.sort(storedMacroReferences, new Comparator<StoredMacroReference>() {
 
 			@Override
-			public int compare(PathAndTime o1, PathAndTime o2) {
+			public int compare(StoredMacroReference o1, StoredMacroReference o2) {
 				return Long.compare(o2.fLastModified, o1.fLastModified);
 			}
 		});
-		return pathAndTime;
+		return storedMacroReferences;
 	}
 
 	/**
@@ -493,9 +494,9 @@ public class MacroManager {
 	public void reloadMacros() {
 		for (File macroDirectory : fMacrosDirectories) {
 			if (macroDirectory.isDirectory()) {
-				List<PathAndTime> listPathsAndTimes = listTemporaryMacrosPathAndTime(macroDirectory);
-				if (listPathsAndTimes.size() > 0) {
-					fLastMacro = new SavedJSMacro(listPathsAndTimes.get(0).fPath.toFile());
+				List<StoredMacroReference> storedMacroReferences = listTemporaryMacroReferences(macroDirectory);
+				if (storedMacroReferences.size() > 0) {
+					fLastMacro = new SavedJSMacro(storedMacroReferences.get(0).fPath.toFile());
 					return; // Load the last from the first directory (others aren't used for the last
 							// macro).
 				}
@@ -557,7 +558,7 @@ public class MacroManager {
 	 * @return the number of macro instructions in the macro currently recorded or
 	 *         -1 if no macro is being recorded.
 	 */
-	public int getLenOfMacroBeingRecorded() {
+	public int getLengthOfMacroBeingRecorded() {
 		if (fMacroBeingRecorded != null) {
 			return fMacroBeingRecorded.getLength();
 		}

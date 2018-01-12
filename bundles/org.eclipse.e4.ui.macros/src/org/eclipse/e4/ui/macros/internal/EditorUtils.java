@@ -45,8 +45,8 @@ public class EditorUtils {
 	 *         such widget available (i.e.: if the current editor is not a text
 	 *         editor or if there is no open editor).
 	 */
-	public static StyledText getActiveStyledText() {
-		IEditorPart activeEditor = getActiveEditorPart();
+	public static StyledText getActiveEditorStyledText() {
+		IEditorPart activeEditor = getActiveEditor();
 		if (activeEditor == null) {
 			return null;
 		}
@@ -64,7 +64,7 @@ public class EditorUtils {
 	 *
 	 * @return the active editor part.
 	 */
-	public static IEditorPart getActiveEditorPart() {
+	public static IEditorPart getActiveEditor() {
 		IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
 		if (activeWorkbenchWindow == null) {
 			return null;
@@ -102,7 +102,7 @@ public class EditorUtils {
 		if (macroContext != null) {
 			Object object = macroContext.get(TARGET_STYLED_TEXT);
 			if (object == null) {
-				macroContext.set(TARGET_STYLED_TEXT, getActiveStyledText());
+				macroContext.set(TARGET_STYLED_TEXT, getActiveEditorStyledText());
 			}
 		}
 	}
@@ -118,7 +118,7 @@ public class EditorUtils {
 		if (macroContext != null) {
 			Object object = macroContext.get(TARGET_EDITOR_PART);
 			if (object == null) {
-				macroContext.set(TARGET_EDITOR_PART, getActiveEditorPart());
+				macroContext.set(TARGET_EDITOR_PART, getActiveEditor());
 			}
 		}
 	}

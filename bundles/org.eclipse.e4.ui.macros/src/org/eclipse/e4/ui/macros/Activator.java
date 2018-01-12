@@ -33,8 +33,6 @@ public class Activator extends AbstractUIPlugin {
 	}
 
 	/**
-	 * Provides the default plug-in activator instance.
-	 *
 	 * @return the default plug-in activator instance.
 	 */
 	public static Activator getDefault() {

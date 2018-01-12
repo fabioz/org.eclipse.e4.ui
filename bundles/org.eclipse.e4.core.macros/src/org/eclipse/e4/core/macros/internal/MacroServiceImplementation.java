@@ -308,13 +308,13 @@ public class MacroServiceImplementation implements EMacroService {
 	}
 
 	@Override
-	public boolean getRecordCommandInMacro(String commandId) {
+	public boolean canRecordCommand(String commandId) {
 		Map<String, Boolean> macrocommandHandling = getCommandIdToRecordFlag();
 		return macrocommandHandling.getOrDefault(commandId, true);
 	}
 
 	@Override
-	public void setRecordCommandInMacro(String commandId, boolean recordMacroInstruction) {
+	public void setCanRecordCommand(String commandId, boolean recordMacroInstruction) {
 		getCommandIdToRecordFlag().put(commandId, recordMacroInstruction);
 	}
 

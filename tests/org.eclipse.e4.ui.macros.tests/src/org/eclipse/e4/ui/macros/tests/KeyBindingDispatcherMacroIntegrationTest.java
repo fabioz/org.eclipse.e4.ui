@@ -253,7 +253,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 		macroRecordContext.set("target_styled_text", styledText); // org.eclipse.e4.ui.macros.Activator.TARGET_STYLED_TEXT
 
 		Assert.assertEquals(
-				Arrays.asList("org.eclipse.e4.ui.macros.internal.actions.KeepMacroUIUpdated",
+				Arrays.asList("org.eclipse.e4.ui.macros.internal.actions.MacroUIUpdater",
 						"org.eclipse.e4.ui.macros.internal.keybindings.CommandManagerExecutionListenerInstaller"),
 				getRegisteredClasses(macroService));
 		IMacroStateListener[] macroStateListeners = ((MacroServiceImplementation) macroService)
@@ -297,7 +297,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 
 		notifyCtrlI(styledText);
 		assertTrue(handler.q2);
-		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLenOfMacroBeingRecorded(), 1);
+		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLengthOfMacroBeingRecorded(), 1);
 
 		finishRecording(macroService);
 
@@ -332,7 +332,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 		startRecording(macroService);
 		notifyCtrlI(styledText);
 		assertTrue(handler.q2);
-		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLenOfMacroBeingRecorded(), 1);
+		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLengthOfMacroBeingRecorded(), 1);
 		finishRecording(macroService);
 
 		// Macro was saved in the dir.

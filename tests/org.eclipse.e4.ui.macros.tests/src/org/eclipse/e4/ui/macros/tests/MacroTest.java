@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.RegistryFactory;
 import org.eclipse.core.runtime.spi.RegistryStrategy;
@@ -31,7 +32,7 @@ import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
 import org.eclipse.e4.core.macros.internal.MacroManager;
-import org.eclipse.e4.core.macros.internal.MacroManager.PathAndTime;
+import org.eclipse.e4.core.macros.internal.MacroManager.StoredMacroReference;
 import org.eclipse.e4.core.macros.internal.MacroServiceImplementation;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -182,9 +183,9 @@ public class MacroTest {
 		Assert.assertTrue(macroManager.isRecording());
 		Object ev = new Integer(1);
 		macroManager.addMacroInstruction(new DummyMacroInstruction("macro1"), ev, 2);
-		Assert.assertEquals(1, macroManager.getLenOfMacroBeingRecorded());
+		Assert.assertEquals(1, macroManager.getLengthOfMacroBeingRecorded());
 		macroManager.addMacroInstruction(new DummyMacroInstruction("macro2"), ev, 1); // will not replace it
-		Assert.assertEquals(1, macroManager.getLenOfMacroBeingRecorded());
+		Assert.assertEquals(1, macroManager.getLengthOfMacroBeingRecorded());
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertFalse(macroManager.isRecording());
 
@@ -201,9 +202,9 @@ public class MacroTest {
 		Assert.assertTrue(macroManager.isRecording());
 		Object ev = new Integer(1);
 		macroManager.addMacroInstruction(new DummyMacroInstruction("macro1"), ev, 1);
-		Assert.assertEquals(1, macroManager.getLenOfMacroBeingRecorded());
+		Assert.assertEquals(1, macroManager.getLengthOfMacroBeingRecorded());
 		macroManager.addMacroInstruction(new DummyMacroInstruction("macro2"), ev, 2); // will replace it
-		Assert.assertEquals(1, macroManager.getLenOfMacroBeingRecorded());
+		Assert.assertEquals(1, macroManager.getLengthOfMacroBeingRecorded());
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertFalse(macroManager.isRecording());
 
@@ -249,22 +250,22 @@ public class MacroTest {
 		String[] macroNames2 = listTemporaryMacros(root);
 		Assert.assertEquals(2, macroNames2.length);
 		HashSet<Long> times = new HashSet<>();
-		List<PathAndTime> macrosPathAndTime = macroManager.listTemporaryMacrosPathAndTime(root);
-		for (PathAndTime pathAndTime : macrosPathAndTime) {
-			times.add(pathAndTime.fLastModified);
+		List<StoredMacroReference> storedMacroReferences = macroManager.listTemporaryMacroReferences(root);
+		for (StoredMacroReference macroReference : storedMacroReferences) {
+			times.add(macroReference.fLastModified);
 		}
 		Assert.assertEquals(2, times.size());
 
 		// Now, creating a new one removes the old one
 		sleepABit();
 		createMacroWithOneDummyMacroInstruction(macroManager, macroInstructionIdToFactory);
-		macrosPathAndTime = macroManager.listTemporaryMacrosPathAndTime(root);
+		storedMacroReferences = macroManager.listTemporaryMacroReferences(root);
 
 		String[] macroNames3 = listTemporaryMacros(root);
 		Assert.assertEquals(2, macroNames3.length);
 
-		for (PathAndTime pathAndTime : macrosPathAndTime) {
-			times.add(pathAndTime.fLastModified);
+		for (StoredMacroReference storedMacroReference : storedMacroReferences) {
+			times.add(storedMacroReference.fLastModified);
 		}
 
 		Assert.assertEquals(3, times.size());

@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.ui.macros.Activator;
 import org.eclipse.e4.ui.services.IServiceConstants;
 import org.eclipse.jface.action.IStatusLineManager;
@@ -39,6 +40,7 @@ public class UserNotifications {
 	private static final String NO_EDITOR_ON_MACRO_RECORD_STARTUP_NOTIFICATION_MSG = "NO_EDITOR_ON_MACRO_RECORD_STARTUP_NOTIFICATION_MSG"; //$NON-NLS-1$
 
 	@Named(IServiceConstants.ACTIVE_SHELL)
+	@Optional
 	@Inject
 	private Shell shell;
 

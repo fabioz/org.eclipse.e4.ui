@@ -25,7 +25,7 @@ import org.eclipse.ui.commands.ICommandService;
  * Makes sure that the toolbar elements are kept properly updated even if the
  * macro is programmatically stopped.
  */
-public class KeepMacroUIUpdated implements IMacroStateListener {
+public class MacroUIUpdater implements IMacroStateListener {
 
 	/**
 	 * A listener which will show messages to the user while he types macro
@@ -65,8 +65,7 @@ public class KeepMacroUIUpdated implements IMacroStateListener {
 
 	private UserNotifications getUserNotifications() {
 		if (fUserNotifications == null) {
-			fUserNotifications = new UserNotifications();
-			ContextInjectionFactory.inject(fUserNotifications, fEclipseContext);
+			fUserNotifications = ContextInjectionFactory.make(UserNotifications.class, fEclipseContext);
 		}
 		return fUserNotifications;
 	}

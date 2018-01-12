@@ -29,9 +29,10 @@ package org.eclipse.e4.core.macros;
  * </p>
  * <p>
  * It is also important to note that any macro instruction added through
- * addMacroInstruction also needs to have an {@link IMacroInstructionFactory}
- * registered through the org.eclipse.e4.core.macros.macroInstructionsFactory
- * extension point (with a match through
+ * {@link #addMacroInstruction} must have an {@link IMacroInstructionFactory}
+ * registered through the
+ * {@code org.eclipse.e4.core.macros.macroInstructionsFactory} extension point
+ * (with a match through
  * {@link org.eclipse.e4.core.macros.IMacroInstruction#getId()}).
  * </p>
  */
@@ -180,7 +181,7 @@ public interface EMacroService {
 	 *         automatically created to play it back when in record mode).
 	 *
 	 */
-	boolean getRecordCommandInMacro(String commandId);
+	boolean canRecordCommand(String commandId);
 
 	/**
 	 * Sets whether a given Eclipse Core Command should have a macro instruction
@@ -201,7 +202,7 @@ public interface EMacroService {
 	 *
 	 * @see {@code org.eclipse.e4.core.macros.commandHandling} extension point
 	 */
-	void setRecordCommandInMacro(String commandId, boolean recordInMacro);
+	void setCanRecordCommand(String commandId, boolean recordInMacro);
 
 	/**
 	 * Adds a macro instructions listener (it may be added to validate the current
