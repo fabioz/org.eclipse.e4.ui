@@ -146,8 +146,8 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 		if (acceptEvent(event)) {
 			if ("org.eclipse.ui.edit.findReplace".equals(commandId)) { //$NON-NLS-1$
 				// We can't deal with find/replace at this point. Let the user know.
-				UserNotifications userNotifications = new UserNotifications();
-				ContextInjectionFactory.inject(userNotifications, fEclipseContext);
+				UserNotifications userNotifications = ContextInjectionFactory.make(UserNotifications.class,
+						fEclipseContext);
 				try {
 					userNotifications.notifyFindReplace();
 				} finally {
@@ -206,7 +206,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 
 		@Override
 		public boolean acceptEvent(Event swtEvent) {
-			if (EditorUtils.getActiveEditorStyledText() != EditorUtils
+			if (EditorUtils.getActiveEditorStyledText(fEclipseContext) != EditorUtils
 					.getTargetStyledText(fMacroService.getMacroRecordContext())) {
 				// Note: it previously checked swtEvent.widget, but sometimes the event was
 				// generated from the wrong control (i.e.: opening a new editor and doing

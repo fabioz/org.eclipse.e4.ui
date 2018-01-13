@@ -25,8 +25,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.ISources;
 
 /**
  * Helper class to show notifications to the user.
@@ -43,6 +42,11 @@ public class UserNotifications {
 	@Optional
 	@Inject
 	private Shell shell;
+
+	@Inject
+	@Named(ISources.ACTIVE_EDITOR_NAME)
+	@Optional
+	private IEditorPart activeEditor;
 
 	/**
 	 * Sets a given message to be shown to the user.
@@ -99,15 +103,6 @@ public class UserNotifications {
 	 * @return the available status line manager for the current editor.
 	 */
 	private IStatusLineManager getStatusLineManager() {
-		IWorkbenchWindow activeWorkbenchWindow = EditorUtils.getActiveWorkbenchWindow();
-		if (activeWorkbenchWindow == null) {
-			return null;
-		}
-		IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
-		if (activePage == null) {
-			return null;
-		}
-		IEditorPart activeEditor = activePage.getActiveEditor();
 		if (activeEditor == null) {
 			return null;
 		}

@@ -136,8 +136,7 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 */
 	public UserNotifications getUserNotifications() {
 		if (fUserNotifications == null) {
-			fUserNotifications = new UserNotifications();
-			ContextInjectionFactory.inject(fUserNotifications, fEclipseContext);
+			fUserNotifications = ContextInjectionFactory.make(UserNotifications.class, fEclipseContext);
 		}
 		return fUserNotifications;
 	}
@@ -149,7 +148,7 @@ public class NotifyMacroOnlyInCurrentEditor {
 	private void checkCurrentEditor() {
 		IMacroRecordContext macroRecordContext = this.fMacroService.getMacroRecordContext();
 		if (macroRecordContext != null) {
-			StyledText currentStyledText = EditorUtils.getActiveEditorStyledText();
+			StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
 			StyledText targetStyledText = EditorUtils.getTargetStyledText(macroRecordContext);
 			if (targetStyledText != currentStyledText && currentStyledText != fLastEditor) {
 				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
@@ -169,10 +168,11 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 *             if there's no active editor available for the macro recording.
 	 */
 	public void checkEditorActiveForMacroRecording() throws CancelMacroRecordingException {
-		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText();
+		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
 		if (currentStyledText == null) {
-			getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
-			getUserNotifications().notifyNoEditorOnMacroRecordStartup();
+			UserNotifications userNotifications = getUserNotifications();
+			userNotifications.setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
+			userNotifications.notifyNoEditorOnMacroRecordStartup();
 			throw new CancelMacroRecordingException();
 		}
 	}
@@ -184,7 +184,7 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 *             if there's no active editor available for the macro playback.
 	 */
 	public void checkEditorActiveForMacroPlayback() throws CancelMacroPlaybackException {
-		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText();
+		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
 		if (currentStyledText == null) {
 			getUserNotifications().notifyNoEditorOnMacroPlaybackStartup();
 			throw new CancelMacroPlaybackException();

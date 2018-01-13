@@ -11,14 +11,18 @@
 package org.eclipse.e4.ui.macros.internal.keybindings;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 import org.eclipse.core.commands.CommandManager;
 import org.eclipse.e4.core.commands.EHandlerService;
 import org.eclipse.e4.core.contexts.IEclipseContext;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
 import org.eclipse.e4.ui.macros.internal.EditorUtils;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.ISources;
 
 /**
  * A macro state listener that will install the execution listener when in a
@@ -34,6 +38,11 @@ public class CommandManagerExecutionListenerInstaller implements IMacroStateList
 
 	@Inject
 	private IEclipseContext fEclipseContext;
+
+	@Inject
+	@Named(ISources.ACTIVE_EDITOR_NAME)
+	@Optional
+	private IEditorPart activeEditor;
 
 	private CommandManagerExecutionListener fCommandManagerExecutionListener;
 
@@ -64,11 +73,11 @@ public class CommandManagerExecutionListenerInstaller implements IMacroStateList
 
 	@Override
 	public void macroPlaybackContextCreated(IMacroPlaybackContext macroContext) {
-		EditorUtils.cacheTargetStyledText(macroContext);
+		EditorUtils.cacheTargetStyledText(activeEditor, macroContext);
 	}
 
 	@Override
 	public void macroRecordContextCreated(IMacroRecordContext macroContext) {
-		EditorUtils.cacheTargetStyledText(macroContext);
+		EditorUtils.cacheTargetStyledText(activeEditor, macroContext);
 	}
 }

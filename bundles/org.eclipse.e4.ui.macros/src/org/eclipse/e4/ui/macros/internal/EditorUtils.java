@@ -10,14 +10,12 @@
  *******************************************************************************/
 package org.eclipse.e4.ui.macros.internal;
 
+import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.IMacroContext;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbench;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.ISources;
 
 /**
  * Utilities related to getting/storing the current editor from/to the macro
@@ -38,19 +36,20 @@ public class EditorUtils {
 	private final static String TARGET_EDITOR_PART = "TARGET_EDITOR_PART"; //$NON-NLS-1$
 
 	/**
-	 * Provides the styled text which is active from the current editor or null if
-	 * it is not available.
+	 * Provides the {@link StyledText} from the passed editor or {@code null} if not
+	 * available.
 	 *
-	 * @return the StyledText related to the current editor or null if there is no
-	 *         such widget available (i.e.: if the current editor is not a text
-	 *         editor or if there is no open editor).
+	 * @param editor
+	 *            the editor from where the {@link StyledText} should be gotten.
+	 *
+	 * @return the {@link StyledText} related to the current editor or null if it is
+	 *         not available (i.e.: if the editor passed is not a text editor).
 	 */
-	public static StyledText getActiveEditorStyledText() {
-		IEditorPart activeEditor = getActiveEditor();
-		if (activeEditor == null) {
+	public static StyledText getActiveEditorStyledText(IEditorPart editor) {
+		if (editor == null) {
 			return null;
 		}
-		Control control = activeEditor.getAdapter(Control.class);
+		Control control = editor.getAdapter(Control.class);
 		StyledText styledText = null;
 		if (control instanceof StyledText) {
 			styledText = (StyledText) control;
@@ -59,50 +58,38 @@ public class EditorUtils {
 	}
 
 	/**
-	 * Provides a way to get the editor part which is currently active or null if
-	 * there's no current editor part.
+	 * Provides the {@link StyledText} which is currently active in the given
+	 * eclipse context or {@code null} if not available.
 	 *
-	 * @return the active editor part.
+	 * @param eclipseContext
+	 *            the context to get the active editor from (from where the
+	 *            {@link StyledText} will be gotten).
+	 * @return the {@link StyledText} from the editor which is currently active in
+	 *         the context or {@code null}.
 	 */
-	public static IEditorPart getActiveEditor() {
-		IWorkbenchWindow activeWorkbenchWindow = getActiveWorkbenchWindow();
-		if (activeWorkbenchWindow == null) {
-			return null;
+	public static StyledText getActiveEditorStyledText(IEclipseContext eclipseContext) {
+		Object active = eclipseContext.getActive(ISources.ACTIVE_EDITOR_NAME);
+		if (active instanceof IEditorPart) {
+			return EditorUtils.getActiveEditorStyledText((IEditorPart) active);
 		}
-		IWorkbenchPage activePage = activeWorkbenchWindow.getActivePage();
-		if (activePage == null) {
-			return null;
-		}
-		return activePage.getActiveEditor();
+		return null;
 	}
 
 	/**
-	 * Provides the current active workbench window or null if it is not available.
+	 * Caches the current {@link StyledText} as being the one active in the passed
+	 * macro context.
 	 *
-	 * @return the current active workbench window or null if it is not available.
-	 */
-	public static IWorkbenchWindow getActiveWorkbenchWindow() {
-		IWorkbench workbench;
-		try {
-			workbench = PlatformUI.getWorkbench();
-		} catch (IllegalStateException e) { // java.lang.IllegalStateException: Workbench has not been created yet.
-			return null;
-		}
-		return workbench.getActiveWorkbenchWindow();
-	}
-
-	/**
-	 * Caches the current styled text as being the one active in the passed macro
-	 * context.
+	 * @param activeEditor
+	 *            the editor from there the {@link StyledText} should be gotten.
 	 *
 	 * @param macroContext
 	 *            the macro context where it should be set.
 	 */
-	public static void cacheTargetStyledText(IMacroContext macroContext) {
-		if (macroContext != null) {
+	public static void cacheTargetStyledText(IEditorPart activeEditor, IMacroContext macroContext) {
+		if (macroContext != null && activeEditor != null) {
 			Object object = macroContext.get(TARGET_STYLED_TEXT);
 			if (object == null) {
-				macroContext.set(TARGET_STYLED_TEXT, getActiveEditorStyledText());
+				macroContext.set(TARGET_STYLED_TEXT, getActiveEditorStyledText(activeEditor));
 			}
 		}
 	}
@@ -111,22 +98,25 @@ public class EditorUtils {
 	 * Caches the current editor part as being the one active in the passed macro
 	 * context.
 	 *
+	 * @param activeEditor
+	 *            the editor which should be cached as the target editor for the
+	 *            macro.
+	 *
 	 * @param macroContext
 	 *            the macro context where it should be set.
 	 */
-	public static void cacheTargetEditorPart(IMacroContext macroContext) {
-		if (macroContext != null) {
+	public static void cacheTargetEditorPart(IEditorPart activeEditor, IMacroContext macroContext) {
+		if (macroContext != null && activeEditor != null) {
 			Object object = macroContext.get(TARGET_EDITOR_PART);
 			if (object == null) {
-				macroContext.set(TARGET_EDITOR_PART, getActiveEditor());
+				macroContext.set(TARGET_EDITOR_PART, activeEditor);
 			}
 		}
 	}
 
-
 	/**
-	 * Gets the styled text which was set as the current when the macro context was
-	 * created.
+	 * Gets the {@link StyledText} which was set as the current when the macro
+	 * context was created.
 	 *
 	 * @param macroContext
 	 *            the macro context.

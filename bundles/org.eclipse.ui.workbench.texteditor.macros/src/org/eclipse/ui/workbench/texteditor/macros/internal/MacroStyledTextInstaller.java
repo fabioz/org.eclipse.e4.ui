@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.ui.workbench.texteditor.macros.internal;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroContext;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
@@ -24,6 +27,7 @@ import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IMemento;
+import org.eclipse.ui.ISources;
 import org.eclipse.ui.XMLMemento;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
@@ -56,6 +60,11 @@ public class MacroStyledTextInstaller implements IMacroStateListener {
 	 * disabled in disableCodeCompletion.
 	 */
 	private static final String QUICK_ASSIST_ENABLED = "quickAssistEnabled";//$NON-NLS-1$
+
+	@Inject
+	@Named(ISources.ACTIVE_EDITOR_NAME)
+	@Optional
+	private IEditorPart activeEditor;
 
 	/**
 	 * Re-enables the content assist based on the state of the key
@@ -191,14 +200,14 @@ public class MacroStyledTextInstaller implements IMacroStateListener {
 
 	@Override
 	public void macroPlaybackContextCreated(IMacroPlaybackContext context) {
-		EditorUtils.cacheTargetEditorPart(context);
-		EditorUtils.cacheTargetStyledText(context);
+		EditorUtils.cacheTargetEditorPart(activeEditor, context);
+		EditorUtils.cacheTargetStyledText(activeEditor, context);
 	}
 
 	@Override
 	public void macroRecordContextCreated(IMacroRecordContext context) {
-		EditorUtils.cacheTargetEditorPart(context);
-		EditorUtils.cacheTargetStyledText(context);
+		EditorUtils.cacheTargetEditorPart(activeEditor, context);
+		EditorUtils.cacheTargetStyledText(activeEditor, context);
 	}
 
 	/**
