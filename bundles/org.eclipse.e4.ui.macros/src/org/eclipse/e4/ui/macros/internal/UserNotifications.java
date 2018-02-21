@@ -52,7 +52,7 @@ public class UserNotifications {
 	 * Sets a given message to be shown to the user.
 	 *
 	 * @param message
-	 *            the message to be shown or null to clear it.
+	 *            the message to be shown or {@code null} to clear it.
 	 */
 	public void setMessage(String message) {
 		IStatusLineManager statusLineManager = getStatusLineManager();
@@ -69,7 +69,7 @@ public class UserNotifications {
 	 * Shows some error message related to the macro to the user.
 	 *
 	 * @param message
-	 *            the error message to be shown (cannot be null).
+	 *            the error message to be shown (should never be {@code null}).
 	 */
 	public void showErrorMessage(String message) {
 		Activator plugin = Activator.getDefault();
@@ -97,8 +97,8 @@ public class UserNotifications {
 	}
 
 	/**
-	 * Provides the status line manager to be used for notifications or null if it
-	 * is not available.
+	 * Provides the status line manager to be used for notifications or {@code null}
+	 * if it is not available.
 	 *
 	 * @return the available status line manager for the current editor.
 	 */
@@ -148,8 +148,8 @@ public class UserNotifications {
 	}
 
 	private void openWarningWithIgnoreToggle(String title, String message, String key) {
+		Activator.log(new Status(IStatus.WARNING, Activator.getDefault().getBundle().getSymbolicName(), message));
 		if (shell == null) {
-			System.err.println(message);
 			return;
 		}
 

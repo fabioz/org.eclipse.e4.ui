@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.SafeRunner;
 import org.eclipse.e4.core.macros.Activator;
@@ -45,7 +46,7 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
  */
 public class MacroManager {
 
-	private static final String JS_EXT = ".js"; //$NON-NLS-1$
+	private static final String XML_EXT = ".xml"; //$NON-NLS-1$
 
 	private static final String TEMP_MACRO_PREFIX = "temp_macro_"; //$NON-NLS-1$
 
@@ -85,8 +86,8 @@ public class MacroManager {
 	private File[] fMacrosDirectories;
 
 	/**
-	 * Holds the macro currently being recorded (if we're in record mode). If not in
-	 * record mode, should be null.
+	 * Holds the macro currently being recorded (if we are in record mode). If
+	 * not in record mode, should be {@code null}.
 	 */
 	private ComposableMacro fMacroBeingRecorded;
 
@@ -96,9 +97,14 @@ public class MacroManager {
 	private IMacro fLastMacro;
 
 	/**
-	 * Flag indicating whether we're playing back a macro.
+	 * Flag indicating whether we are playing back a macro.
 	 */
 	private boolean fIsPlayingBack = false;
+
+	/**
+	 * Flag indicating whether we're recording a macro.
+	 */
+	private boolean fIsRecording = false;
 
 	/**
 	 * State to be used when recording macro.
@@ -149,7 +155,7 @@ public class MacroManager {
 	 * @return whether a macro is currently being recorded.
 	 */
 	public boolean isRecording() {
-		return fMacroBeingRecorded != null;
+		return fIsRecording;
 	}
 
 	/**
@@ -223,16 +229,16 @@ public class MacroManager {
 
 	private static final class MacroRecordContext implements IMacroRecordContext {
 
-		private final Map<Object, Object> ctx = new HashMap<>();
+		private final Map<Object, Object> fContext = new HashMap<>();
 
 		@Override
 		public Object get(String key) {
-			return ctx.get(key);
+			return fContext.get(key);
 		}
 
 		@Override
 		public void set(String key, Object value) {
-			ctx.put(key, value);
+			fContext.put(key, value);
 		}
 	}
 
@@ -254,6 +260,7 @@ public class MacroManager {
 		}
 		if (fMacroBeingRecorded == null) {
 			// Start recording
+			fIsRecording = true;
 			fMacroRecordContext = new MacroRecordContext();
 			fMacroBeingRecorded = new ComposableMacro(macroInstructionIdToFactory);
 			for (IMacroStateListener listener : fStateListeners) {
@@ -275,6 +282,10 @@ public class MacroManager {
 	 */
 	private void stopRecording(final EMacroService macroService) {
 		try {
+			fIsRecording = false;
+			// Notify before saving macro (but after the flag to know whether
+			// we're recording is set).
+			notifyMacroStateChange(macroService, StateChange.RECORD_FINISHED);
 			fMacroBeingRecorded.clearCachedInfo();
 			if (fMacroBeingRecorded.getLength() > 0) {
 				// No point in saving an empty macro.
@@ -283,9 +294,6 @@ public class MacroManager {
 			}
 		} finally {
 			fMacroBeingRecorded = null;
-			// Notify only after setting fMacroBeingRecorded to null (which will
-			// make isRecording return false on the notification);
-			notifyMacroStateChange(macroService, StateChange.RECORD_FINISHED);
 			fMacroRecordContext = null;
 		}
 	}
@@ -319,16 +327,16 @@ public class MacroManager {
 		// temporary macros.
 		File macroDirectory = fMacrosDirectories[0];
 		if (!macroDirectory.isDirectory()) {
-			Activator.log(new RuntimeException(
-					String.format("Unable to save macro. Expected: %s to be a directory.", macroDirectory))); //$NON-NLS-1$
+			Activator.log(IStatus.ERROR,
+					String.format("Unable to save macro. Expected: %s to be a directory.", macroDirectory)); //$NON-NLS-1$
 			return;
 		}
 
 		List<StoredMacroReference> storedMacroReferences = listTemporaryMacroReferences(macroDirectory);
 
 		try {
-			Path tempFile = Files.createTempFile(Paths.get(macroDirectory.toURI()), TEMP_MACRO_PREFIX, JS_EXT);
-			Files.write(tempFile, macro.toJSBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE,
+			Path tempFile = Files.createTempFile(Paths.get(macroDirectory.toURI()), TEMP_MACRO_PREFIX, XML_EXT);
+			Files.write(tempFile, macro.toXMLBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE,
 					StandardOpenOption.TRUNCATE_EXISTING);
 		} catch (IOException e) {
 			Activator.log(e);
@@ -369,7 +377,7 @@ public class MacroManager {
 					@Override
 					public boolean accept(Path entry) {
 						String name = entry.getFileName().toString().toLowerCase();
-						return name.startsWith(TEMP_MACRO_PREFIX) && name.endsWith(JS_EXT);
+						return name.startsWith(TEMP_MACRO_PREFIX) && name.endsWith(XML_EXT);
 					}
 				})) {
 			for (Path p : directoryStream) {
@@ -421,14 +429,10 @@ public class MacroManager {
 	 * @param macroPlaybackContext
 	 *            a context to be used to playback the macro (passed to the macro to
 	 *            be played back).
-	 * @param macroInstructionIdToFactory
-	 *            a map pointing from the macro instruction id to the factory used
-	 *            to create the related macro instruction.
 	 * @throws MacroPlaybackException
 	 *             if some error happens when running the macro.
 	 */
-	public void playbackLastMacro(EMacroService macroService, final IMacroPlaybackContext macroPlaybackContext,
-			final Map<String, IMacroInstructionFactory> macroInstructionIdToFactory)
+	public void playbackLastMacro(EMacroService macroService, final IMacroPlaybackContext macroPlaybackContext)
 			throws MacroPlaybackException {
 		if (fLastMacro != null && !fIsPlayingBack) {
 			// Note that we can play back while recording, but we can't change
@@ -441,7 +445,7 @@ public class MacroManager {
 				}
 
 				if (notifyMacroStateChange(macroService, StateChange.PLAYBACK_STARTED)) {
-					fLastMacro.playback(macroPlaybackContext, macroInstructionIdToFactory);
+					fLastMacro.playback(macroPlaybackContext);
 				}
 			} finally {
 				fIsPlayingBack = false;
@@ -496,12 +500,12 @@ public class MacroManager {
 			if (macroDirectory.isDirectory()) {
 				List<StoredMacroReference> storedMacroReferences = listTemporaryMacroReferences(macroDirectory);
 				if (storedMacroReferences.size() > 0) {
-					fLastMacro = new SavedJSMacro(storedMacroReferences.get(0).fPath.toFile());
+					fLastMacro = new SavedXMLMacro(storedMacroReferences.get(0).fPath.toFile());
 					return; // Load the last from the first directory (others aren't used for the last
 							// macro).
 				}
 			} else {
-				Activator.log(new RuntimeException(String.format("Expected: %s to be a directory.", macroDirectory))); //$NON-NLS-1$
+				Activator.log(IStatus.ERROR, String.format("Expected: %s to be a directory.", macroDirectory)); //$NON-NLS-1$
 			}
 		}
 	}
@@ -530,22 +534,22 @@ public class MacroManager {
 	}
 
 	/**
-	 * Provides the macro record context or null if the macro engine is not
-	 * recording.
+	 * Provides the macro record context or {@code null} if the macro engine is
+	 * not recording.
 	 *
-	 * @return the macro record context created when macro record started or null if
-	 *         it is not currently recording.
+	 * @return the macro record context created when macro record started or
+	 *         {@code null} if it is not currently recording.
 	 */
 	public IMacroRecordContext getMacroRecordContext() {
 		return fMacroRecordContext;
 	}
 
 	/**
-	 * Provides the macro playback context or null if the macro engine is not
-	 * playing back.
+	 * Provides the macro playback context or {@code null} if the macro engine
+	 * is not playing back.
 	 *
 	 * @return the macro playback context created when macro playback started or
-	 *         null if it is not currently recording.
+	 *         {@code null} if it is not currently recording.
 	 */
 	public IMacroPlaybackContext getMacroPlaybackContext() {
 		return fMacroPlaybackContext;

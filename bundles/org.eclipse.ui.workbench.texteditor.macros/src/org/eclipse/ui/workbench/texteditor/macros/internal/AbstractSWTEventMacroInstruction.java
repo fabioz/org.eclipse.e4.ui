@@ -18,13 +18,14 @@ import org.eclipse.swt.widgets.Event;
 
 /**
  * Base class for a macro instruction based on events from a given type.
- *
- * Note that it doesn't store all the information on events, only character,
- * stateMask, keyCode, keyLocation and detail (and the actual type is meant to
- * be gotten from the class which overrides it or passed when needed).
- *
- * The actual fields that it stores may grow over time (and when restored, if
- * those weren't properly saved, default values should be used).
+ * <p>
+ * Note that this macro instruction records only the {@code character},
+ * {@code stateMask}, {@code keyCode}, {@code keyLocation} and {@code detail}.
+ * The actual event {@code type} is meant to be obtained from the class which
+ * overrides it or passed when needed.
+ * <p>
+ * The actual fields stored may grow over time: subclasses should be sure to
+ * provide default values if not present.
  */
 public abstract class AbstractSWTEventMacroInstruction implements IMacroInstruction {
 

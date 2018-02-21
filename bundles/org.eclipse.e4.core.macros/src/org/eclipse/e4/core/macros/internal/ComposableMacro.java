@@ -10,28 +10,62 @@
  *******************************************************************************/
 package org.eclipse.e4.core.macros.internal;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.e4.core.macros.IMacroInstruction;
 import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.MacroPlaybackException;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
- * This is a macro which is created from a sequence of instructions which are
- * stored in-memory (and may be persisted later on).
+ * A macro that is created from a sequence of instructions which are stored
+ * in-memory (and may be persisted later on).
  */
-/* default */ class ComposableMacro implements IMacro {
+public class ComposableMacro implements IMacro {
+
+	public static final String XML_MACRO_TAG = "macro"; //$NON-NLS-1$
+
+	public static final String XML_INSTRUCTION_TAG = "instruction"; //$NON-NLS-1$
+
+	public static final String XML_ID_ATTRIBUTE = "id"; //$NON-NLS-1$
+
+	public static final String XML_BASE64_ATTRIBUTE = "base64"; //$NON-NLS-1$
+
+	public static final String XML_BASE64_ATTRIBUTE_TRUE = "true"; //$NON-NLS-1$
+
+	public static final String XML_DEFINITION_TAG = "definition"; //$NON-NLS-1$
+
+	public static final String XML_KEY_TAG = "key"; //$NON-NLS-1$
+
+	public static final String XML_VALUE_TAG = "value"; //$NON-NLS-1$
 
 	/**
 	 * Provides the macro instruction id to an implementation which is able to
 	 * recreate it.
 	 */
-	private Map<String, IMacroInstructionFactory> fMacroInstructionIdToFactory;
+	private final Map<String, IMacroInstructionFactory> fMacroInstructionIdToFactory;
 
 	/**
 	 * The macro instructions which compose this macro.
@@ -72,12 +106,11 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 	 *            the macro instruction to be checked.
 	 */
 	private void checkMacroInstruction(IMacroInstruction macroInstruction) {
-		if (fMacroInstructionIdToFactory != null
-				&& !fMacroInstructionIdToFactory.containsKey(macroInstruction.getId())) {
-			throw new RuntimeException(String.format(
-					"Macro instruction: %s not properly registered through a %s extension point.", //$NON-NLS-1$
-					macroInstruction.getId(), MacroServiceImplementation.MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT));
-		}
+		Assert.isTrue(
+				fMacroInstructionIdToFactory == null
+						|| fMacroInstructionIdToFactory.containsKey(macroInstruction.getId()),
+				String.format("Macro instruction: %s not properly registered through a %s extension point.", //$NON-NLS-1$
+						macroInstruction.getId(), MacroServiceImpl.MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT));
 	}
 
 	/**
@@ -137,8 +170,7 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 	}
 
 	@Override
-	public void playback(IMacroPlaybackContext macroPlaybackContext,
-			Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) throws MacroPlaybackException {
+	public void playback(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException {
 		for (IMacroInstruction macroInstruction : fMacroInstructions) {
 			macroInstruction.execute(macroPlaybackContext);
 		}
@@ -146,31 +178,83 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 
 	/**
 	 * Actually returns the bytes to be written to the disk to be loaded back later
-	 * on (the actual load and playback is later done by {@link SavedJSMacro}).
+	 * on (the actual load and playback is later done by {@link SavedXMLMacro}).
 	 *
 	 * @return an UTF-8 encoded array of bytes which can be used to rerun the macro
 	 *         later on.
+	 * @throws IOException
+	 *             if some error happens converting the macro to XML.
 	 */
-	/* default */ byte[] toJSBytes() {
-		final StringBuilder buf = new StringBuilder(fMacroInstructions.size() * 60);
+	public byte[] toXMLBytes() throws IOException {
+		try {
+			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+			factory.setFeature("http://xml.org/sax/features/namespaces", false); //$NON-NLS-1$
+			factory.setFeature("http://xml.org/sax/features/validation", false); //$NON-NLS-1$
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-dtd-grammar", false); //$NON-NLS-1$
+			factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false); //$NON-NLS-1$
 
-		buf.append("// Macro generated by the Eclipse macro record engine.\n"); //$NON-NLS-1$
-		buf.append("// The runMacro() function will be later run by the macro engine.\n"); //$NON-NLS-1$
-		buf.append("function runMacro(){\n"); //$NON-NLS-1$
+			DocumentBuilder documentBuilder = factory.newDocumentBuilder();
+			Document document = documentBuilder.newDocument();
+			Element root = document.createElement(XML_MACRO_TAG);
 
-		for (IMacroInstruction macroInstruction : fMacroInstructions) {
-			Map<String, String> map = macroInstruction.toMap();
-			Assert.isNotNull(map);
+			for (IMacroInstruction macroInstruction : fMacroInstructions) {
+				Map<String, String> map = macroInstruction.toMap();
+				Iterator<Entry<String, String>> iterator = map.entrySet().iterator();
 
-			buf.append("    runMacroInstruction("); //$NON-NLS-1$
-			buf.append(JSONHelper.quote(macroInstruction.getId()));
-			buf.append(", "); //$NON-NLS-1$
-			buf.append(JSONHelper.toJSon(map));
-			buf.append(");\n"); //$NON-NLS-1$
+				Element instructionElement = document.createElement(XML_INSTRUCTION_TAG);
+				instructionElement.setAttribute(XML_ID_ATTRIBUTE, macroInstruction.getId());
+				Element instructionDefinition = document.createElement(XML_DEFINITION_TAG);
+				while (iterator.hasNext()) {
+					Entry<String, String> entry = iterator.next();
+
+					instructionDefinition
+							.appendChild(setTextContent(document.createElement(XML_KEY_TAG), entry.getKey()));
+					instructionDefinition
+							.appendChild(setTextContent(document.createElement(XML_VALUE_TAG), entry.getValue()));
+				}
+				instructionElement.appendChild(instructionDefinition);
+				root.appendChild(instructionElement);
+			}
+			document.appendChild(root);
+
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+			Transformer transformer = TransformerFactory.newInstance().newTransformer();
+			transformer.setOutputProperty(OutputKeys.METHOD, "xml"); //$NON-NLS-1$
+			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8"); //$NON-NLS-1$
+			transformer.setOutputProperty(OutputKeys.INDENT, "yes"); //$NON-NLS-1$
+			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2"); //$NON-NLS-1$//$NON-NLS-2$
+
+			DOMSource source = new DOMSource(document);
+			StreamResult outputTarget = new StreamResult(outputStream);
+			transformer.transform(source, outputTarget);
+			return outputStream.toByteArray();
+		} catch (DOMException | IllegalArgumentException | ParserConfigurationException
+				| TransformerFactoryConfigurationError | TransformerException e) {
+			throw new IOException("Error converting macro to XML.", e); //$NON-NLS-1$
 		}
-		buf.append("}\n"); //$NON-NLS-1$
+	}
 
-		return buf.toString().getBytes(StandardCharsets.UTF_8);
+	private Element setTextContent(Element element, String str) {
+		if (isAsciiPrintable(str)) {
+			element.setTextContent(str);
+		} else {
+			element.setTextContent(new String(Base64.getEncoder().encode(str.getBytes(StandardCharsets.UTF_8)),
+					StandardCharsets.UTF_8));
+			element.setAttribute(XML_BASE64_ATTRIBUTE, XML_BASE64_ATTRIBUTE_TRUE);
+		}
+		return element;
+	}
+
+	private static boolean isAsciiPrintable(String str) {
+		int length = str.length();
+		for (int i = 0; i < length; i++) {
+			char c = str.charAt(i);
+			if (!(c >= 32 && c < 127)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/**

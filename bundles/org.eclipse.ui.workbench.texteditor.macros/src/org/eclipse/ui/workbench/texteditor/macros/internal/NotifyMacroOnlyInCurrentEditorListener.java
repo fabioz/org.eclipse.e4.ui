@@ -12,8 +12,6 @@ package org.eclipse.ui.workbench.texteditor.macros.internal;
 
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
-import org.eclipse.e4.core.macros.CancelMacroPlaybackException;
-import org.eclipse.e4.core.macros.CancelMacroRecordingException;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.ui.macros.internal.EditorUtils;
@@ -26,9 +24,11 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 /**
- * Used to notify that macro is only available in the initial editor.
+ * Listens for window and part changes to notify that macro recording is not
+ * active (currently macro recording is only enabled in the editor which was
+ * active when macro recording started).
  */
-public class NotifyMacroOnlyInCurrentEditor {
+public class NotifyMacroOnlyInCurrentEditorListener {
 
 	/**
 	 * When a new window is opened/activated, add the needed listeners.
@@ -124,73 +124,10 @@ public class NotifyMacroOnlyInCurrentEditor {
 	 * @param eclipseContext
 	 *            eclipse context for dependency injection.
 	 */
-	public NotifyMacroOnlyInCurrentEditor(EMacroService macroService, IEclipseContext eclipseContext) {
+	public NotifyMacroOnlyInCurrentEditorListener(EMacroService macroService, IEclipseContext eclipseContext) {
 		fMacroService = macroService;
 		fEclipseContext = eclipseContext;
 	}
-
-	/**
-	 * Provides the class which should be used to give user notifications.
-	 *
-	 * @return the helper class for giving user notifications.
-	 */
-	public UserNotifications getUserNotifications() {
-		if (fUserNotifications == null) {
-			fUserNotifications = ContextInjectionFactory.make(UserNotifications.class, fEclipseContext);
-		}
-		return fUserNotifications;
-	}
-
-	/**
-	 * Checks that the current editor didn't change (if it did, notify the user that
-	 * recording doesn't work in other editors).
-	 */
-	private void checkCurrentEditor() {
-		IMacroRecordContext macroRecordContext = this.fMacroService.getMacroRecordContext();
-		if (macroRecordContext != null) {
-			StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
-			StyledText targetStyledText = EditorUtils.getTargetStyledText(macroRecordContext);
-			if (targetStyledText != currentStyledText && currentStyledText != fLastEditor) {
-				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
-				getUserNotifications().notifyCurrentEditor();
-			} else if (targetStyledText == currentStyledText && fLastEditor != null
-					&& fLastEditor != currentStyledText) {
-				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_Recording);
-			}
-			fLastEditor = currentStyledText;
-		}
-	}
-
-	/**
-	 * Check if there's some active editor when the macro recording starts.
-	 *
-	 * @throws CancelMacroRecordingException
-	 *             if there's no active editor available for the macro recording.
-	 */
-	public void checkEditorActiveForMacroRecording() throws CancelMacroRecordingException {
-		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
-		if (currentStyledText == null) {
-			UserNotifications userNotifications = getUserNotifications();
-			userNotifications.setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
-			userNotifications.notifyNoEditorOnMacroRecordStartup();
-			throw new CancelMacroRecordingException();
-		}
-	}
-
-	/**
-	 * Check if there's some active editor when the macro playback starts.
-	 *
-	 * @throws CancelMacroPlaybackException
-	 *             if there's no active editor available for the macro playback.
-	 */
-	public void checkEditorActiveForMacroPlayback() throws CancelMacroPlaybackException {
-		StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
-		if (currentStyledText == null) {
-			getUserNotifications().notifyNoEditorOnMacroPlaybackStartup();
-			throw new CancelMacroPlaybackException();
-		}
-	}
-
 
 	private void addListeners(IWorkbenchWindow window) {
 		window.getPartService().addPartListener(fPartListener);
@@ -221,6 +158,35 @@ public class NotifyMacroOnlyInCurrentEditor {
 		PlatformUI.getWorkbench().removeWindowListener(fWindowsListener);
 	}
 
+	/**
+	 * Provides the class which should be used to give user notifications.
+	 *
+	 * @return the helper class for giving user notifications.
+	 */
+	private UserNotifications getUserNotifications() {
+		if (fUserNotifications == null) {
+			fUserNotifications = ContextInjectionFactory.make(UserNotifications.class, fEclipseContext);
+		}
+		return fUserNotifications;
+	}
 
-
+	/**
+	 * Checks that the current editor didn't change (if it did, notify the user that
+	 * recording doesn't work in other editors).
+	 */
+	private void checkCurrentEditor() {
+		IMacroRecordContext macroRecordContext = this.fMacroService.getMacroRecordContext();
+		if (macroRecordContext != null) {
+			StyledText currentStyledText = EditorUtils.getActiveEditorStyledText(fEclipseContext);
+			StyledText targetStyledText = EditorUtils.getTargetStyledText(macroRecordContext);
+			if (targetStyledText != currentStyledText && currentStyledText != fLastEditor) {
+				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_NotRecording);
+				getUserNotifications().notifyCurrentEditor();
+			} else if (targetStyledText == currentStyledText && fLastEditor != null
+					&& fLastEditor != currentStyledText) {
+				getUserNotifications().setMessage(Messages.NotifyMacroOnlyInCurrentEditor_Recording);
+			}
+			fLastEditor = currentStyledText;
+		}
+	}
 }

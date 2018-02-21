@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.e4.core.macros.macroStateListeners">
       <macroStateListener
-            class="org.eclipse.ui.workbench.texteditor.macros.internal.EditorPartMacroInstaller">
+            class="org.eclipse.ui.workbench.texteditor.macros.internal.NotifyMacroOnlyInCurrentEditorInstaller">
       </macroStateListener>
       <macroStateListener
             class="org.eclipse.ui.workbench.texteditor.macros.internal.MacroStyledTextInstaller">

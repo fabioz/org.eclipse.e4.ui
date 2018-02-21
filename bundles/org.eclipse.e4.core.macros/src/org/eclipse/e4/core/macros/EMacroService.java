@@ -140,8 +140,8 @@ public interface EMacroService {
 	void removeMacroStateListener(IMacroStateListener listener);
 
 	/**
-	 * Provides the macro record context or null if the macro engine is not
-	 * recording.
+	 * Provides the macro record context or {@code null} if the macro engine is
+	 * not recording.
 	 *
 	 * @return the macro record context created when macro record started or
 	 *         {@code null} if not currently recording.
@@ -149,34 +149,33 @@ public interface EMacroService {
 	IMacroRecordContext getMacroRecordContext();
 
 	/**
-	 * Provides the macro playback context or null if the macro engine is not
-	 * playing back.
+	 * Provides the macro playback context or {@code null} if the macro engine
+	 * is not playing back.
 	 *
-	 * @return the macro playback context created when the macro playback started or
-	 *         {@code null} if not currently playing back.
+	 * @return the macro playback context created when the macro playback
+	 *         started or {@code null} if not currently playing back.
 	 */
 	IMacroPlaybackContext getMacroPlaybackContext();
 
 	// Deal with managing accepted commands during macro record/playback.
-	// (by default should load the command behavior
-	// through the org.eclipse.e4.core.macros.commandHandling extension
-	// point,
-	// but it is possible to programmatically change it as needed later on).
+	// (by default should load the command behavior through the
+	// org.eclipse.e4.core.macros.commandHandling extension point, but it is
+	// possible to programmatically change it as needed later on).
 
 	/**
-	 * Returns {@code true} if the given Eclipse Core Command should be recorded and
-	 * {@code false} otherwise. This specifically means that when a given Eclipse
-	 * Core Command is executed, a macro instruction will be created for it.
-	 * Likewise, if {@code false} is returned, a macro instruction will not be
-	 * created automatically (and as such, it won't be recorded in the macro). See
-	 * the {@code org.eclipse.e4.core.macros.commandHandling} extension point for
-	 * details.
+	 * Returns {@code true} if the given Eclipse Core Command should be recorded
+	 * and {@code false} otherwise. This specifically means that when a given
+	 * Eclipse Core Command is executed, a macro instruction will be created for
+	 * it. Likewise, if {@code false} is returned, a macro instruction will not
+	 * be created automatically (and as such, it won't be recorded in the
+	 * macro). See the {@code org.eclipse.e4.core.macros.commandHandling}
+	 * extension point for details.
 	 *
 	 * @param commandId
 	 *            the id of the Eclipse Core Command.
 	 *
-	 * @return whether the given Eclipse Core Command should be recorded for
-	 *         playback when recording a macro (i.e.: an
+	 * @return {@code true} if the given Eclipse Core Command should be recorded
+	 *         for playback when recording a macro (i.e., an
 	 *         {@link org.eclipse.e4.core.macros.IMacroInstruction} will be
 	 *         automatically created to play it back when in record mode).
 	 *

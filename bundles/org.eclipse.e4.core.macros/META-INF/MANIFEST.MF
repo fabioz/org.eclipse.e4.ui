@@ -12,8 +12,7 @@ Require-Bundle: org.eclipse.osgi;bundle-version="3.11",
  org.eclipse.e4.core.di;bundle-version="1.6",
  org.eclipse.equinox.registry;bundle-version="3.6",
  javax.inject;bundle-version="1.0",
- org.eclipse.core.runtime;bundle-version="3.12",
- org.eclipse.e4.ui.bindings;bundle-version="0.11"
+ org.eclipse.core.runtime;bundle-version="3.12"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.e4.core.macros.Activator

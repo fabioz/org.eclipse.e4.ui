@@ -59,7 +59,7 @@ Any macro instruction which is added to the macro engine during the record phase
          <attribute name="macroInstructionId" type="string" use="required">
             <annotation>
                <documentation>
-                  The id of the macro instruction which this factory can be used to create (i.e.: the method org.eclipse.e4.core.macros.IMacroInstruction.getId(), of the macro instructions created by this factory must return the same id).
+                  The id of the macro instruction which this factory can be used to create (i.e., the method org.eclipse.e4.core.macros.IMacroInstruction.getId(), of the macro instructions created by this factory must return the same id).
                </documentation>
                <appinfo>
                   <meta.attribute kind="identifier"/>

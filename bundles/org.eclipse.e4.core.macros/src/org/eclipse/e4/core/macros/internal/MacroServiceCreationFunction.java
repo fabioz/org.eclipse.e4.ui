@@ -17,7 +17,7 @@ import org.eclipse.e4.core.macros.EMacroService;
 
 /**
  * Creates a
- * {@link org.eclipse.e4.core.macros.internal.MacroServiceImplementation} (to be
+ * {@link org.eclipse.e4.core.macros.internal.MacroServiceImpl} (to be
  * bound to EMacroService).
  *
  * @note internal API: users should generally just get the EMacroService as a
@@ -31,7 +31,7 @@ public class MacroServiceCreationFunction extends ContextFunction {
 	@Override
 	public Object compute(IEclipseContext context, String contextKey) {
 		if (fService == null) {
-			fService = ContextInjectionFactory.make(MacroServiceImplementation.class, context);
+			fService = ContextInjectionFactory.make(MacroServiceImpl.class, context);
 		}
 		return fService;
 	}

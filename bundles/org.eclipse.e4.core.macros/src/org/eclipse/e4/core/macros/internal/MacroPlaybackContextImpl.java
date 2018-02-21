@@ -12,6 +12,8 @@ package org.eclipse.e4.core.macros.internal;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.eclipse.e4.core.macros.IMacroInstruction;
+import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 
 /**
@@ -19,15 +21,40 @@ import org.eclipse.e4.core.macros.IMacroPlaybackContext;
  */
 public class MacroPlaybackContextImpl implements IMacroPlaybackContext {
 
-	private final Map<Object, Object> ctx = new HashMap<>();
+	private final Map<Object, Object> fContext = new HashMap<>();
+
+	private Map<String, IMacroInstructionFactory> fMacroInstructionIdToFactory;
+
+	/**
+	 * @param macroInstructionIdToFactory
+	 *            a map pointing from the macro instruction id to the factory used
+	 *            to create the related macro instruction.
+	 */
+	public MacroPlaybackContextImpl(Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) {
+		fMacroInstructionIdToFactory = macroInstructionIdToFactory;
+	}
 
 	@Override
 	public Object get(String key) {
-		return ctx.get(key);
+		return fContext.get(key);
 	}
 
 	@Override
 	public void set(String key, Object value) {
-		ctx.put(key, value);
+		fContext.put(key, value);
+	}
+
+	@Override
+	public void runMacroInstruction(String macroInstructionId, Map<String, String> macroInstructionParameters)
+			throws Exception {
+		IMacroInstructionFactory macroFactory = fMacroInstructionIdToFactory.get(macroInstructionId);
+		if (macroFactory == null) {
+			throw new IllegalStateException("Unable to find IMacroInstructionFactory for macro instruction: " //$NON-NLS-1$
+					+ macroInstructionId);
+		}
+
+		IMacroInstruction macroInstruction = macroFactory.create(macroInstructionParameters);
+		macroInstruction.execute(this);
+
 	}
 }

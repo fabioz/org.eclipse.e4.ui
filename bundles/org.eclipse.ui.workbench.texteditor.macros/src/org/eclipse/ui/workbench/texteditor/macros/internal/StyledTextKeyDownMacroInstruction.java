@@ -12,7 +12,6 @@ package org.eclipse.ui.workbench.texteditor.macros.internal;
 
 import java.util.Map;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
-import org.eclipse.e4.core.macros.internal.JSONHelper;
 import org.eclipse.e4.ui.macros.internal.EditorUtils;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
@@ -67,7 +66,65 @@ import org.eclipse.swt.widgets.Event;
 
 	@Override
 	public String toString() {
-		return Messages.StyledTextKeyDownMacroInstruction_KeyDown
-				+ JSONHelper.quote(Character.toString(this.fEvent.character));
+		if (this.fEvent.keyCode == SWT.CTRL) {
+			return "Ctrl"; //$NON-NLS-1$
+		}
+		if (this.fEvent.keyCode == SWT.SHIFT) {
+			return "Shift"; //$NON-NLS-1$
+		}
+		if (this.fEvent.keyCode == SWT.ALT) {
+			return "Alt"; //$NON-NLS-1$
+		}
+		return Messages.StyledTextKeyDownMacroInstruction_KeyDown + quote(this.fEvent.character);
 	}
+
+	/**
+	 * Quotes contents of the passed char so that it can be readable by the user
+	 * when printed.
+	 *
+	 * @param c
+	 *            the char to be quoted.
+	 * @return a string with contents to be shown to the user.
+	 */
+	private String quote(char c) {
+		StringBuilder sb = new StringBuilder(4);
+		sb.append('"');
+
+		switch (c) {
+		case '"':
+			sb.append('\\');
+			sb.append(c);
+			break;
+
+		case '\b':
+			sb.append("\\b"); //$NON-NLS-1$
+			break;
+
+		case '\f':
+			sb.append("\\f"); //$NON-NLS-1$
+			break;
+
+		case '\n':
+			sb.append("\\n"); //$NON-NLS-1$
+			break;
+
+		case '\r':
+			sb.append("\\r"); //$NON-NLS-1$
+			break;
+
+		case '\t':
+			sb.append("\\t"); //$NON-NLS-1$
+			break;
+
+		default:
+			if (c < ' ') {
+				sb.append("\\u" + Integer.toHexString(c)); //$NON-NLS-1$
+			} else {
+				sb.append(c);
+			}
+		}
+		sb.append('"');
+		return sb.toString();
+	}
+
 }

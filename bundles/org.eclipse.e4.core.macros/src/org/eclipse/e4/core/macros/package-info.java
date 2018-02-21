@@ -118,7 +118,7 @@ package org.eclipse.e4.core.macros;
  *
  * <p>
  * This gives an example where some state must be set for both macro and record
- * mode (i.e.: disabling code-completion) and in the record mode it also has to
+ * mode (i.e., disabling code-completion) and in the record mode it also has to
  * record keypresses to be played back later on.
  * </p>
  *

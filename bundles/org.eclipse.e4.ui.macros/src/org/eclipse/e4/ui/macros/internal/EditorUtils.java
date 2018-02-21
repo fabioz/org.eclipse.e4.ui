@@ -36,14 +36,15 @@ public class EditorUtils {
 	private final static String TARGET_EDITOR_PART = "TARGET_EDITOR_PART"; //$NON-NLS-1$
 
 	/**
-	 * Provides the {@link StyledText} from the passed editor or {@code null} if not
-	 * available.
+	 * Provides the {@link StyledText} from the passed editor or {@code null} if
+	 * not available.
 	 *
 	 * @param editor
 	 *            the editor from where the {@link StyledText} should be gotten.
 	 *
-	 * @return the {@link StyledText} related to the current editor or null if it is
-	 *         not available (i.e.: if the editor passed is not a text editor).
+	 * @return the {@link StyledText} related to the current editor or
+	 *         {@code null} if it is not available (i.e., if the editor passed
+	 *         is not a text editor).
 	 */
 	public static StyledText getActiveEditorStyledText(IEditorPart editor) {
 		if (editor == null) {

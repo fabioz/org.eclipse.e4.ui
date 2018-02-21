@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.e4.core.macros.internal;
 
-import java.util.Map;
-import org.eclipse.e4.core.macros.IMacroInstructionFactory;
 import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.MacroPlaybackException;
 
@@ -30,12 +28,8 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
 	 *
 	 * @param macroPlaybackContext
 	 *            the context to playback the macro.
-	 * @param macroInstructionIdToFactory
-	 *            a map pointing from the macro instruction id to the factory used
-	 *            to create the related macro instruction.
 	 * @throws MacroPlaybackException
 	 *             if there was some error running the macro.
 	 */
-	void playback(IMacroPlaybackContext macroPlaybackContext,
-			Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) throws MacroPlaybackException;
+	void playback(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException;
 }

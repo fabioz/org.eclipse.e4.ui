@@ -12,13 +12,16 @@ package org.eclipse.e4.ui.macros.internal.actions;
 
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.e4.core.macros.Activator;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.MacroPlaybackException;
-import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.e4.ui.macros.Activator;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.ui.statushandlers.StatusAdapter;
+import org.eclipse.ui.statushandlers.StatusManager;
 
 /**
  * Activates the playback of the last macro.
@@ -30,17 +33,12 @@ public class MacroPlaybackAction extends AbstractHandler {
 		try {
 			PlatformUI.getWorkbench().getService(EMacroService.class).playbackLastMacro();
 		} catch (MacroPlaybackException e) {
-			Activator.log(e);
 			IWorkbenchWindow activeWorkbenchWindow = HandlerUtil.getActiveWorkbenchWindow(event);
 			if (activeWorkbenchWindow != null) {
-				// When it comes from evaluating JS it adds
-				// "org.eclipse.e4.core.macros.MacroPlaybackException: "
-				// which isn't really interesting to the user (so, just remove that part).
-				String msg = e.getMessage().replace("org.eclipse.e4.core.macros.MacroPlaybackException: ", ""); //$NON-NLS-1$//$NON-NLS-2$
-				MessageDialog.openError(activeWorkbenchWindow.getShell(),
-						Messages.MacroPlaybackAction_ErrorRunningMacro, msg);
+				StatusAdapter status = new StatusAdapter(new Status(IStatus.ERROR,
+						Activator.getDefault().getBundle().getSymbolicName(), e.getMessage(), e));
+				StatusManager.getManager().handle(status, StatusManager.SHOW | StatusManager.LOG);
 			}
-
 		}
 		return null;
 	}

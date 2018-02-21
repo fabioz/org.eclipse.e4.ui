@@ -39,14 +39,13 @@ public interface IMacroInstruction {
 	void execute(IMacroPlaybackContext macroPlaybackContext) throws MacroPlaybackException;
 
 	/**
-	 * Converts the macro instruction into a map for serialization, that can be
-	 * used to recreate the macro instruction with an
-	 * {@link IMacroInstructionFactory} registered through the
-	 * {@code org.eclipse.e4.core.macros.macroInstructionsFactory} extension
-	 * point.
+	 * Converts the macro instruction into a map for serialization, that can be used
+	 * to recreate the macro instruction with an {@link IMacroInstructionFactory}
+	 * registered through the
+	 * {@code org.eclipse.e4.core.macros.macroInstructionsFactory} extension point.
 	 *
 	 * @return a map that may be serialized and that can be used to recreate the
-	 *         macro instruction
+	 *         macro instruction.
 	 */
 	Map<String, String> toMap();
 

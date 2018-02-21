@@ -41,7 +41,7 @@ import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroRecordContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
 import org.eclipse.e4.core.macros.internal.MacroManager;
-import org.eclipse.e4.core.macros.internal.MacroServiceImplementation;
+import org.eclipse.e4.core.macros.internal.MacroServiceImpl;
 import org.eclipse.e4.ui.bindings.BindingServiceAddon;
 import org.eclipse.e4.ui.bindings.EBindingService;
 import org.eclipse.e4.ui.bindings.internal.BindingTable;
@@ -196,7 +196,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 		ContextInjectionFactory.inject(dispatcher, workbenchContext);
 
 		workbenchContext.set(EMacroService.class.getName(),
-				ContextInjectionFactory.make(MacroServiceImplementation.class, workbenchContext));
+				ContextInjectionFactory.make(MacroServiceImpl.class, workbenchContext));
 
 		dispatcherListener = dispatcher.getKeyDownFilter();
 		display.addFilter(SWT.KeyDown, dispatcherListener);
@@ -206,7 +206,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 
 		fMacrosDirectory = folder.getRoot();
 		EMacroService macroService = workbenchContext.get(EMacroService.class);
-		MacroServiceImplementation macroServiceImplementation = (MacroServiceImplementation) macroService;
+		MacroServiceImpl macroServiceImplementation = (MacroServiceImpl) macroService;
 		MacroManager macroManager = macroServiceImplementation.getMacroManager();
 		macroManager.setMacrosDirectories(fMacrosDirectory);
 		Predicate<IConfigurationElement> filterMacroListeners = new Predicate<IConfigurationElement>() {
@@ -218,7 +218,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 			}
 		};
 
-		Field field = MacroServiceImplementation.class.getDeclaredField("fFilterMacroListeners");
+		Field field = MacroServiceImpl.class.getDeclaredField("fFilterMacroListeners");
 		field.setAccessible(true);
 		field.set(macroServiceImplementation, filterMacroListeners);
 	}
@@ -256,7 +256,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 				Arrays.asList("org.eclipse.e4.ui.macros.internal.actions.MacroUIUpdater",
 						"org.eclipse.e4.ui.macros.internal.keybindings.CommandManagerExecutionListenerInstaller"),
 				getRegisteredClasses(macroService));
-		IMacroStateListener[] macroStateListeners = ((MacroServiceImplementation) macroService)
+		IMacroStateListener[] macroStateListeners = ((MacroServiceImpl) macroService)
 				.getMacroStateListeners();
 		boolean found = false;
 		for (IMacroStateListener iMacroStateListener : macroStateListeners) {
@@ -297,7 +297,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 
 		notifyCtrlI(styledText);
 		assertTrue(handler.q2);
-		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLengthOfMacroBeingRecorded(), 1);
+		assertEquals(((MacroServiceImpl) macroService).getMacroManager().getLengthOfMacroBeingRecorded(), 1);
 
 		finishRecording(macroService);
 
@@ -307,7 +307,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 	}
 
 	public List<String> getRegisteredClasses(EMacroService macroService) {
-		IMacroStateListener[] macroStateListeners = ((MacroServiceImplementation) macroService)
+		IMacroStateListener[] macroStateListeners = ((MacroServiceImpl) macroService)
 				.getMacroStateListeners();
 		List<String> classes = Arrays.stream(macroStateListeners).map(m -> m.getClass().getName()).sorted()
 				.collect(Collectors.toList());
@@ -320,7 +320,7 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".js");
+				return name.endsWith(".xml");
 			}
 		};
 		assertEquals(0, fMacrosDirectory.list(macrosFilter).length);
@@ -332,14 +332,14 @@ public class KeyBindingDispatcherMacroIntegrationTest {
 		startRecording(macroService);
 		notifyCtrlI(styledText);
 		assertTrue(handler.q2);
-		assertEquals(((MacroServiceImplementation) macroService).getMacroManager().getLengthOfMacroBeingRecorded(), 1);
+		assertEquals(((MacroServiceImpl) macroService).getMacroManager().getLengthOfMacroBeingRecorded(), 1);
 		finishRecording(macroService);
 
 		// Macro was saved in the dir.
 		assertEquals(1, fMacrosDirectory.list(macrosFilter).length);
 
 		// Check if reloading from disk and playing it back works.
-		((MacroServiceImplementation) macroService).getMacroManager().reloadMacros();
+		((MacroServiceImpl) macroService).getMacroManager().reloadMacros();
 		handler.q2 = false;
 		macroService.playbackLastMacro();
 		assertTrue(handler.q2);

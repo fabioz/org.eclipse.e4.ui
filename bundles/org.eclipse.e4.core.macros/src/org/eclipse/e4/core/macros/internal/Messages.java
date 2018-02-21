@@ -18,7 +18,6 @@ import org.eclipse.osgi.util.NLS;
 public class Messages extends NLS {
 	private static final String BUNDLE_NAME = "org.eclipse.e4.core.macros.internal.messages"; //$NON-NLS-1$
 	public static String SavedJSMacro_MacrosEvalError;
-	public static String SavedJSMacro_NoJavaScriptEngineFound;
 	static {
 		// initialize resource bundle
 		NLS.initializeMessages(BUNDLE_NAME, Messages.class);

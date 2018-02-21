@@ -22,6 +22,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExtensionRegistry;
 import org.eclipse.core.runtime.IPath;
+import org.eclipse.core.runtime.IStatus;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.Activator;
@@ -40,7 +41,7 @@ import org.eclipse.e4.core.macros.MacroPlaybackException;
  * things to an internal MacroManager instance and sets it up properly, dealing
  * with the eclipse context and extension points).
  */
-public class MacroServiceImplementation implements EMacroService {
+public class MacroServiceImpl implements EMacroService {
 	private static final String MACRO_COMMAND_HANDLING_EXTENSION_POINT = "org.eclipse.e4.core.macros.commandHandling"; //$NON-NLS-1$
 	private static final String MACRO_COMMAND_HANDLING_ELEMENT = "command"; //$NON-NLS-1$
 	private static final String MACRO_COMMAND_HANDLING_ID = "id"; //$NON-NLS-1$
@@ -75,7 +76,7 @@ public class MacroServiceImplementation implements EMacroService {
 	private Predicate<IConfigurationElement> fFilterMacroListeners;
 
 	@Inject
-	public MacroServiceImplementation(IEclipseContext eclipseContext, IExtensionRegistry extensionRegistry) {
+	public MacroServiceImpl(IEclipseContext eclipseContext, IExtensionRegistry extensionRegistry) {
 		Assert.isNotNull(eclipseContext);
 		Assert.isNotNull(extensionRegistry);
 		fEclipseContext = eclipseContext;
@@ -149,8 +150,8 @@ public class MacroServiceImplementation implements EMacroService {
 						Activator.log(e);
 					}
 				} else {
-					Activator.log(new RuntimeException(
-							"Wrong definition for extension: " + MACRO_LISTENERS_EXTENSION_POINT + ": " + ce)); //$NON-NLS-1$ //$NON-NLS-2$
+					Activator.log(IStatus.ERROR,
+							"Wrong definition for extension: " + MACRO_LISTENERS_EXTENSION_POINT + ": " + ce); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 			}
 		}
@@ -182,8 +183,8 @@ public class MacroServiceImplementation implements EMacroService {
 						Activator.log(e);
 					}
 				} else {
-					Activator.log(new RuntimeException("Wrong definition for extension: " //$NON-NLS-1$
-							+ MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT + ": " + ce)); //$NON-NLS-1$
+					Activator.log(IStatus.WARNING, "Wrong definition for extension: " //$NON-NLS-1$
+							+ MACRO_INSTRUCTION_FACTORY_EXTENSION_POINT + ": " + ce); //$NON-NLS-1$
 				}
 			}
 			fMacroInstructionIdToFactory = Collections.unmodifiableMap(validMacroInstructionIds);
@@ -250,8 +251,8 @@ public class MacroServiceImplementation implements EMacroService {
 	public void playbackLastMacro() throws MacroPlaybackException {
 		loadExtensionPointsmacroStateListeners();
 		Map<String, IMacroInstructionFactory> macroInstructionIdToFactory = getMacroInstructionIdToFactory();
-		IMacroPlaybackContext macroPlaybackContext = new MacroPlaybackContextImpl();
-		getMacroManager().playbackLastMacro(this, macroPlaybackContext, macroInstructionIdToFactory);
+		IMacroPlaybackContext macroPlaybackContext = new MacroPlaybackContextImpl(macroInstructionIdToFactory);
+		getMacroManager().playbackLastMacro(this, macroPlaybackContext);
 	}
 
 	@Override

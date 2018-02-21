@@ -39,27 +39,45 @@ public class Activator extends AbstractUIPlugin {
 		return plugin;
 	}
 
+	/**
+	 * Logs a message.
+	 *
+	 * @param severity
+	 *            the {@link IStatus} severity
+	 * @param message
+	 *            the status message
+	 */
+	public static void log(int severity, String message) {
+		log(new Status(severity, plugin.getBundle().getSymbolicName(), message));
+	}
 
 	/**
 	 * Logs an exception.
 	 *
 	 * @param exception
-	 *            the exception to be logged.
+	 *            the exception to be logged
 	 */
 	public static void log(Throwable exception) {
-		try {
-			if (plugin != null) {
-				plugin.getLog().log(new Status(IStatus.ERROR, plugin.getBundle().getSymbolicName(),
-						exception.getMessage(), exception));
-			} else {
-				// The plugin is not available. Just print to stderr.
-				exception.printStackTrace();
-			}
-		} catch (Exception e) {
-			// Print the original error if something happened, not the one
-			// related to the log not working.
-			exception.printStackTrace();
-		}
+		log(new Status(IStatus.ERROR, plugin.getBundle().getSymbolicName(), exception.getMessage(), exception));
 	}
 
+	/**
+	 * Logs a status.
+	 *
+	 * @param status
+	 *            the status to be logged
+	 */
+	public static void log(IStatus status) {
+		try {
+			if (plugin != null) {
+				plugin.getLog().log(status);
+			} else {
+				// The plugin is not available. Just print to stderr.
+				System.err.println(status);
+			}
+		} catch (Exception e) {
+			// Print the original status if something happened
+			System.err.println(status);
+		}
+	}
 }

@@ -33,7 +33,7 @@ import org.eclipse.e4.core.macros.IMacroPlaybackContext;
 import org.eclipse.e4.core.macros.IMacroStateListener;
 import org.eclipse.e4.core.macros.internal.MacroManager;
 import org.eclipse.e4.core.macros.internal.MacroManager.StoredMacroReference;
-import org.eclipse.e4.core.macros.internal.MacroServiceImplementation;
+import org.eclipse.e4.core.macros.internal.MacroServiceImpl;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -47,6 +47,11 @@ public class MacroTest {
 	private static class PlaybackContext implements IMacroPlaybackContext {
 
 		public StringBuffer buffer = new StringBuffer();
+		private Map<String, IMacroInstructionFactory> fMacroInstructionIdToFactory;
+
+		public PlaybackContext(Map<String, IMacroInstructionFactory> macroInstructionIdToFactory) {
+			fMacroInstructionIdToFactory = macroInstructionIdToFactory;
+		}
 
 		public void recordPlayback(String name) {
 			if (buffer.length() > 0) {
@@ -66,6 +71,12 @@ public class MacroTest {
 		@Override
 		public void set(String key, Object value) {
 			ctx.put(key, value);
+		}
+
+		@Override
+		public void runMacroInstruction(String macroInstructionId, Map<String, String> macroInstructionParameters)
+				throws Exception {
+			fMacroInstructionIdToFactory.get(macroInstructionId).create(macroInstructionParameters).execute(this);
 		}
 	}
 
@@ -108,7 +119,7 @@ public class MacroTest {
 		IEclipseContext eclipseContext = EclipseContextFactory.create("testRecordingState");
 		IExtensionRegistry extensionRegistry = RegistryFactory.createRegistry(new RegistryStrategy(null, null), "foo",
 				"bar");
-		MacroServiceImplementation macroService = new MacroServiceImplementation(eclipseContext,
+		MacroServiceImpl macroService = new MacroServiceImpl(eclipseContext,
 				extensionRegistry);
 		Field field = macroService.getClass().getDeclaredField("fMacroInstructionIdToFactory");
 		field.setAccessible(true);
@@ -141,14 +152,14 @@ public class MacroTest {
 		buf.setLength(0);
 		Assert.assertFalse(macroService.isRecording());
 
-		PlaybackContext playbackContext = new PlaybackContext();
-		macroService.getMacroManager().playbackLastMacro(macroService, playbackContext, macroInstructionIdToFactory);
+		PlaybackContext playbackContext = new PlaybackContext(macroInstructionIdToFactory);
+		macroService.getMacroManager().playbackLastMacro(macroService, playbackContext);
 		Assert.assertEquals("rec: false play: true\n"
 				+ "rec: false play: false\n", buf.toString());
 		buf.setLength(0);
 
 		macroService.toggleMacroRecord();
-		macroService.getMacroManager().playbackLastMacro(macroService, playbackContext, macroInstructionIdToFactory);
+		macroService.getMacroManager().playbackLastMacro(macroService, playbackContext);
 		macroService.toggleMacroRecord();
 		Assert.assertEquals(
 				"rec: true play: false\n"
@@ -162,7 +173,7 @@ public class MacroTest {
 	public void testAddMacroInstructions() throws Exception {
 		MacroManager macroManager = new MacroManager();
 		Map<String, IMacroInstructionFactory> macroInstructionIdToFactory = makeMacroInstructionIdToFactory();
-		PlaybackContext playbackContext = new PlaybackContext();
+		PlaybackContext playbackContext = new PlaybackContext(macroInstructionIdToFactory);
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertTrue(macroManager.isRecording());
 		macroManager.addMacroInstruction(new DummyMacroInstruction("macro1"));
@@ -170,7 +181,7 @@ public class MacroTest {
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertFalse(macroManager.isRecording());
 
-		macroManager.playbackLastMacro(null, playbackContext, macroInstructionIdToFactory);
+		macroManager.playbackLastMacro(null, playbackContext);
 		Assert.assertEquals("macro1\nmacro2", playbackContext.buffer.toString());
 	}
 
@@ -178,7 +189,7 @@ public class MacroTest {
 	public void testAddMacroInstructionPriority() throws Exception {
 		MacroManager macroManager = new MacroManager();
 		Map<String, IMacroInstructionFactory> macroInstructionIdToFactory = makeMacroInstructionIdToFactory();
-		PlaybackContext playbackContext = new PlaybackContext();
+		PlaybackContext playbackContext = new PlaybackContext(macroInstructionIdToFactory);
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertTrue(macroManager.isRecording());
 		Object ev = new Integer(1);
@@ -189,7 +200,7 @@ public class MacroTest {
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertFalse(macroManager.isRecording());
 
-		macroManager.playbackLastMacro(null, playbackContext, macroInstructionIdToFactory);
+		macroManager.playbackLastMacro(null, playbackContext);
 		Assert.assertEquals("macro1", playbackContext.buffer.toString());
 	}
 
@@ -197,7 +208,7 @@ public class MacroTest {
 	public void testAddMacroInstructionPriority1() throws Exception {
 		MacroManager macroManager = new MacroManager();
 		Map<String, IMacroInstructionFactory> macroInstructionIdToFactory = makeMacroInstructionIdToFactory();
-		PlaybackContext playbackContext = new PlaybackContext();
+		PlaybackContext playbackContext = new PlaybackContext(macroInstructionIdToFactory);
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertTrue(macroManager.isRecording());
 		Object ev = new Integer(1);
@@ -208,7 +219,7 @@ public class MacroTest {
 		macroManager.toggleMacroRecord(null, macroInstructionIdToFactory);
 		Assert.assertFalse(macroManager.isRecording());
 
-		macroManager.playbackLastMacro(null, playbackContext, macroInstructionIdToFactory);
+		macroManager.playbackLastMacro(null, playbackContext);
 		Assert.assertEquals("macro2", playbackContext.buffer.toString());
 	}
 
@@ -223,8 +234,8 @@ public class MacroTest {
 
 		// Create a new macroManager (to force getting from the disk).
 		macroManager = new MacroManager(root);
-		PlaybackContext playbackContext = new PlaybackContext();
-		macroManager.playbackLastMacro(null, playbackContext, macroInstructionIdToFactory);
+		PlaybackContext playbackContext = new PlaybackContext(macroInstructionIdToFactory);
+		macroManager.playbackLastMacro(null, playbackContext);
 		Assert.assertEquals("macro1", playbackContext.buffer.toString());
 	}
 
@@ -303,7 +314,7 @@ public class MacroTest {
 
 			@Override
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".js") && name.startsWith("temp_macro");
+				return name.endsWith(".xml") && name.startsWith("temp_macro");
 			}
 		});
 		return files;

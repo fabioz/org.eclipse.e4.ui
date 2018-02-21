@@ -69,7 +69,7 @@ It is also possible to programatically customize how Eclipse commands are handle
          <attribute name="recordMacroInstruction" type="boolean" use="required">
             <annotation>
                <documentation>
-                  If true, the activation of the command will be recorded in the macro (i.e.: an IMacroInstruction will be automatically created and added to the macro when in record mode) and if false it won&apos;t.
+                  If true, the activation of the command will be recorded in the macro (i.e., an IMacroInstruction will be automatically created and added to the macro when in record mode) and if false it won&apos;t.
 
 Examples of actions whose activation should be recorded include copy, paste, delete line and anything whose playback is simply re-executing that action.
 

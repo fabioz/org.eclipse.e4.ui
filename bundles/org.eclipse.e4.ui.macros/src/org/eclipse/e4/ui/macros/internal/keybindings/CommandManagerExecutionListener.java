@@ -114,7 +114,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 	public void postExecuteSuccess(String commandId, Object returnValue) {
 		ParameterizedCommandAndTrigger commandAndTrigger = popCommand(commandId);
 		if (commandAndTrigger == null) {
-			// Can happen if we didn't get the preExecute (i.e.: the toggle
+			// Can happen if we didn't get the preExecute (i.e., the toggle
 			// macro record is executed and post executed only (the pre execute
 			// is skipped because recording still wasn't in place).
 			//
@@ -209,7 +209,7 @@ public class CommandManagerExecutionListener implements IExecutionListener {
 			if (EditorUtils.getActiveEditorStyledText(fEclipseContext) != EditorUtils
 					.getTargetStyledText(fMacroService.getMacroRecordContext())) {
 				// Note: it previously checked swtEvent.widget, but sometimes the event was
-				// generated from the wrong control (i.e.: opening a new editor and doing
+				// generated from the wrong control (i.e., opening a new editor and doing
 				// some action sometimes had the widget from a different editor).
 				return false;
 			}
