@@ -15,17 +15,14 @@ apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.eclipse.e4.ui</groupId>
     <artifactId>e4-ui-aggregator</artifactId>
-    <version>0.17.0-SNAPSHOT</version>
+    <version>0.18.0-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.e4.ui</groupId>
   <artifactId>org.eclipse.e4.ui.features</artifactId>
-  <version>0.17.0-SNAPSHOT</version>
+  <version>0.18.0-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
-    <module>org.eclipse.e4.ui.keys.feature</module>
-    <module>org.eclipse.e4.ui.naturist.feature</module>
-    <module>org.eclipse.ui.glance.feature</module>
     <module>org.eclipse.e4.ui.macros.feature</module>
   </modules>
 </project>
