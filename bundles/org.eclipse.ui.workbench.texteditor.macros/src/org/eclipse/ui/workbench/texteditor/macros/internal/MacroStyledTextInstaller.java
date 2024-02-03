@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.ui.workbench.texteditor.macros.internal;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.eclipse.e4.core.di.annotations.Optional;
 import org.eclipse.e4.core.macros.EMacroService;
 import org.eclipse.e4.core.macros.IMacroContext;

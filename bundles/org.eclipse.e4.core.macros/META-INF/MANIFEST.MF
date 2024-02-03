@@ -9,11 +9,12 @@ Require-Bundle: org.eclipse.osgi;bundle-version="3.11",
  org.eclipse.osgi.services;bundle-version="3.5",
  org.eclipse.e4.core.di;bundle-version="1.6",
  org.eclipse.equinox.registry;bundle-version="3.6",
- org.eclipse.core.runtime;bundle-version="3.12"
+ org.eclipse.core.runtime;bundle-version="3.12",
+ jakarta.inject.jakarta.inject-api,
+ jakarta.annotation-api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.e4.core.macros.Activator
 Export-Package: org.eclipse.e4.core.macros,
  org.eclipse.e4.core.macros.internal;x-friends:="org.eclipse.e4.ui.macros.tests,org.eclipse.e4.ui.macros,org.eclipse.ui.workbench.texteditor.macros"
 Service-Component: OSGI-INF/macroService.xml
-Import-Package: javax.inject

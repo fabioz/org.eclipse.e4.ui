@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.e4.ui.macros.internal.actions;
 
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import org.eclipse.e4.core.contexts.ContextInjectionFactory;
 import org.eclipse.e4.core.contexts.IEclipseContext;
 import org.eclipse.e4.core.macros.EMacroService;

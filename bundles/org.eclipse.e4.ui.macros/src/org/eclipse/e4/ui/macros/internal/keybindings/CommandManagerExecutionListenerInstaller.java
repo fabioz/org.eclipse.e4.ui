@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.e4.ui.macros.internal.keybindings;
 
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 import org.eclipse.core.commands.CommandManager;
 import org.eclipse.e4.core.commands.EHandlerService;
 import org.eclipse.e4.core.contexts.IEclipseContext;

@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.e4.core.macros.internal;
 
+import jakarta.inject.Inject;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Predicate;
-import javax.inject.Inject;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
