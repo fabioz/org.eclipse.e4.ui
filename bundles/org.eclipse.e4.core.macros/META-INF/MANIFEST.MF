@@ -4,12 +4,12 @@ Bundle-Name: %Bundle-Name
 Bundle-SymbolicName: org.eclipse.e4.core.macros;singleton:=true
 Bundle-Version: 0.18.0.qualifier
 Bundle-Vendor: %Bundle-Vendor
-Require-Bundle: org.eclipse.osgi;bundle-version="3.11",
- org.eclipse.e4.core.contexts;bundle-version="1.5",
- org.eclipse.osgi.services;bundle-version="3.5",
- org.eclipse.e4.core.di;bundle-version="1.6",
- org.eclipse.equinox.registry;bundle-version="3.6",
- org.eclipse.core.runtime;bundle-version="3.12",
+Require-Bundle: org.eclipse.osgi,
+ org.eclipse.e4.core.contexts,
+ org.eclipse.osgi.services,
+ org.eclipse.e4.core.di,
+ org.eclipse.equinox.registry,
+ org.eclipse.core.runtime,
  jakarta.inject.jakarta.inject-api,
  jakarta.annotation-api
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
