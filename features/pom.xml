@@ -15,11 +15,11 @@ apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <groupId>org.eclipse.e4.ui</groupId>
     <artifactId>e4-ui-aggregator</artifactId>
-    <version>0.18.0-SNAPSHOT</version>
+    <version>0.18.1-SNAPSHOT</version>
   </parent>
   <groupId>org.eclipse.e4.ui</groupId>
   <artifactId>org.eclipse.e4.ui.features</artifactId>
-  <version>0.18.0-SNAPSHOT</version>
+  <version>0.18.1-SNAPSHOT</version>
   <packaging>pom</packaging>
 
   <modules>
