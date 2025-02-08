@@ -12,7 +12,7 @@ Require-Bundle: org.eclipse.osgi,
  org.eclipse.core.runtime,
  jakarta.inject.jakarta.inject-api,
  jakarta.annotation-api
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-17
 Bundle-ActivationPolicy: lazy
 Bundle-Activator: org.eclipse.e4.core.macros.Activator
 Export-Package: org.eclipse.e4.core.macros,
